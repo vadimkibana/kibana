@@ -9,6 +9,7 @@
 import type { SerializableState } from 'src/plugins/kibana_utils/common';
 import type { IShortUrlClient, ShortUrl, ShortUrlCreateParams } from '../../../common/url_service';
 import type { ShortUrlStorage } from './types';
+import { validateSlug } from './util';
 
 /**
  * Dependencies of the Short URL Client.
@@ -33,6 +34,10 @@ export class ServerShortUrlClient implements IShortUrlClient {
     params,
     slug = '',
   }: ShortUrlCreateParams<P>): Promise<ShortUrl<P>> {
+    if (slug) {
+      validateSlug(slug);
+    }
+
     const { storage, currentVersion } = this.dependencies;
     const now = Date.now();
     const data = await storage.create({

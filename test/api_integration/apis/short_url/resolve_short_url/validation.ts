@@ -20,7 +20,7 @@ export default function ({ getService }: FtrProviderContext) {
         statusCode: 400,
         error: 'Bad Request',
         message:
-          '[request params.id]: value has length [2] but it must have a minimum length of [4].',
+          '[request params.slug]: value has length [2] but it must have a minimum length of [4].',
       });
     });
 
@@ -33,10 +33,8 @@ export default function ({ getService }: FtrProviderContext) {
         statusCode: 400,
         error: 'Bad Request',
         message:
-          '[request params.id]: value has length [130] but it must have a maximum length of [128].',
+          '[request params.slug]: value has length [130] but it must have a maximum length of [128].',
       });
     });
   });
-}
-
 }

@@ -52,5 +52,17 @@ export default function ({ getService }: FtrProviderContext) {
 
       expect(response.status).to.be(400);
     });
+
+    it('returns error on invalid character in slug', async () => {
+      const response = await supertest.post('/api/short_url').send({
+        locatorId: 'LEGACY_SHORT_URL_LOCATOR',
+        params: {
+          url: '/foo/bar',
+        },
+        slug: 'pipe|is-not-allowed',
+      });
+
+      expect(response.status >= 400).to.be(true);
+    });
   });
 }

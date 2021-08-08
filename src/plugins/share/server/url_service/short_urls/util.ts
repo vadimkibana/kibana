@@ -13,3 +13,13 @@
 export const escapeSearchReservedChars = (str: string) => {
   return str.replace(/[-=&|!{}()\[\]^"~*?:\\\/\+]+/g, '\\$&');
 };
+
+/**
+ * Allows only characters in slug that can appear as a part of a URL.
+ */
+export const validateSlug = (slug: string) => {
+  const regex = /^[a-zA-Z0-9\.\-\_]+$/;
+  if (!regex.test(slug)) {
+    throw new Error(`Invalid [slug = ${slug}].`);
+  }
+};
