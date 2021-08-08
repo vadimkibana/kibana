@@ -96,6 +96,9 @@ export class SharePlugin implements Plugin<SharePluginSetup, SharePluginStart> {
           delete: async () => {
             throw new Error('Not implemented');
           },
+          resolve: async () => {
+            throw new Error('Not implemented.');
+          },
         }),
       },
     });

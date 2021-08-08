@@ -29,6 +29,9 @@ export class MockUrlService extends UrlService {
           delete: async () => {
             throw new Error('Not implemented.');
           },
+          resolve: async () => {
+            throw new Error('Not implemented.');
+          },
         }),
       },
     });

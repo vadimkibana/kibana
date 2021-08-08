@@ -48,6 +48,9 @@ export const urlServiceTestSetup = (partialDeps: Partial<UrlServiceDependencies>
         delete: async () => {
           throw new Error('Not implemented.');
         },
+        resolve: async () => {
+          throw new Error('Not implemented.');
+        },
       }),
     },
     ...partialDeps,
