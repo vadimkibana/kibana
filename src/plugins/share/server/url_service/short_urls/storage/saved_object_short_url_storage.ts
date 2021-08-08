@@ -11,6 +11,7 @@ import { SerializableState } from 'src/plugins/kibana_utils/common';
 import { ShortUrlData } from 'src/plugins/share/common/url_service/short_urls/types';
 import { LEGACY_SHORT_URL_LOCATOR_ID } from '../legacy_short_url_locator';
 import { ShortUrlStorage } from '../types';
+import { escapeSearchReservedChars } from '../util';
 
 export type ShortUrlSavedObject = SavedObject<ShortUrlSavedObjectAttributes>;
 
@@ -127,9 +128,10 @@ export class SavedObjectShortUrlStorage implements ShortUrlStorage {
     slug: string
   ): Promise<ShortUrlData<P>> {
     const { savedObjects } = this.dependencies;
+    const search = `(attributes.slug:"${escapeSearchReservedChars(slug)}")`;
     const result = await savedObjects.find({
       type: this.dependencies.savedObjectType,
-      search: `slug:${slug}`,
+      search,
     });
 
     if (result.saved_objects.length !== 1) {

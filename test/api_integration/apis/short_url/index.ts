@@ -13,5 +13,6 @@ export default function ({ loadTestFile }: FtrProviderContext) {
     loadTestFile(require.resolve('./create_short_url'));
     loadTestFile(require.resolve('./get_short_url'));
     loadTestFile(require.resolve('./delete_short_url'));
+    loadTestFile(require.resolve('./resolve_short_url'));
   });
 }

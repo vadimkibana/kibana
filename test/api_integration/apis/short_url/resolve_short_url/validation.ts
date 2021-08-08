@@ -13,6 +13,30 @@ export default function ({ getService }: FtrProviderContext) {
   const supertest = getService('supertest');
 
   describe('validation', () => {
-    it('...', async () => {});
+    it('errors when short URL slug is too short', async () => {
+      const response = await supertest.get('/api/short_url/_slug/aa');
+
+      expect(response.body).to.eql({
+        statusCode: 400,
+        error: 'Bad Request',
+        message:
+          '[request params.id]: value has length [2] but it must have a minimum length of [4].',
+      });
+    });
+
+    it('errors when short URL ID is too long', async () => {
+      const response = await supertest.get(
+        '/api/short_url/_slug/abcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghij'
+      );
+
+      expect(response.body).to.eql({
+        statusCode: 400,
+        error: 'Bad Request',
+        message:
+          '[request params.id]: value has length [130] but it must have a maximum length of [128].',
+      });
+    });
   });
+}
+
 }

@@ -14,14 +14,40 @@ export default function ({ getService }: FtrProviderContext) {
 
   describe('main', () => {
     it('can resolve a short URL by its slug', async () => {
+      const slug = 'test-slug-' + Date.now();
       const response1 = await supertest.post('/api/short_url').send({
         locatorId: 'LEGACY_SHORT_URL_LOCATOR',
         params: {},
-        slug: 'test',
+        slug,
       });
-      // const response2 = await supertest.get('/api/short_url/' + response1.body.id);
+      const response2 = await supertest.get('/api/short_url/_slug/' + slug);
 
-      // expect(response2.body).to.eql(response1.body);
+      expect(response2.body).to.eql(response1.body);
+    });
+
+    it('can resolve a short URL by its slug, when slugs are similar', async () => {
+      const now = Date.now();
+      const slug1 = 'test-slug-' + now + '.1';
+      const slug2 = 'test-slug-' + now + '.2';
+      const response1 = await supertest.post('/api/short_url').send({
+        locatorId: 'LEGACY_SHORT_URL_LOCATOR',
+        params: {
+          url: '/path1',
+        },
+        slug: slug1,
+      });
+      const response2 = await supertest.post('/api/short_url').send({
+        locatorId: 'LEGACY_SHORT_URL_LOCATOR',
+        params: {
+          url: '/path2',
+        },
+        slug: slug2,
+      });
+      const response3 = await supertest.get('/api/short_url/_slug/' + slug1);
+      const response4 = await supertest.get('/api/short_url/_slug/' + slug2);
+
+      expect(response1.body).to.eql(response3.body);
+      expect(response2.body).to.eql(response4.body);
     });
   });
 }
