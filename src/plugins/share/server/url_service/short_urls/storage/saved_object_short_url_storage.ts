@@ -110,7 +110,17 @@ export class SavedObjectShortUrlStorage implements ShortUrlStorage {
   ): Promise<ShortUrlData<P>> {
     const { savedObjects, savedObjectType } = this.dependencies;
     const attributes = createAttributes(data);
-    const savedObject = await savedObjects.create(savedObjectType, attributes);
+
+    if (attributes.slug) {
+      const isSlugTaken = await this.exists(attributes.slug);
+      if (isSlugTaken) {
+        throw new Error(`Slug "${attributes.slug}" already exists.`);
+      }
+    }
+
+    const savedObject = await savedObjects.create(savedObjectType, attributes, {
+      refresh: true,
+    });
 
     return createShortUrlData<P>(savedObject);
   }
@@ -141,6 +151,17 @@ export class SavedObjectShortUrlStorage implements ShortUrlStorage {
     const savedObject = result.saved_objects[0] as ShortUrlSavedObject;
 
     return createShortUrlData<P>(savedObject);
+  }
+
+  public async exists(slug: string): Promise<boolean> {
+    const { savedObjects } = this.dependencies;
+    const search = `(attributes.slug:"${escapeSearchReservedChars(slug)}")`;
+    const result = await savedObjects.find({
+      type: this.dependencies.savedObjectType,
+      search,
+    });
+
+    return result.saved_objects.length > 0;
   }
 
   public async delete(id: string): Promise<void> {

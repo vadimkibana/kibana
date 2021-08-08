@@ -58,12 +58,14 @@ export default function ({ getService }: FtrProviderContext) {
     });
 
     it('can create a short URL with custom slug', async () => {
+      const rnd = Math.round(Math.random() * 1e6) + 1;
+      const slug = 'test-slug-' + Date.now() + '-' + rnd;
       const response = await supertest.post('/api/short_url').send({
         locatorId: 'LEGACY_SHORT_URL_LOCATOR',
         params: {
           url: '/foo/bar',
         },
-        slug: 'click-me',
+        slug,
       });
 
       expect(response.status).to.be(200);
@@ -78,8 +80,30 @@ export default function ({ getService }: FtrProviderContext) {
       expect(response.body.accessCount).to.be(0);
       expect(typeof response.body.accessDate).to.be('number');
       expect(typeof response.body.createDate).to.be('number');
-      expect(response.body.slug).to.be('click-me');
+      expect(response.body.slug).to.be(slug);
       expect(response.body.url).to.be('');
+    });
+
+    it('cannot create a short URL with the same slug', async () => {
+      const rnd = Math.round(Math.random() * 1e6) + 1;
+      const slug = 'test-slug-' + Date.now() + '-' + rnd;
+      const response1 = await supertest.post('/api/short_url').send({
+        locatorId: 'LEGACY_SHORT_URL_LOCATOR',
+        params: {
+          url: '/foo/bar',
+        },
+        slug,
+      });
+      const response2 = await supertest.post('/api/short_url').send({
+        locatorId: 'LEGACY_SHORT_URL_LOCATOR',
+        params: {
+          url: '/foo/bar',
+        },
+        slug,
+      });
+
+      expect(response1.status === 200).to.be(true);
+      expect(response2.status >= 400).to.be(true);
     });
   });
 }

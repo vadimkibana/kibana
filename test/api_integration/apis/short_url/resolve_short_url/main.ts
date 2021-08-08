@@ -14,7 +14,8 @@ export default function ({ getService }: FtrProviderContext) {
 
   describe('main', () => {
     it('can resolve a short URL by its slug', async () => {
-      const slug = 'test-slug-' + Date.now();
+      const rnd = Math.round(Math.random() * 1e6) + 1;
+      const slug = 'test-slug-' + Date.now() + '-' + rnd;
       const response1 = await supertest.post('/api/short_url').send({
         locatorId: 'LEGACY_SHORT_URL_LOCATOR',
         params: {},
@@ -26,9 +27,10 @@ export default function ({ getService }: FtrProviderContext) {
     });
 
     it('can resolve a short URL by its slug, when slugs are similar', async () => {
+      const rnd = Math.round(Math.random() * 1e6) + 1;
       const now = Date.now();
-      const slug1 = 'test-slug-' + now + '.1';
-      const slug2 = 'test-slug-' + now + '.2';
+      const slug1 = 'test-slug-' + now + '-' + rnd + '.1';
+      const slug2 = 'test-slug-' + now + '-' + rnd + '.2';
       const response1 = await supertest.post('/api/short_url').send({
         locatorId: 'LEGACY_SHORT_URL_LOCATOR',
         params: {
