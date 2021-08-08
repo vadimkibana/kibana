@@ -67,6 +67,11 @@ export class ServerShortUrlClient implements IShortUrlClient {
   }
 
   public async resolve(slug: string): Promise<ShortUrl> {
-    throw new Error('not implemented');
+    const { storage } = this.dependencies;
+    const data = await storage.getBySlug(slug);
+
+    return {
+      data,
+    };
   }
 }
