@@ -6,7 +6,7 @@
  * Side Public License, v 1.
  */
 
-import type { SerializableState } from 'src/plugins/kibana_utils/common';
+import type { SerializableRecord } from '@kbn/utility-types';
 import type { IShortUrlClient, ShortUrl, ShortUrlCreateParams } from '../../../common/url_service';
 import type { ShortUrlStorage } from './types';
 import { validateSlug } from './util';
@@ -29,7 +29,7 @@ export interface ServerShortUrlClientDependencies {
 export class ServerShortUrlClient implements IShortUrlClient {
   constructor(private readonly dependencies: ServerShortUrlClientDependencies) {}
 
-  public async create<P extends SerializableState>({
+  public async create<P extends SerializableRecord>({
     locator,
     params,
     slug = '',

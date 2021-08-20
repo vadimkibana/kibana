@@ -6,7 +6,7 @@
  * Side Public License, v 1.
  */
 
-import { SerializableState } from 'src/plugins/kibana_utils/common';
+import type { SerializableRecord } from '@kbn/utility-types';
 import { ShortUrlData } from '../../../common/url_service/short_urls/types';
 
 /**
@@ -16,19 +16,19 @@ export interface ShortUrlStorage {
   /**
    * Create and store a new short URL entry.
    */
-  create<P extends SerializableState = SerializableState>(
+  create<P extends SerializableRecord = SerializableRecord>(
     data: Omit<ShortUrlData<P>, 'id'>
   ): Promise<ShortUrlData<P>>;
 
   /**
    * Fetch a short URL entry by ID.
    */
-  getById<P extends SerializableState = SerializableState>(id: string): Promise<ShortUrlData<P>>;
+  getById<P extends SerializableRecord = SerializableRecord>(id: string): Promise<ShortUrlData<P>>;
 
   /**
    * Fetch a short URL entry by slug.
    */
-  getBySlug<P extends SerializableState = SerializableState>(
+  getBySlug<P extends SerializableRecord = SerializableRecord>(
     slug: string
   ): Promise<ShortUrlData<P>>;
 

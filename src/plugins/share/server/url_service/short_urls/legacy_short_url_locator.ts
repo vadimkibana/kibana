@@ -6,12 +6,12 @@
  * Side Public License, v 1.
  */
 
-import type { SerializableState } from 'src/plugins/kibana_utils/common';
+import type { SerializableRecord } from '@kbn/utility-types';
 import type { KibanaLocation, LocatorDefinition } from '../../../common/url_service';
 
 export const LEGACY_SHORT_URL_LOCATOR_ID = 'LEGACY_SHORT_URL_LOCATOR';
 
-export interface LegacyShortUrlLocatorParams extends SerializableState {
+export interface LegacyShortUrlLocatorParams extends SerializableRecord {
   url: string;
 }
 

@@ -6,8 +6,8 @@
  * Side Public License, v 1.
  */
 
+import type { SerializableRecord } from '@kbn/utility-types';
 import { SavedObject, SavedObjectsClientContract } from 'kibana/server';
-import { SerializableState } from 'src/plugins/kibana_utils/common';
 import { ShortUrlData } from 'src/plugins/share/common/url_service/short_urls/types';
 import { LEGACY_SHORT_URL_LOCATOR_ID } from '../legacy_short_url_locator';
 import { ShortUrlStorage } from '../types';
@@ -53,7 +53,7 @@ export interface ShortUrlSavedObjectAttributes {
   readonly url: string;
 }
 
-const createShortUrlData = <P extends SerializableState = SerializableState>(
+const createShortUrlData = <P extends SerializableRecord = SerializableRecord>(
   savedObject: ShortUrlSavedObject
 ): ShortUrlData<P> => {
   const attributes = savedObject.attributes;
@@ -84,7 +84,7 @@ const createShortUrlData = <P extends SerializableState = SerializableState>(
   } as ShortUrlData<P>;
 };
 
-const createAttributes = <P extends SerializableState = SerializableState>(
+const createAttributes = <P extends SerializableRecord = SerializableRecord>(
   data: Omit<ShortUrlData<P>, 'id'>
 ): ShortUrlSavedObjectAttributes => {
   const { locator, ...rest } = data;
@@ -105,7 +105,7 @@ export interface SavedObjectShortUrlStorageDependencies {
 export class SavedObjectShortUrlStorage implements ShortUrlStorage {
   constructor(private readonly dependencies: SavedObjectShortUrlStorageDependencies) {}
 
-  public async create<P extends SerializableState = SerializableState>(
+  public async create<P extends SerializableRecord = SerializableRecord>(
     data: Omit<ShortUrlData<P>, 'id'>
   ): Promise<ShortUrlData<P>> {
     const { savedObjects, savedObjectType } = this.dependencies;
@@ -125,7 +125,7 @@ export class SavedObjectShortUrlStorage implements ShortUrlStorage {
     return createShortUrlData<P>(savedObject);
   }
 
-  public async getById<P extends SerializableState = SerializableState>(
+  public async getById<P extends SerializableRecord = SerializableRecord>(
     id: string
   ): Promise<ShortUrlData<P>> {
     const { savedObjects, savedObjectType } = this.dependencies;
@@ -134,7 +134,7 @@ export class SavedObjectShortUrlStorage implements ShortUrlStorage {
     return createShortUrlData<P>(savedObject);
   }
 
-  public async getBySlug<P extends SerializableState = SerializableState>(
+  public async getBySlug<P extends SerializableRecord = SerializableRecord>(
     slug: string
   ): Promise<ShortUrlData<P>> {
     const { savedObjects } = this.dependencies;

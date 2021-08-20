@@ -6,7 +6,8 @@
  * Side Public License, v 1.
  */
 
-import { SerializableState, VersionedState } from 'src/plugins/kibana_utils/common';
+import { SerializableRecord } from '@kbn/utility-types';
+import { VersionedState } from 'src/plugins/kibana_utils/common';
 import { LocatorPublic } from '../locators';
 
 /**
@@ -31,7 +32,7 @@ export interface IShortUrlClient {
    * @param param The parameters for the URL.
    * @returns The created short URL.
    */
-  create<P extends SerializableState>(params: ShortUrlCreateParams<P>): Promise<ShortUrl<P>>;
+  create<P extends SerializableRecord>(params: ShortUrlCreateParams<P>): Promise<ShortUrl<P>>;
 
   /**
    * Delete a short URL.
@@ -58,7 +59,7 @@ export interface IShortUrlClient {
 /**
  * New short URL creation parameters.
  */
-export interface ShortUrlCreateParams<P extends SerializableState> {
+export interface ShortUrlCreateParams<P extends SerializableRecord> {
   /**
    * Locator which will be used to resolve the short URL.
    */
@@ -79,7 +80,7 @@ export interface ShortUrlCreateParams<P extends SerializableState> {
 /**
  * A representation of a short URL.
  */
-export interface ShortUrl<LocatorParams extends SerializableState = SerializableState> {
+export interface ShortUrl<LocatorParams extends SerializableRecord = SerializableRecord> {
   /**
    * Serializable state of the short URL, which is stored in Kibana.
    */
@@ -89,7 +90,7 @@ export interface ShortUrl<LocatorParams extends SerializableState = Serializable
 /**
  * A representation of a short URL's data.
  */
-export interface ShortUrlData<LocatorParams extends SerializableState = SerializableState> {
+export interface ShortUrlData<LocatorParams extends SerializableRecord = SerializableRecord> {
   /**
    * Unique ID of the short URL.
    */
@@ -125,7 +126,7 @@ export interface ShortUrlData<LocatorParams extends SerializableState = Serializ
  * Represents a serializable state of a locator. Includes locator ID, version
  * and its params.
  */
-export interface LocatorData<LocatorParams extends SerializableState = SerializableState>
+export interface LocatorData<LocatorParams extends SerializableRecord = SerializableRecord>
   extends VersionedState<LocatorParams> {
   /**
    * Locator ID.
