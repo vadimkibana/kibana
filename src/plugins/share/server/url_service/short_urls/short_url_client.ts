@@ -7,9 +7,21 @@
  */
 
 import type { SerializableRecord } from '@kbn/utility-types';
+import { generateSlug } from 'random-word-slugs';
 import type { IShortUrlClient, ShortUrl, ShortUrlCreateParams } from '../../../common/url_service';
 import type { ShortUrlStorage } from './types';
 import { validateSlug } from './util';
+
+const defaultAlphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-';
+
+function randomStr(length: number, alphabet = defaultAlphabet) {
+  let str = '';
+  const alphabetLength = alphabet.length;
+  for (let i = 0; i < length; i++) {
+    str += alphabet.charAt(Math.floor(Math.random() * alphabetLength));
+  }
+  return str;
+}
 
 /**
  * Dependencies of the Short URL Client.
@@ -33,9 +45,14 @@ export class ServerShortUrlClient implements IShortUrlClient {
     locator,
     params,
     slug = '',
+    humanReadableSlug = false,
   }: ShortUrlCreateParams<P>): Promise<ShortUrl<P>> {
     if (slug) {
       validateSlug(slug);
+    }
+
+    if (!slug) {
+      slug = humanReadableSlug ? generateSlug() : randomStr(4);
     }
 
     const { storage, currentVersion } = this.dependencies;
