@@ -37,10 +37,14 @@ export const createShortUrlRedirectApp = (
       return () => {};
     }
 
-    const redirectUrl = (response.locator.state as LegacyShortUrlLocatorParams).url;
-    const { hashUrl } = await import('../../../kibana_utils/public');
-    const hashedUrl = hashUrl(redirectUrl);
-    const url = core.http.basePath.prepend(hashedUrl);
+    let redirectUrl = (response.locator.state as LegacyShortUrlLocatorParams).url;
+    const storeInSessionStorage = core.uiSettings.get('state:storeInSessionStorage');
+    if (storeInSessionStorage) {
+      const { hashUrl } = await import('../../../kibana_utils/public');
+      redirectUrl = hashUrl(redirectUrl);
+    }
+
+    const url = core.http.basePath.prepend(redirectUrl);
 
     location.href = url;
 
