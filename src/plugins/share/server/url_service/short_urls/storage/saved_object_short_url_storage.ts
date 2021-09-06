@@ -8,8 +8,8 @@
 
 import type { SerializableRecord } from '@kbn/utility-types';
 import { SavedObject, SavedObjectsClientContract } from 'kibana/server';
-import { ShortUrlData } from 'src/plugins/share/common/url_service/short_urls/types';
-import { LEGACY_SHORT_URL_LOCATOR_ID } from '../legacy_short_url_locator';
+import { LEGACY_SHORT_URL_LOCATOR_ID } from '../../../../common/url_service/locators/legacy_short_url_locator';
+import { ShortUrlData } from '../../../../common/url_service/short_urls/types';
 import { ShortUrlStorage } from '../types';
 import { escapeSearchReservedChars } from '../util';
 
