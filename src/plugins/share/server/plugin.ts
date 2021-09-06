@@ -9,7 +9,6 @@
 import { i18n } from '@kbn/i18n';
 import { schema } from '@kbn/config-schema';
 import { CoreSetup, Plugin, PluginInitializerContext } from 'kibana/server';
-import { createRoutes } from './routes/create_routes';
 import { url } from './saved_objects';
 import { CSV_SEPARATOR_SETTING, CSV_QUOTE_VALUES_SETTING } from '../common/constants';
 import { UrlService } from '../common/url_service';
@@ -52,7 +51,6 @@ export class SharePlugin implements Plugin<SharePluginSetup, SharePluginStart> {
 
     const router = core.http.createRouter();
 
-    createRoutes(router, this.initializerContext.logger.get());
     registerUrlServiceRoutes(core, router, this.url);
 
     core.savedObjects.registerType(url);
