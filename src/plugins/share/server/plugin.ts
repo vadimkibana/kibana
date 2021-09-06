@@ -52,8 +52,8 @@ export class SharePlugin implements Plugin<SharePluginSetup, SharePluginStart> {
 
     const router = core.http.createRouter();
 
-    createRoutes(core, router, this.initializerContext.logger.get());
-    registerUrlServiceRoutes(router, this.url);
+    createRoutes(router, this.initializerContext.logger.get());
+    registerUrlServiceRoutes(core, router, this.url);
 
     core.savedObjects.registerType(url);
     core.uiSettings.register({

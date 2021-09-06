@@ -6,15 +6,13 @@
  * Side Public License, v 1.
  */
 
-import { CoreSetup, IRouter, Logger } from 'kibana/server';
+import { IRouter, Logger } from 'kibana/server';
 
 import { shortUrlLookupProvider } from './lib/short_url_lookup';
-import { createGotoRoute } from './goto';
 import { createShortenUrlRoute } from './shorten_url';
 
-export function createRoutes({ http }: CoreSetup, router: IRouter, logger: Logger) {
+export function createRoutes(router: IRouter, logger: Logger) {
   const shortUrlLookup = shortUrlLookupProvider({ logger });
 
-  createGotoRoute({ router, shortUrlLookup, http });
   createShortenUrlRoute({ router, shortUrlLookup });
 }
