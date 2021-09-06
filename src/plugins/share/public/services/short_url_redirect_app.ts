@@ -8,6 +8,10 @@
 
 import { CoreSetup } from 'kibana/public';
 import { getUrlIdFromGotoRoute, getUrlPath, GOTO_PREFIX } from '../../common/short_url_routes';
+import {
+  LEGACY_SHORT_URL_LOCATOR_ID,
+  LegacyShortUrlLocatorParams,
+} from '../../common/url_service/locators/legacy_short_url_locator';
 import type { UrlService, ShortUrlData } from '../../common/url_service';
 
 export const createShortUrlRedirectApp = (
@@ -28,12 +32,17 @@ export const createShortUrlRedirectApp = (
 
     if (!locator) throw new Error(`Locator [id = ${response.locator.id}] not found.`);
 
-    const { app, path } = await locator.getLocation(response.locator.state);
-    const { hashUrl } = await import('../../../kibana_utils/public');
-    const hashedPath = hashUrl(path);
-    const [coreStart] = await core.getStartServices();
+    if (response.locator.id !== LEGACY_SHORT_URL_LOCATOR_ID) {
+      await locator.navigate(response.locator.state, { replace: true });
+      return () => {};
+    }
 
-    await coreStart.application.navigateToApp(app, { path: hashedPath, replace: true });
+    const redirectUrl = (response.locator.state as LegacyShortUrlLocatorParams).url;
+    const { hashUrl } = await import('../../../kibana_utils/public');
+    const hashedUrl = hashUrl(redirectUrl);
+    const url = core.http.basePath.prepend(hashedUrl);
+
+    location.href = url;
 
     return () => {};
   },
