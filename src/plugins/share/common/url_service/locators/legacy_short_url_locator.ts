@@ -8,6 +8,7 @@
 
 import type { SerializableRecord } from '@kbn/utility-types';
 import type { KibanaLocation, LocatorDefinition } from '../../url_service';
+import { shortUrlAssertValid } from './short_url_assert_valid';
 
 export const LEGACY_SHORT_URL_LOCATOR_ID = 'LEGACY_SHORT_URL_LOCATOR';
 
@@ -21,6 +22,8 @@ export class LegacyShortUrlLocatorDefinition
 
   public async getLocation(params: LegacyShortUrlLocatorParams): Promise<KibanaLocation> {
     const { url } = params;
+
+    shortUrlAssertValid(url);
 
     const match = url.match(/^.*\/app\/([^\/#]+)(.+)$/);
 
