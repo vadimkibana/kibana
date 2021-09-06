@@ -8,26 +8,32 @@
 
 import { CoreSetup } from 'kibana/public';
 import { getUrlIdFromGotoRoute, getUrlPath, GOTO_PREFIX } from '../../common/short_url_routes';
+import type { UrlService, ShortUrlData } from '../../common/url_service';
 
-export const createShortUrlRedirectApp = (core: CoreSetup, location: Location) => ({
+export const createShortUrlRedirectApp = (
+  core: CoreSetup,
+  location: Location,
+  urlService: UrlService
+) => ({
   id: 'short_url_redirect',
   appRoute: GOTO_PREFIX,
   chromeless: true,
   title: 'Short URL Redirect',
   async mount() {
     const urlId = getUrlIdFromGotoRoute(location.pathname);
+    if (!urlId) throw new Error('Url id not present in path');
 
-    if (!urlId) {
-      throw new Error('Url id not present in path');
-    }
+    const response = await core.http.get<ShortUrlData>(getUrlPath(urlId));
+    const locator = urlService.locators.get(response.locator.id);
 
-    const response = await core.http.get<{ url: string }>(getUrlPath(urlId));
-    const redirectUrl = response.url;
+    if (!locator) throw new Error(`Locator [id = ${response.locator.id}] not found.`);
+
+    const { app, path } = await locator.getLocation(response.locator.state);
     const { hashUrl } = await import('../../../kibana_utils/public');
-    const hashedUrl = hashUrl(redirectUrl);
-    const url = core.http.basePath.prepend(hashedUrl);
+    const hashedPath = hashUrl(path);
+    const [coreStart] = await core.getStartServices();
 
-    location.href = url;
+    await coreStart.application.navigateToApp(app, { path: hashedPath, replace: true });
 
     return () => {};
   },
