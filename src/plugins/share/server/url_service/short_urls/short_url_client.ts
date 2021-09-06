@@ -12,7 +12,7 @@ import type { IShortUrlClient, ShortUrl, ShortUrlCreateParams } from '../../../c
 import type { ShortUrlStorage } from './types';
 import { validateSlug } from './util';
 
-const defaultAlphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-';
+const defaultAlphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 
 function randomStr(length: number, alphabet = defaultAlphabet) {
   let str = '';
