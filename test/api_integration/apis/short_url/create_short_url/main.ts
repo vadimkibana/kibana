@@ -29,7 +29,19 @@ export default function ({ getService }: FtrProviderContext) {
       expect(response.body.accessCount).to.be(0);
       expect(typeof response.body.accessDate).to.be('number');
       expect(typeof response.body.createDate).to.be('number');
-      expect(response.body.slug).to.be('');
+      expect(typeof response.body.slug).to.be('string');
+      expect(response.body.url).to.be('');
+    });
+
+    it('generates at least 4 character slug by default', async () => {
+      const response = await supertest.post('/api/short_url').send({
+        locatorId: 'LEGACY_SHORT_URL_LOCATOR',
+        params: {},
+      });
+
+      expect(response.status).to.be(200);
+      expect(typeof response.body.slug).to.be('string');
+      expect(response.body.slug.length > 3).to.be(true);
       expect(response.body.url).to.be('');
     });
 
@@ -53,7 +65,7 @@ export default function ({ getService }: FtrProviderContext) {
       expect(response.body.accessCount).to.be(0);
       expect(typeof response.body.accessDate).to.be('number');
       expect(typeof response.body.createDate).to.be('number');
-      expect(response.body.slug).to.be('');
+      expect(typeof response.body.slug).to.be('string');
       expect(response.body.url).to.be('');
     });
 
