@@ -18,7 +18,8 @@
     "uiActions",
     "discover",
     "triggersActionsUi",
-    "fieldFormats"
+    "fieldFormats",
+    "dashboard"
   ],
   "optionalPlugins": [
     "alerting",

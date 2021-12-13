@@ -40,11 +40,11 @@ jest.mock('../../../../../../../src/plugins/kibana_react/public', () => ({
 }));
 
 const getUtilityProps = () => {
-  const mlUrlGenerator = {
-    createUrl: jest.fn(),
+  const mlLocator = {
+    getUrl: jest.fn(),
   };
   return {
-    mlUrlGenerator,
+    mlLocator,
     timefilter: timefilterMock,
     timeBuckets: timeBucketsMock,
     kibana: kibanaContextMock,

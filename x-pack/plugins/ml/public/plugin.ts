@@ -19,6 +19,7 @@ import { take } from 'rxjs/operators';
 import type { ManagementSetup } from 'src/plugins/management/public';
 import type { SharePluginSetup, SharePluginStart } from 'src/plugins/share/public';
 import type { DataPublicPluginStart } from 'src/plugins/data/public';
+import type { DashboardSetup } from 'src/plugins/dashboard/public';
 import type { HomePublicPluginSetup } from 'src/plugins/home/public';
 import type { EmbeddableSetup, EmbeddableStart } from 'src/plugins/embeddable/public';
 import type { SpacesPluginStart } from '../../spaces/public';
@@ -76,6 +77,7 @@ export interface MlSetupDependencies {
   alerting?: AlertingSetup;
   usageCollection?: UsageCollectionSetup;
   fieldFormats: FieldFormatsSetup;
+  dashboard: DashboardSetup;
 }
 
 export type MlCoreSetup = CoreSetup<MlStartDependencies, MlPluginStart>;
@@ -120,6 +122,7 @@ export class MlPlugin implements Plugin<MlPluginSetup, MlPluginStart> {
             dataVisualizer: pluginsStart.dataVisualizer,
             usageCollection: pluginsSetup.usageCollection,
             fieldFormats: pluginsStart.fieldFormats,
+            dashboard: pluginsSetup.dashboard,
           },
           params
         );

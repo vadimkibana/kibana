@@ -134,10 +134,10 @@ export const renderApp = (
     application: coreStart.application,
     http: coreStart.http,
     security: deps.security,
-    urlGenerators: deps.share.urlGenerators,
     maps: deps.maps,
     dataVisualizer: deps.dataVisualizer,
     dataViews: deps.data.dataViews,
+    dashboardLocator: deps.dashboard.locator,
   });
 
   appMountParams.onAppLeave((actions) => actions.default());

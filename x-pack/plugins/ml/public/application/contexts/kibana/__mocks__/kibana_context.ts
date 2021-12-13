@@ -17,10 +17,11 @@ export const kibanaContextMock = {
         get: jest.fn(),
       },
     },
-    share: {
-      urlGenerators: { getUrlGenerator: jest.fn() },
-    },
+    share: {},
     data: dataPluginMock.createStartContract(),
+    dashboard: {
+      locator: {},
+    },
   },
 };
 

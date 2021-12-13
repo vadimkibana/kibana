@@ -25,12 +25,12 @@ import { AppPageState, ListingPageUrlState } from '../../../common/types/common'
 
 export function formatDataFrameAnalyticsJobManagementUrl(
   appBasePath: string,
-  mlUrlGeneratorState: DataFrameAnalyticsUrlState['pageState']
+  mlLocatorState: DataFrameAnalyticsUrlState['pageState']
 ): string {
   let url = `${appBasePath}/${ML_PAGES.DATA_FRAME_ANALYTICS_JOBS_MANAGE}`;
 
-  if (mlUrlGeneratorState) {
-    const { jobId, groupIds, globalState } = mlUrlGeneratorState;
+  if (mlLocatorState) {
+    const { jobId, groupIds, globalState } = mlLocatorState;
     if (jobId || groupIds) {
       const queryTextArr = [];
       if (jobId) {
@@ -72,12 +72,12 @@ export function formatDataFrameAnalyticsJobManagementUrl(
  */
 export function formatDataFrameAnalyticsExplorationUrl(
   appBasePath: string,
-  mlUrlGeneratorState: DataFrameAnalyticsExplorationUrlState['pageState']
+  mlLocatorState: DataFrameAnalyticsExplorationUrlState['pageState']
 ): string {
   let url = `${appBasePath}/${ML_PAGES.DATA_FRAME_ANALYTICS_EXPLORATION}`;
 
-  if (mlUrlGeneratorState) {
-    const { jobId, analysisType, queryText, globalState } = mlUrlGeneratorState;
+  if (mlLocatorState) {
+    const { jobId, analysisType, queryText, globalState } = mlLocatorState;
 
     const queryState: DataFrameAnalyticsExplorationQueryState = {
       ml: {
@@ -128,12 +128,12 @@ export function formatDataFrameAnalyticsCreateJobUrl(
  */
 export function formatDataFrameAnalyticsMapUrl(
   appBasePath: string,
-  mlUrlGeneratorState: DataFrameAnalyticsExplorationUrlState['pageState']
+  mlLocatorState: DataFrameAnalyticsExplorationUrlState['pageState']
 ): string {
   let url = `${appBasePath}/${ML_PAGES.DATA_FRAME_ANALYTICS_MAP}`;
 
-  if (mlUrlGeneratorState) {
-    const { jobId, modelId, analysisType, globalState, queryText } = mlUrlGeneratorState;
+  if (mlLocatorState) {
+    const { jobId, modelId, analysisType, globalState, queryText } = mlLocatorState;
 
     const queryState: DataFrameAnalyticsExplorationQueryState = {
       ml: {

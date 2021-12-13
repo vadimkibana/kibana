@@ -6,6 +6,7 @@
  */
 
 import type { DataPublicPluginStart } from 'src/plugins/data/public';
+import type { DashboardSetup } from 'src/plugins/dashboard/public';
 import type { CoreStart } from 'kibana/public';
 import type { UsageCollectionSetup } from 'src/plugins/usage_collection/public';
 import {
@@ -34,6 +35,7 @@ interface StartPlugins {
   dataVisualizer?: DataVisualizerPluginStart;
   usageCollection?: UsageCollectionSetup;
   fieldFormats: FieldFormatsRegistry;
+  dashboard: DashboardSetup;
 }
 export type StartServices = CoreStart &
   StartPlugins & {

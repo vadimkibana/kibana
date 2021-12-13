@@ -20,7 +20,7 @@ import type {
   IBasePath,
 } from 'kibana/public';
 import type { DataPublicPluginStart } from 'src/plugins/data/public';
-import type { SharePluginStart } from 'src/plugins/share/public';
+import type { DashboardAppLocator } from 'src/plugins/dashboard/public';
 import type { DataViewsContract } from '../../../../../../src/plugins/data_views/public';
 import type { SecurityPluginSetup } from '../../../../security/public';
 import type { MapsStartApi } from '../../../../maps/public';
@@ -43,10 +43,10 @@ export interface DependencyCache {
   http: HttpStart | null;
   security: SecurityPluginSetup | undefined | null;
   i18n: I18nStart | null;
-  urlGenerators: SharePluginStart['urlGenerators'] | null;
   maps: MapsStartApi | null;
   dataVisualizer: DataVisualizerPluginStart | null;
   dataViews: DataViewsContract | null;
+  dashboardLocator: DashboardAppLocator | null;
 }
 
 const cache: DependencyCache = {
@@ -66,10 +66,10 @@ const cache: DependencyCache = {
   http: null,
   security: null,
   i18n: null,
-  urlGenerators: null,
   maps: null,
   dataVisualizer: null,
   dataViews: null,
+  dashboardLocator: null,
 };
 
 export function setDependencyCache(deps: Partial<DependencyCache>) {
@@ -89,9 +89,9 @@ export function setDependencyCache(deps: Partial<DependencyCache>) {
   cache.http = deps.http || null;
   cache.security = deps.security || null;
   cache.i18n = deps.i18n || null;
-  cache.urlGenerators = deps.urlGenerators || null;
   cache.dataVisualizer = deps.dataVisualizer || null;
   cache.dataViews = deps.dataViews || null;
+  cache.dashboardLocator = deps.dashboardLocator || null;
 }
 
 export function getTimefilter() {
@@ -205,11 +205,8 @@ export function getI18n() {
   return cache.i18n;
 }
 
-export function getGetUrlGenerator() {
-  if (cache.urlGenerators === null) {
-    throw new Error("urlGenerators hasn't been initialized");
-  }
-  return cache.urlGenerators.getUrlGenerator;
+export function getDashboardLocator(): DashboardAppLocator | null {
+  return cache.dashboardLocator;
 }
 
 export function getDataViews() {

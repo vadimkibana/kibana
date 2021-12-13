@@ -58,9 +58,7 @@ jest.mock('../../contexts/kibana/kibana_context', () => {
         services: {
           chrome: { docTitle: { change: jest.fn() } },
           application: { getUrlForApp: jest.fn(), navigateToUrl: jest.fn() },
-          share: {
-            urlGenerators: { getUrlGenerator: jest.fn() },
-          },
+          share: {},
           uiSettings: { get: jest.fn() },
           data: {
             query: {
@@ -84,6 +82,9 @@ jest.mock('../../contexts/kibana/kibana_context', () => {
                 history: { get: jest.fn() },
               },
             },
+          },
+          dashboard: {
+            locator: {},
           },
           notifications: {
             toasts: {

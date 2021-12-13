@@ -15,18 +15,18 @@ import { setStateToKbnUrl } from '../../../../../../src/plugins/kibana_utils/pub
 
 export function formatTrainedModelsManagementUrl(
   appBasePath: string,
-  mlUrlGeneratorState: TrainedModelsUrlState['pageState']
+  mlLocatorState: TrainedModelsUrlState['pageState']
 ): string {
   return `${appBasePath}/${ML_PAGES.TRAINED_MODELS_MANAGE}`;
 }
 
 export function formatTrainedModelsNodesManagementUrl(
   appBasePath: string,
-  mlUrlGeneratorState: TrainedModelsNodesUrlState['pageState']
+  mlLocatorState: TrainedModelsNodesUrlState['pageState']
 ): string {
   let url = `${appBasePath}/${ML_PAGES.TRAINED_MODELS_NODES}`;
-  if (mlUrlGeneratorState) {
-    const { nodeId } = mlUrlGeneratorState;
+  if (mlLocatorState) {
+    const { nodeId } = mlLocatorState;
     if (nodeId) {
       const nodesListState: Partial<ListingPageUrlState> = {
         queryText: `name:(${nodeId})`,

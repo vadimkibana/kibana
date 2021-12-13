@@ -8,10 +8,8 @@
 import { dashboardServiceProvider } from './dashboard_service';
 import { savedObjectsServiceMock } from '../../../../../../src/core/public/mocks';
 import { DashboardSavedObject } from '../../../../../../src/plugins/dashboard/public/saved_dashboards';
-import {
-  DashboardUrlGenerator,
-  SavedDashboardPanel,
-} from '../../../../../../src/plugins/dashboard/public';
+import { SavedDashboardPanel } from '../../../../../../src/plugins/dashboard/public';
+import { DashboardAppLocator } from '../../../../../../src/plugins/dashboard/public';
 
 jest.mock('@elastic/eui', () => {
   return {
@@ -23,14 +21,10 @@ jest.mock('@elastic/eui', () => {
 
 describe('DashboardService', () => {
   const mockSavedObjectClient = savedObjectsServiceMock.createStartContract().client;
-  const dashboardUrlGenerator = {
-    createUrl: jest.fn(),
-  } as unknown as DashboardUrlGenerator;
-  const dashboardService = dashboardServiceProvider(
-    mockSavedObjectClient,
-    '8.0.0',
-    dashboardUrlGenerator
-  );
+  const locator: DashboardAppLocator = {
+    getUrl: jest.fn(async () => ''),
+  } as unknown as DashboardAppLocator;
+  const dashboardService = dashboardServiceProvider(mockSavedObjectClient, '8.0.0', locator);
 
   test('should fetch dashboard', () => {
     // act
@@ -153,7 +147,7 @@ describe('DashboardService', () => {
 
   test('should generate edit url to the dashboard', () => {
     dashboardService.getDashboardEditUrl('test-id');
-    expect(dashboardUrlGenerator.createUrl).toHaveBeenCalledWith({
+    expect(locator.getUrl).toHaveBeenCalledWith({
       dashboardId: 'test-id',
       useHash: false,
       viewMode: 'edit',

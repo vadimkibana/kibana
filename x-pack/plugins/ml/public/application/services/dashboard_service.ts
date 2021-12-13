@@ -9,10 +9,9 @@ import { SavedObjectsClientContract } from 'kibana/public';
 import { htmlIdGenerator } from '@elastic/eui';
 import { useMemo } from 'react';
 import {
-  DASHBOARD_APP_URL_GENERATOR,
-  DashboardUrlGenerator,
   SavedDashboardPanel,
   DashboardSavedObject,
+  DashboardAppLocator,
 } from '../../../../../../src/plugins/dashboard/public';
 import { useMlKibana } from '../contexts/kibana';
 import { ViewMode } from '../../../../../../src/plugins/embeddable/public';
@@ -22,7 +21,7 @@ export type DashboardService = ReturnType<typeof dashboardServiceProvider>;
 export function dashboardServiceProvider(
   savedObjectClient: SavedObjectsClientContract,
   kibanaVersion: string,
-  dashboardUrlGenerator: DashboardUrlGenerator
+  dashboardLocator?: DashboardAppLocator
 ) {
   const generateId = htmlIdGenerator();
   const DEFAULT_PANEL_WIDTH = 24;
@@ -105,7 +104,8 @@ export function dashboardServiceProvider(
      * Generates dashboard url with edit mode
      */
     async getDashboardEditUrl(dashboardId: string) {
-      return await dashboardUrlGenerator.createUrl({
+      if (!dashboardLocator) return '';
+      return await dashboardLocator.getUrl({
         dashboardId,
         useHash: false,
         viewMode: ViewMode.EDIT,
@@ -122,16 +122,11 @@ export function useDashboardService(): DashboardService {
     services: {
       savedObjects: { client: savedObjectClient },
       kibanaVersion,
-      share: { urlGenerators },
+      dashboard,
     },
   } = useMlKibana();
   return useMemo(
-    () =>
-      dashboardServiceProvider(
-        savedObjectClient,
-        kibanaVersion,
-        urlGenerators.getUrlGenerator(DASHBOARD_APP_URL_GENERATOR)
-      ),
+    () => dashboardServiceProvider(savedObjectClient, kibanaVersion, dashboard.locator),
     [savedObjectClient, kibanaVersion]
   );
 }
