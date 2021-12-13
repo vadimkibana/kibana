@@ -10,7 +10,6 @@ import { ApplicationStart } from 'kibana/public';
 import { QueryState } from '../../../../data/public';
 import { setStateToKbnUrl } from '../../../../kibana_utils/public';
 import { createDashboardEditUrl, DashboardConstants } from '../../dashboard_constants';
-import { GLOBAL_STATE_STORAGE_KEY } from '../../url_generator';
 import { IKbnUrlStateStorage } from '../../services/kibana_utils';
 
 export const getDashboardListItemLink = (
@@ -23,12 +22,12 @@ export const getDashboardListItemLink = (
   let url = application.getUrlForApp(DashboardConstants.DASHBOARDS_ID, {
     path: `#${createDashboardEditUrl(id)}`,
   });
-  const globalStateInUrl = kbnUrlStateStorage.get<QueryState>(GLOBAL_STATE_STORAGE_KEY) || {};
+  const globalStateInUrl = kbnUrlStateStorage.get<QueryState>('_g') || {};
 
   if (timeRestore) {
     delete globalStateInUrl.time;
     delete globalStateInUrl.refreshInterval;
   }
-  url = setStateToKbnUrl<QueryState>(GLOBAL_STATE_STORAGE_KEY, globalStateInUrl, { useHash }, url);
+  url = setStateToKbnUrl<QueryState>('_g', globalStateInUrl, { useHash }, url);
   return url;
 };
