@@ -69,6 +69,9 @@ export const dashboardStateSlice = createSlice({
     setFullScreenMode: (state, action: PayloadAction<boolean>) => {
       state.fullScreenMode = action.payload;
     },
+    setDevMode: (state, action: PayloadAction<boolean>) => {
+      state.devMode = action.payload;
+    },
     setSavedQueryId: (state, action: PayloadAction<string | undefined>) => {
       state.savedQuery = action.payload;
     },
@@ -115,6 +118,7 @@ export const {
   setSavedQueryId,
   setDescription,
   setTimeRestore,
+  setDevMode,
   setTimeRange,
   setSyncColors,
   setSyncTooltips,

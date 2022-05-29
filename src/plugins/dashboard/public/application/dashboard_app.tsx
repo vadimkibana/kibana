@@ -24,6 +24,7 @@ import { DashboardTopNav, isCompleteDashboardAppState } from './top_nav/dashboar
 import { DashboardAppServices, DashboardEmbedSettings, DashboardRedirect } from '../types';
 import { createKbnUrlStateStorage, withNotifyOnErrors } from '../services/kibana_utils';
 import { DashboardAppNoDataPage } from './dashboard_app_no_data';
+import {DevFlyout} from './dev_flyout/dev_flyout';
 export interface DashboardAppProps {
   history: History;
   savedDashboardId?: string;
@@ -129,6 +130,8 @@ export function DashboardApp({
     if (!embedSettings) chrome.setIsVisible(!printMode);
   }, [chrome, printMode, embedSettings]);
 
+  console.log(dashboardState)
+
   return (
     <>
       {showNoDataPage && (
@@ -161,6 +164,7 @@ export function DashboardApp({
                 : ''
             }`}
           >
+            {dashboardState.devMode ? <DevFlyout /> : null}
             <EmbeddableRenderer embeddable={dashboardAppState.dashboardContainer} />
           </div>
         </>

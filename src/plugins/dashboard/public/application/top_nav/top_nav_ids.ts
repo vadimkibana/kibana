@@ -15,5 +15,6 @@ export const TopNavIds = {
   ENTER_EDIT_MODE: 'enterEditMode',
   CLONE: 'clone',
   FULL_SCREEN: 'fullScreenMode',
+  DEV: 'dev',
   LABS: 'labs',
 };

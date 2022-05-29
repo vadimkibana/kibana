@@ -67,6 +67,7 @@ export interface DashboardState {
   savedQuery?: string;
   timeRestore: boolean;
   fullScreenMode: boolean;
+  devMode?: boolean;
   expandedPanelId?: string;
   options: DashboardOptions;
   panels: DashboardPanelMap;

@@ -34,11 +34,13 @@ export function getTopNavConfig(
     case ViewMode.VIEW:
       return !options.showWriteControls
         ? [
+            getDevConfig(actions[TopNavIds.DEV]),
             ...labs,
             getFullScreenConfig(actions[TopNavIds.FULL_SCREEN]),
             getShareConfig(actions[TopNavIds.SHARE]),
           ]
         : [
+          getDevConfig(actions[TopNavIds.DEV]),
             ...labs,
             getFullScreenConfig(actions[TopNavIds.FULL_SCREEN]),
             getShareConfig(actions[TopNavIds.SHARE]),
@@ -48,6 +50,7 @@ export function getTopNavConfig(
     case ViewMode.EDIT:
       const disableButton = options.isSaveInProgress;
       const navItems: TopNavMenuData[] = [
+        getDevConfig(actions[TopNavIds.DEV]),
         ...labs,
         getOptionsConfig(actions[TopNavIds.OPTIONS], disableButton),
         getShareConfig(actions[TopNavIds.SHARE], disableButton),
@@ -80,6 +83,20 @@ function getSaveAsButtonLabel() {
   return i18n.translate('dashboard.topNave.saveAsButtonAriaLabel', {
     defaultMessage: 'save as',
   });
+}
+
+function getDevConfig(action: NavAction) {
+  return {
+    id: 'dev',
+    label: i18n.translate('dashboard.topNave.Dev', {
+      defaultMessage: 'Dev',
+    }),
+    description: i18n.translate('dashboard.topNave.Dev', {
+      defaultMessage: 'Dev',
+    }),
+    testId: 'dashboardDev',
+    run: action,
+  };
 }
 
 function getFullScreenConfig(action: NavAction) {

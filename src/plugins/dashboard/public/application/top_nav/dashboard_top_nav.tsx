@@ -43,6 +43,7 @@ import { DashboardAppServices, DashboardEmbedSettings, DashboardRedirect } from 
 import { getSavedObjectFinder, SaveResult, showSaveModal } from '../../services/saved_objects';
 import { getCreateVisualizationButtonTitle, unsavedChangesBadge } from '../../dashboard_strings';
 import {
+  setDevMode,
   setFullScreenMode,
   setHidePanelTitles,
   setSavedQueryId,
@@ -443,6 +444,7 @@ export function DashboardTopNav({
   const dashboardTopNavActions = useMemo(() => {
     const actions = {
       [TopNavIds.FULL_SCREEN]: () => dispatchDashboardStateChange(setFullScreenMode(true)),
+      [TopNavIds.DEV]: () => dispatchDashboardStateChange(setDevMode(!dashboardState.devMode)),
       [TopNavIds.EXIT_EDIT_MODE]: () => onChangeViewMode(ViewMode.VIEW),
       [TopNavIds.ENTER_EDIT_MODE]: () => onChangeViewMode(ViewMode.EDIT),
       [TopNavIds.QUICK_SAVE]: runQuickSave,
