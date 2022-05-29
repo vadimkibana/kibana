@@ -3,17 +3,32 @@ import {
   EuiFlyout,
   EuiFlyoutBody,
   EuiFlyoutHeader,
-  EuiText,
   EuiTitle,
 } from '@elastic/eui';
 import {setDevMode, useDashboardDispatch} from '../state';
+import {CodeEditor} from '@kbn/kibana-react-plugin/public';
+import {DashboardContainer} from '../embeddable';
 
-export const DevFlyout: React.FC = () => {
+import {useKibana} from '@kbn/kibana-react-plugin/public';
+import {DashboardAppServices} from '../../types';
+
+export interface DevFlyoutProps {
+  container: DashboardContainer;
+}
+
+export const DevFlyout: React.FC<DevFlyoutProps> = ({container}) => {
   const dispatch = useDashboardDispatch();
+  const state = useKibana<DashboardAppServices>();
+  const Renderer = state.services.getDashboardContainerByValueRenderer();
+
+  // console.log('Renderer', Renderer);
 
   const handleClose = () => {
     dispatch(setDevMode(false));
   };
+
+  const input = container.getInput();
+
 
   return (
     <EuiFlyout
@@ -28,11 +43,8 @@ export const DevFlyout: React.FC = () => {
         </EuiTitle>
       </EuiFlyoutHeader>
       <EuiFlyoutBody>
-        <EuiText>
-          <p>
-            This is a dev flyout...
-          </p>
-        </EuiText>
+        <CodeEditor value={JSON.stringify(input, null, 2)} languageId='json' height={500} onChange={() => {}} />
+        <Renderer input={input} />
       </EuiFlyoutBody>
     </EuiFlyout>
   );

@@ -164,7 +164,7 @@ export function DashboardApp({
                 : ''
             }`}
           >
-            {dashboardState.devMode ? <DevFlyout /> : null}
+            {dashboardState.devMode ? <DevFlyout container={dashboardAppState.dashboardContainer} /> : null}
             <EmbeddableRenderer embeddable={dashboardAppState.dashboardContainer} />
           </div>
         </>

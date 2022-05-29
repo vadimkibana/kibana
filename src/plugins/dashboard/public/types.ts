@@ -42,6 +42,7 @@ import { IKbnUrlStateStorage } from './services/kibana_utils';
 import type { DashboardContainer, DashboardSavedObject } from '.';
 import { DashboardAppLocatorParams } from './locator';
 import { SpacesPluginStart } from './services/spaces';
+import type {DashboardStart} from './plugin';
 
 export type { SavedDashboardPanel };
 
@@ -205,6 +206,7 @@ export interface DashboardAppServices {
   allowByValueEmbeddables: boolean;
   urlForwarding: UrlForwardingStart;
   savedDashboards: SavedObjectLoader;
+  getDashboardContainerByValueRenderer: DashboardStart['getDashboardContainerByValueRenderer'];
   scopedHistory: () => ScopedHistory;
   visualizations: VisualizationsStart;
   dataViewEditor: DataViewEditorStart;

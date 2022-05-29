@@ -116,6 +116,7 @@ export async function mountApp({
     savedQueryService: dataStart.query.savedQueries,
     savedObjectsClient: coreStart.savedObjects.client,
     savedDashboards: dashboardStart.getSavedDashboardLoader(),
+    getDashboardContainerByValueRenderer: dashboardStart.getDashboardContainerByValueRenderer,
     savedObjectsTagging: savedObjectsTaggingOss?.getTaggingApi(),
     allowByValueEmbeddables:
       initializerContext.config.get<DashboardFeatureFlagConfig>().allowByValueEmbeddables,

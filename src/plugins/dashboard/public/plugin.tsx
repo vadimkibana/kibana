@@ -407,13 +407,14 @@ export class DashboardPlugin
     return {
       getSavedDashboardLoader: () => savedDashboardLoader,
       getDashboardContainerByValueRenderer: () => {
+        console.log(1);
         const dashboardContainerFactory =
           plugins.embeddable.getEmbeddableFactory(DASHBOARD_CONTAINER_TYPE);
-
+          console.log(2);
         if (!dashboardContainerFactory) {
           throw new Error(`${DASHBOARD_CONTAINER_TYPE} Embeddable Factory not found`);
         }
-
+        console.log(3);
         return createDashboardContainerByValueRenderer({
           factory: dashboardContainerFactory as DashboardContainerFactory,
         });
