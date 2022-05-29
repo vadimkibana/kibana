@@ -1,12 +1,14 @@
 import * as React from 'React';
 import {
+  EuiCodeBlock,
   EuiFlyout,
   EuiFlyoutBody,
   EuiFlyoutHeader,
   EuiTitle,
+  EuiPanel,
+  EuiSpacer,
 } from '@elastic/eui';
 import {setDevMode, useDashboardDispatch} from '../state';
-import {CodeEditor} from '@kbn/kibana-react-plugin/public';
 import {DashboardContainer} from '../embeddable';
 
 import {useKibana} from '@kbn/kibana-react-plugin/public';
@@ -55,8 +57,15 @@ export const DevFlyout: React.FC<DevFlyoutProps> = ({container}) => {
         </EuiTitle>
       </EuiFlyoutHeader>
       <EuiFlyoutBody>
-        <CodeEditor value={code} languageId='typescript' height={500} onChange={() => {}} options={{wordWrap: 'off'}} />
-        <Renderer input={input} />
+        <EuiPanel hasBorder={true} paddingSize='none' title='Code'>
+          <EuiCodeBlock language="tsx" fontSize="m" paddingSize="m" isCopyable whiteSpace='pre'>
+            {code}
+          </EuiCodeBlock>
+        </EuiPanel>
+        <EuiSpacer />
+        <EuiPanel hasBorder={true} title='Preview'>
+          <Renderer input={input} />
+        </EuiPanel>
       </EuiFlyoutBody>
     </EuiFlyout>
   );
