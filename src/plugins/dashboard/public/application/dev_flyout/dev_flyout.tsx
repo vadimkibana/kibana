@@ -12,6 +12,18 @@ import {DashboardContainer} from '../embeddable';
 import {useKibana} from '@kbn/kibana-react-plugin/public';
 import {DashboardAppServices} from '../../types';
 
+const formatCode = (input: unknown) => {
+  return `import * as React from 'React';
+import {Dashboard} from '@kbn/dashboard-plugin/public';
+
+const input = ${JSON.stringify(input)};
+
+export const MyDashboard = () => {
+  return <Dashboard input={input} />;
+};
+`;
+};
+
 export interface DevFlyoutProps {
   container: DashboardContainer;
 }
@@ -28,7 +40,7 @@ export const DevFlyout: React.FC<DevFlyoutProps> = ({container}) => {
   };
 
   const input = container.getInput();
-
+  const code = formatCode(input);
 
   return (
     <EuiFlyout
@@ -43,7 +55,7 @@ export const DevFlyout: React.FC<DevFlyoutProps> = ({container}) => {
         </EuiTitle>
       </EuiFlyoutHeader>
       <EuiFlyoutBody>
-        <CodeEditor value={JSON.stringify(input, null, 2)} languageId='json' height={500} onChange={() => {}} />
+        <CodeEditor value={code} languageId='typescript' height={500} onChange={() => {}} options={{wordWrap: 'off'}} />
         <Renderer input={input} />
       </EuiFlyoutBody>
     </EuiFlyout>
