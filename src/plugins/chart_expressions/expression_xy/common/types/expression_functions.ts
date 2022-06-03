@@ -12,7 +12,8 @@ import type { PaletteOutput } from '@kbn/coloring';
 import { Datatable, ExpressionFunctionDefinition } from '@kbn/expressions-plugin';
 import { LegendSize } from '@kbn/visualizations-plugin/public';
 import { EventAnnotationOutput } from '@kbn/event-annotation-plugin/common';
-import type { ExpressionValueVisDimension } from '@kbn/visualizations-plugin/common/expression_functions';
+import { ExpressionValueVisDimension } from '@kbn/visualizations-plugin/common';
+
 import {
   AxisExtentModes,
   FillStyles,
@@ -102,6 +103,10 @@ export interface DataLayerArgs {
   hide?: boolean;
   splitAccessor?: string | ExpressionValueVisDimension;
   markSizeAccessor?: string | ExpressionValueVisDimension;
+  lineWidth?: number;
+  showPoints?: boolean;
+  showLines?: boolean;
+  pointsRadius?: number;
   columnToLabel?: string; // Actually a JSON key-value pair
   xScaleType: XScaleType;
   isHistogram: boolean;
@@ -121,6 +126,10 @@ export interface ExtendedDataLayerArgs {
   hide?: boolean;
   splitAccessor?: string;
   markSizeAccessor?: string;
+  lineWidth?: number;
+  showPoints?: boolean;
+  showLines?: boolean;
+  pointsRadius?: number;
   columnToLabel?: string; // Actually a JSON key-value pair
   xScaleType: XScaleType;
   isHistogram: boolean;
@@ -212,6 +221,9 @@ export interface XYArgs extends DataLayerArgs {
   minTimeBarInterval?: string;
   splitRowAccessor?: ExpressionValueVisDimension | string;
   splitColumnAccessor?: ExpressionValueVisDimension | string;
+  detailedTooltip?: boolean;
+  orderBucketsBySum?: boolean;
+  showTooltip: boolean;
 }
 
 export interface LayeredXYArgs {
@@ -237,9 +249,12 @@ export interface LayeredXYArgs {
   hideEndzones?: boolean;
   valuesInLegend?: boolean;
   ariaLabel?: string;
+  detailedTooltip?: boolean;
   addTimeMarker?: boolean;
   markSizeRatio?: number;
   minTimeBarInterval?: string;
+  orderBucketsBySum?: boolean;
+  showTooltip: boolean;
 }
 
 export interface XYProps {
@@ -270,6 +285,9 @@ export interface XYProps {
   minTimeBarInterval?: string;
   splitRowAccessor?: ExpressionValueVisDimension | string;
   splitColumnAccessor?: ExpressionValueVisDimension | string;
+  detailedTooltip?: boolean;
+  orderBucketsBySum?: boolean;
+  showTooltip: boolean;
 }
 
 export interface AnnotationLayerArgs {
@@ -291,9 +309,10 @@ export type ExtendedAnnotationLayerConfigResult = ExtendedAnnotationLayerArgs & 
   layerType: typeof LayerTypes.ANNOTATIONS;
 };
 
-export interface ReferenceLineArgs extends Omit<ExtendedYConfig, 'forAccessor'> {
+export interface ReferenceLineArgs extends Omit<ExtendedYConfig, 'forAccessor' | 'fill'> {
   name?: string;
   value: number;
+  fill: FillStyle;
 }
 
 export interface ReferenceLineLayerArgs {
@@ -416,7 +435,7 @@ export type ReferenceLineLayerFn = ExpressionFunctionDefinition<
   typeof REFERENCE_LINE_LAYER,
   Datatable,
   ReferenceLineLayerArgs,
-  ReferenceLineLayerConfigResult
+  Promise<ReferenceLineLayerConfigResult>
 >;
 
 export type YConfigFn = ExpressionFunctionDefinition<typeof Y_CONFIG, null, YConfig, YConfigResult>;
