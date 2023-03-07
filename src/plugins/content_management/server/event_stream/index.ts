@@ -6,11 +6,5 @@
  * Side Public License, v 1.
  */
 
-export interface EventStreamClient {
-  initialize(): void;
-  addEvent: (event: Event) => Promise<void>;
-  listEventsBySubject(): Promise<void>;
-  listEventsByObject(): Promise<void>;
-  aggregateEventsBySubject(): Promise<void>;
-  aggregateEventsByObject(): Promise<void>;
-}
+export * from './types';
+export * from './es';
