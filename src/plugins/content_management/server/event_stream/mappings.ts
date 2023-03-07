@@ -9,9 +9,14 @@
 export const mappings = {
   dynamic: false,
   properties: {
+    /**
+     * Every document indexed to a data stream must contain a `@timestamp`
+     * field, mapped as a `date` or `date_nanos` field type.
+     */
     '@timestamp': {
       type: 'date',
     },
+
     subjectType: {
       type: 'keyword',
       ignore_above: 1024,
