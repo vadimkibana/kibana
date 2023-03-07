@@ -22,32 +22,26 @@ import {
   SetupDependencies,
 } from './types';
 import { procedureNames } from '../common';
-import { EventStreamClient, EventStreamEsClient } from './event_stream';
+import { EventStreamService } from './event_stream';
 
 export class ContentManagementPlugin
   implements Plugin<ContentManagementServerSetup, ContentManagementServerStart, SetupDependencies>
 {
   private readonly logger: Logger;
   private readonly core: Core;
+  readonly #eventStream: EventStreamService;
 
-  #eventStream?: EventStreamClient;
-
-  constructor(private readonly initializerContext: PluginInitializerContext) {
+  constructor(initializerContext: PluginInitializerContext) {
     this.logger = initializerContext.logger.get();
     this.core = new Core({ logger: this.logger });
+    this.#eventStream = new EventStreamService({
+      logger: this.logger,
+      version: initializerContext.env.packageInfo.version,
+    });
   }
 
   public setup(core: CoreSetup) {
-    const startServices = core.getStartServices();
-    const kibanaIndex = core.savedObjects.getKibanaIndex();
-    this.#eventStream = new EventStreamEsClient({
-      baseName: kibanaIndex,
-      kibanaVersion: this.initializerContext.env.packageInfo.version,
-      esClient: startServices
-        .then(([{ elasticsearch }]) => elasticsearch.client.asInternalUser),
-    });
-
-
+    this.#eventStream.setup({ core });
     const { api: coreApi, contentRegistry } = this.core.setup();
 
     const rpc = new RpcService<RpcContext>();
@@ -66,7 +60,7 @@ export class ContentManagementPlugin
 
   public start(core: CoreStart) {
     console.log('this.#eventStream!.initialize()');
-    this.#eventStream!.initialize();
+    this.#eventStream.start();
 
     return {};
   }
