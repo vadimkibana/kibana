@@ -17,7 +17,13 @@ export interface EsEventStreamInitializerDependencies {
 export class EsEventStreamInitializer {
   constructor(private readonly deps: EsEventStreamInitializerDependencies) {}
 
-  protected async existsIndexTemplate(): Promise<boolean> {
+  public async createIndexTemplateIfNotExists(): Promise<void> {
+    const exists = await this.indexTemplateExists();
+    if (exists) return;
+    await this.createIndexTemplate();
+  }
+
+  protected async indexTemplateExists(): Promise<boolean> {
     try {
       const esClient = await this.deps.esClient;
       const name = this.deps.names.indexTemplate;
@@ -29,25 +35,36 @@ export class EsEventStreamInitializer {
     }
   }
 
-  protected async createIndexTemplateIfNotExists(): Promise<void> {
-    const exists = await this.existsIndexTemplate();
-    if (exists) return;
-    const indexTemplateObject = this.createIndexTemplateObject();
-  }
+  protected async createIndexTemplate(): Promise<void> {
+    try {
+      const esClient = await this.deps.esClient;
+      const { indexPatternWithVersion } = this.deps.names;
 
-  public createIndexTemplateObject(): unknown {
-    const names = this.deps.names;
-
-    return {
-      index_patterns: [names.indexPatternWithVersion],
-      template: {
-        settings: {
-          number_of_shards: 1,
-          auto_expand_replicas: '0-1',
-          'index.hidden': true,
+      await esClient.indices.putIndexTemplate({
+        name: indexPatternWithVersion,
+        create: true,
+        index_patterns: [indexPatternWithVersion],
+        template: {
+          settings: {
+            number_of_shards: 1,
+            auto_expand_replicas: '0-1',
+            'index.hidden': true,
+          },
+          mappings,
         },
-        mappings,
-      },
-    };
+      });
+    } catch (err) {
+      // The error message doesn't have a type attribute we can look to guarantee it's due
+      // to the template already existing (only long message) so we'll check ourselves to see
+      // if the template now exists. This scenario would happen if you startup multiple Kibana
+      // instances at the same time.
+      const exists = await this.indexTemplateExists();
+
+      if (!exists) {
+        const error = new Error(`error creating index template: ${err.message}`);
+        Object.assign(error, { wrapped: err });
+        throw error;
+      }
+    }
   }
 }

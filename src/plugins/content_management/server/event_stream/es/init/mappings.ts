@@ -6,7 +6,9 @@
  * Side Public License, v 1.
  */
 
-export const mappings = {
+import type { estypes } from '@elastic/elasticsearch';
+
+export const mappings: estypes.MappingTypeMapping = {
   dynamic: false,
   properties: {
     /**
