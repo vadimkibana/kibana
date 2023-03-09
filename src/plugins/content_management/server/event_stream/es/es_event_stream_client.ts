@@ -7,48 +7,20 @@
  */
 
 
-import type { ElasticsearchClient } from './types';
+import type { EsClient, EsEventStreamNames } from './types';
 import type { EventStreamClient } from '../types';
+import { computeNames } from './compute_names';
 
-export interface EventStreamStorageDependencies {
+export interface EsEventStreamClientDependencies {
   baseName: string;
   kibanaVersion: string;
-  esClient: Promise<ElasticsearchClient>;
+  esClient: Promise<EsClient>;
 }
 
-interface Names {
-  base: string;
-  alias: string;
-  ilmPolicy: string;
-  indexPattern: string;
-  indexPatternWithVersion: string;
-  initialIndex: string;
-  indexTemplate: string;
-}
+export class EsEventStreamClient implements EventStreamClient {
+  readonly #names: EsEventStreamNames;
 
-export function computeNames(baseName: string, kibanaVersion: string): Names {
-  const EVENT_STREAM_SUFFIX = `-event-stream`;
-  const EVENT_STREAM_VERSION_SUFFIX = `-${kibanaVersion.toLocaleLowerCase()}`;
-  const eventStreamName = `${baseName}${EVENT_STREAM_SUFFIX}`;
-  const eventStreamNameWithVersion = `${eventStreamName}${EVENT_STREAM_VERSION_SUFFIX}`;
-  const baseNameSansDot = baseName.startsWith('.') ? baseName.substring(1) : baseName;
-  const eventStreamPolicyName = `${baseNameSansDot}${EVENT_STREAM_SUFFIX}-policy`;
-
-  return {
-    base: baseName,
-    alias: eventStreamNameWithVersion,
-    ilmPolicy: `${eventStreamPolicyName}`,
-    indexPattern: `${eventStreamName}-*`,
-    indexPatternWithVersion: `${eventStreamNameWithVersion}-*`,
-    initialIndex: `${eventStreamNameWithVersion}-000001`,
-    indexTemplate: `${eventStreamNameWithVersion}-template`,
-  };
-}
-
-export class EventStreamEsClient implements EventStreamClient {
-  readonly #names: Names;
-
-  constructor(private readonly deps: EventStreamStorageDependencies) {
+  constructor(private readonly deps: EsEventStreamClientDependencies) {
     this.#names = computeNames(deps.baseName, deps.kibanaVersion);
   }
 
@@ -65,9 +37,7 @@ export class EventStreamEsClient implements EventStreamClient {
   }
 
   protected async createIndexTemplateIfNotExists(): Promise<void> {
-    console.log('checking if index exists');
     const exists = await this.existsIndexTemplate();
-    console.log('EXISTS', exists);
     if (exists) return;
   }
 

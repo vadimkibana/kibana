@@ -9,7 +9,17 @@
 
 import type { Client } from '@elastic/elasticsearch';
 
-export type ElasticsearchClient = Omit<
+export type EsClient = Omit<
   Client,
   'connectionPool' | 'serializer' | 'extend' | 'close' | 'diagnostic'
 >;
+
+export interface EsEventStreamNames {
+  base: string;
+  alias: string;
+  ilmPolicy: string;
+  indexPattern: string;
+  indexPatternWithVersion: string;
+  initialIndex: string;
+  indexTemplate: string;
+}

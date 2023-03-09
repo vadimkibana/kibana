@@ -11,7 +11,7 @@ import type {
   Logger,
 } from '@kbn/core/server';
 import type { EventStreamClient } from './types';
-import { EventStreamEsClient } from './es';
+import { EsEventStreamClient } from './es';
 
 export interface EventStreamInitializerContext {
   logger: Logger;
@@ -30,7 +30,7 @@ export class EventStreamService {
   public setup({ core }: EventStreamSetup) {
     const startServices = core.getStartServices();
     
-    this.client = new EventStreamEsClient({
+    this.client = new EsEventStreamClient({
       baseName: '.kibana',
       kibanaVersion: this.ctx.version,
       esClient: startServices

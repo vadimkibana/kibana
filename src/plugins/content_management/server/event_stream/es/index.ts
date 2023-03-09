@@ -6,4 +6,4 @@
  * Side Public License, v 1.
  */
 
-export { EventStreamEsClient, type EventStreamStorageDependencies } from './event_stream_es_client';
+export { EsEventStreamClient, type EsEventStreamClientDependencies } from './es_event_stream_client';
