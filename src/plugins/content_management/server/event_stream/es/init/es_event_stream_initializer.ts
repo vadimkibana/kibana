@@ -60,11 +60,11 @@ export class EsEventStreamInitializer {
       // instances at the same time.
       const exists = await this.indexTemplateExists();
 
-      if (!exists) {
-        const error = new Error(`error creating index template: ${err.message}`);
-        Object.assign(error, { wrapped: err });
-        throw error;
-      }
+      if (exists) return;
+
+      const error = new Error(`error creating index template: ${err.message}`);
+      Object.assign(error, { wrapped: err });
+      throw error;
     }
   }
 }
