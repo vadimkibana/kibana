@@ -50,8 +50,7 @@ export class EsEventStreamInitializer {
         kibanaVersion: this.deps.kibanaVersion,
       });
 
-      console.log('will create index', request);
-      // await esClient.indices.putIndexTemplate(request);
+      await esClient.indices.putIndexTemplate(request);
     } catch (err) {
       // The error message doesn't have a type attribute we can look to guarantee it's due
       // to the template already existing (only long message) so we'll check ourselves to see

@@ -44,9 +44,13 @@ export class EventStreamService {
     if (!this.client) throw new Error('EventStreamClient not initialized.');
 
     logger.debug('Initializing Event Stream.');
-    this.client.initialize().catch((error) => {
-      logger.error('Failed to initialize Event Stream. Events will not be indexed.');
-      logger.error(error);
-    });
+    this.client.initialize()
+      .then(() => {
+        logger.info('Event Stream was initialized.');
+      })
+      .catch((error) => {
+        logger.error('Failed to initialize Event Stream. Events will not be indexed.');
+        logger.error(error);
+      });
   }
 }
