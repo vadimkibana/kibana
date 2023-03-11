@@ -7,7 +7,7 @@
  */
 
 import type { EsClient, EsEventStreamNames } from '../types';
-import { mappings } from './mappings';
+import {newIndexTemplateRequest} from './index_template';
 
 export interface EsEventStreamInitializerDependencies {
   esClient: Promise<EsClient>;
@@ -40,37 +40,13 @@ export class EsEventStreamInitializer {
     try {
       const esClient = await this.deps.esClient;
       const { indexPatternWithVersion } = this.deps.names;
-      const version = 1; // In case we will version the template in the future.
-
-      await esClient.indices.putIndexTemplate({
+      const request = newIndexTemplateRequest({
         name: indexPatternWithVersion,
-        // This will create the template only if it doesn't exist.
-        create: true,
-        // This object is required to make it a data stream template.
-        data_stream: {
-          hidden: true,
-        },
-        // Our own metadata to keep track of the template.
-        _meta: {
-          // Template version.
-          version,
-          // Kibana version when the template was created.
-          kibanaVersion: this.deps.kibanaVersion,
-        },
-        // Setting this to something higher than the default 0 will allow
-        // to define lower priority templates in the future.
-        priority: 50,
-        version,
-        index_patterns: [indexPatternWithVersion],
-        template: {
-          settings: {
-            number_of_shards: 1,
-            auto_expand_replicas: '0-1',
-            'index.hidden': true,
-          },
-          mappings,
-        },
+        indexPatterns: [indexPatternWithVersion],
+        kibanaVersion: this.deps.kibanaVersion,
       });
+
+      await esClient.indices.putIndexTemplate(request);
     } catch (err) {
       // The error message doesn't have a type attribute we can look to guarantee it's due
       // to the template already existing (only long message) so we'll check ourselves to see
