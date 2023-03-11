@@ -19,29 +19,34 @@ export const mappings: estypes.MappingTypeMapping = {
       type: 'date',
     },
 
+    /** Subject is the content item who/which performed the event. */
     subjectType: {
       type: 'keyword',
-      ignore_above: 1024,
+      ignore_above: 256,
     },
     subjectId: {
       type: 'keyword',
-      ignore_above: 1024,
+      ignore_above: 256,
     },
-    predicate: {
-      type: 'keyword',
-      ignore_above: 1024,
-    },
-    payload: {
-      type: 'object',
-      dynamic: true,
-    },
+
+    /** Object is the content item on which the event was performed. */
     objectType: {
       type: 'keyword',
-      ignore_above: 1024,
+      ignore_above: 256,
     },
     objectId: {
       type: 'keyword',
-      ignore_above: 1024,
+      ignore_above: 256,
+    },
+
+    /** The event type. */
+    predicate: {
+      type: 'keyword',
+      ignore_above: 256,
+    },
+    /** Custom payload, maybe be different per event type. */
+    payload: {
+      type: 'flattened',
     },
   },
 };
