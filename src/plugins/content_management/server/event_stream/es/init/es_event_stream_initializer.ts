@@ -18,7 +18,11 @@ export interface EsEventStreamInitializerDependencies {
 export class EsEventStreamInitializer {
   constructor(private readonly deps: EsEventStreamInitializerDependencies) {}
 
-  public async createIndexTemplateIfNotExists(): Promise<void> {
+  public async initialize(): Promise<void> {
+    await this.createIndexTemplateIfNotExists();
+  }
+
+  protected async createIndexTemplateIfNotExists(): Promise<void> {
     const exists = await this.indexTemplateExists();
     if (exists) return;
     await this.createIndexTemplate();
@@ -39,14 +43,15 @@ export class EsEventStreamInitializer {
   protected async createIndexTemplate(): Promise<void> {
     try {
       const esClient = await this.deps.esClient;
-      const { indexPatternWithVersion } = this.deps.names;
+      const { indexTemplate, indexPatternWithVersion } = this.deps.names;
       const request = newIndexTemplateRequest({
-        name: indexPatternWithVersion,
+        name: indexTemplate,
         indexPatterns: [indexPatternWithVersion],
         kibanaVersion: this.deps.kibanaVersion,
       });
 
-      await esClient.indices.putIndexTemplate(request);
+      console.log('will create index', request);
+      // await esClient.indices.putIndexTemplate(request);
     } catch (err) {
       // The error message doesn't have a type attribute we can look to guarantee it's due
       // to the template already existing (only long message) so we'll check ourselves to see

@@ -7,7 +7,7 @@
  */
 
 export interface EventStreamClient {
-  initialize(): void;
+  initialize(): Promise<void>;
   addEvent: (event: Event) => Promise<void>;
   listEventsBySubject(): Promise<void>;
   listEventsByObject(): Promise<void>;

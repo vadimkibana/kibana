@@ -27,7 +27,7 @@ export class EventStreamService {
 
   constructor(private readonly ctx: EventStreamInitializerContext) {}
 
-  public setup({ core }: EventStreamSetup) {
+  public setup({ core }: EventStreamSetup): void {
     const startServices = core.getStartServices();
     
     this.client = new EsEventStreamClient({
@@ -38,10 +38,15 @@ export class EventStreamService {
     });
   }
 
-  public start() {
+  public start(): void {
     const { logger } = this.ctx;
 
-    logger.get()
-    this.client?.initialize();
+    if (!this.client) throw new Error('EventStreamClient not initialized.');
+
+    logger.debug('Initializing Event Stream.');
+    this.client.initialize().catch((error) => {
+      logger.error('Failed to initialize Event Stream. Events will not be indexed.');
+      logger.error(error);
+    });
   }
 }

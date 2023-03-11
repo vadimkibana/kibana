@@ -42,6 +42,7 @@ export class ContentManagementPlugin
 
   public setup(core: CoreSetup) {
     this.#eventStream.setup({ core });
+
     const { api: coreApi, contentRegistry } = this.core.setup();
 
     const rpc = new RpcService<RpcContext>();
@@ -59,7 +60,6 @@ export class ContentManagementPlugin
   }
 
   public start(core: CoreStart) {
-    console.log('this.#eventStream!.initialize()');
     this.#eventStream.start();
 
     return {};
