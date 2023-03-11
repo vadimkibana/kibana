@@ -32,11 +32,16 @@ export class ContentManagementPlugin
   readonly #eventStream: EventStreamService;
 
   constructor(initializerContext: PluginInitializerContext) {
+    const version = initializerContext.env.packageInfo.version;
+
     this.logger = initializerContext.logger.get();
-    this.core = new Core({ logger: this.logger });
     this.#eventStream = new EventStreamService({
       logger: this.logger,
-      version: initializerContext.env.packageInfo.version,
+      version,
+    });
+    this.core = new Core({
+      logger: this.logger,
+      eventStream: this.#eventStream,
     });
   }
 

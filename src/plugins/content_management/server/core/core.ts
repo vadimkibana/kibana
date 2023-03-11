@@ -5,8 +5,9 @@
  * in compliance with, at your election, the Elastic License 2.0 or the Server
  * Side Public License, v 1.
  */
-import { Logger } from '@kbn/core/server';
 
+import { Logger } from '@kbn/core/server';
+import { EventStreamService } from '../event_stream';
 import { ContentCrud } from './crud';
 import { EventBus } from './event_bus';
 import { ContentRegistry } from './registry';
@@ -25,6 +26,11 @@ export interface CoreApi {
   eventBus: EventBus;
 }
 
+export interface CoreInitializerContext {
+  logger: Logger;
+  eventStream: EventStreamService;
+}
+
 export interface CoreSetup {
   /** Content registry instance */
   contentRegistry: ContentRegistry;
@@ -36,7 +42,7 @@ export class Core {
   private contentRegistry: ContentRegistry;
   private eventBus: EventBus;
 
-  constructor({ logger }: { logger: Logger }) {
+  constructor(ctx: CoreInitializerContext) {
     const contentTypeValidator = (contentType: string) =>
       this.contentRegistry?.isContentRegistered(contentType) ?? false;
     this.eventBus = new EventBus(contentTypeValidator);
@@ -44,6 +50,8 @@ export class Core {
   }
 
   setup(): CoreSetup {
+    this.setupEventStream();
+
     return {
       contentRegistry: this.contentRegistry,
       api: {
@@ -52,5 +60,11 @@ export class Core {
         eventBus: this.eventBus,
       },
     };
+  }
+
+  private setupEventStream() {
+    this.eventBus.on('createItemSuccess', (event) => {
+      console.log('EVENT', event);
+    });
   }
 }
