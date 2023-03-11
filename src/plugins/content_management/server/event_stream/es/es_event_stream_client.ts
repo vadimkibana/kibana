@@ -8,7 +8,7 @@
 
 import type { Logger } from '@kbn/core/server';
 import type { EsClient } from './types';
-import type { EventStreamClient } from '../types';
+import type { EventStreamClient, EventStreamEvent } from '../types';
 import { EsEventStreamNames } from './es_event_stream_names';
 import { EsEventStreamInitializer } from './init/es_event_stream_initializer';
 
@@ -36,13 +36,5 @@ export class EsEventStreamClient implements EventStreamClient {
     await initializer.initialize();
   }
 
-  public async addEvent(event: Event): Promise<void> {}
-
-  public async listEventsBySubject(): Promise<void> {}
-
-  public async listEventsByObject(): Promise<void> {}
-
-  public async aggregateEventsBySubject(): Promise<void> {}
-
-  public async aggregateEventsByObject(): Promise<void> {}
+  public async writeEvents(events: EventStreamEvent): Promise<void> {}
 }
