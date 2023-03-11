@@ -32,7 +32,7 @@ export class EsEventStreamInitializer {
    * @param fn Function to retry, if it fails.
    */
   readonly #retry = async (fn: () => Promise<void>, fnName: string): Promise<void> => {
-    this.deps.logger.info(`Event Stream initialization operation: ${fnName}`);
+    this.deps.logger.debug(`Event Stream initialization operation: ${fnName}`);
 
     await pRetry(fn, {
       minTimeout: 1000,
