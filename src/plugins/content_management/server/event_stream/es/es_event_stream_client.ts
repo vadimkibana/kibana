@@ -6,7 +6,7 @@
  * Side Public License, v 1.
  */
 
-
+import type { Logger } from '@kbn/core/server';
 import type { EsClient } from './types';
 import type { EventStreamClient } from '../types';
 import { EsEventStreamNames } from './es_event_stream_names';
@@ -15,6 +15,7 @@ import { EsEventStreamInitializer } from './init/es_event_stream_initializer';
 export interface EsEventStreamClientDependencies {
   baseName: string;
   kibanaVersion: string;
+  logger: Logger;
   esClient: Promise<EsClient>;
 }
 
@@ -28,8 +29,9 @@ export class EsEventStreamClient implements EventStreamClient {
   public async initialize(): Promise<void> {
     const initializer = new EsEventStreamInitializer({
       names: this.#names,
-      esClient: this.deps.esClient,
       kibanaVersion: this.deps.kibanaVersion,
+      logger: this.deps.logger,
+      esClient: this.deps.esClient,
     });
     await initializer.initialize();
   }

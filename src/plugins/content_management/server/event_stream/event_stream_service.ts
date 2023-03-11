@@ -33,6 +33,7 @@ export class EventStreamService {
     this.client = new EsEventStreamClient({
       baseName: '.kibana',
       kibanaVersion: this.ctx.version,
+      logger: this.ctx.logger,
       esClient: startServices
         .then(([{ elasticsearch }]) => elasticsearch.client.asInternalUser),
     });
