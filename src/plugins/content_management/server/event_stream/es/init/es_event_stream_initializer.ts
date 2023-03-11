@@ -31,10 +31,10 @@ export class EsEventStreamInitializer {
    * 
    * @param fn Function to retry, if it fails.
    */
-  readonly #retry = async (fn: () => Promise<void>, fnName: string): Promise<void> => {
+  readonly #retry = async <R>(fn: () => Promise<R>, fnName: string): Promise<R> => {
     this.deps.logger.debug(`Event Stream initialization operation: ${fnName}`);
 
-    await pRetry(fn, {
+    return await pRetry(fn, {
       minTimeout: 1000,
       maxTimeout: 1000 * 60 * 3,
       retries: 4,
@@ -50,14 +50,17 @@ export class EsEventStreamInitializer {
   }
 
   public async initialize(): Promise<void> {
-    await this.#retry(this.createIndexTemplateIfNotExists, 'createIndexTemplateIfNotExists');
-    await this.#retry(this.createDataStream, 'createDataStream');
+    const createdIndexTemplate = await this.#retry(this.createIndexTemplateIfNotExists, 'createIndexTemplateIfNotExists');
+
+    if (createdIndexTemplate) {
+      await this.#retry(this.createDataStream, 'createDataStream');
+    }
   }
 
-  protected readonly createIndexTemplateIfNotExists = async (): Promise<void> => {
+  protected readonly createIndexTemplateIfNotExists = async (): Promise<boolean> => {
     const exists = await this.indexTemplateExists();
-    if (exists) return;
-    await this.createIndexTemplate();
+    if (exists) return false;
+    return await this.createIndexTemplate();
   };
 
   protected async indexTemplateExists(): Promise<boolean> {
@@ -72,7 +75,7 @@ export class EsEventStreamInitializer {
     }
   }
 
-  protected async createIndexTemplate(): Promise<void> {
+  protected async createIndexTemplate(): Promise<boolean> {
     try {
       const esClient = await this.deps.esClient;
       const { indexTemplate, indexPattern } = this.deps.names;
@@ -83,6 +86,8 @@ export class EsEventStreamInitializer {
       });
 
       await esClient.indices.putIndexTemplate(request);
+
+      return true;
     } catch (err) {
       // The error message doesn't have a type attribute we can look to guarantee it's due
       // to the template already existing (only long message) so we'll check ourselves to see
@@ -90,7 +95,7 @@ export class EsEventStreamInitializer {
       // instances at the same time.
       const exists = await this.indexTemplateExists();
 
-      if (exists) return;
+      if (exists) return false;
 
       const error = new Error(`error creating index template: ${err.message}`);
       Object.assign(error, { wrapped: err });
