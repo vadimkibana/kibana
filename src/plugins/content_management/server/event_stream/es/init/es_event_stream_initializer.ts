@@ -23,6 +23,14 @@ export interface EsEventStreamInitializerDependencies {
 export class EsEventStreamInitializer {
   constructor(private readonly deps: EsEventStreamInitializerDependencies) {}
 
+  public async initialize(): Promise<void> {
+    const createdIndexTemplate = await this.#retry(this.createIndexTemplateIfNotExists, 'createIndexTemplateIfNotExists');
+
+    if (createdIndexTemplate) {
+      await this.#retry(this.createDataStream, 'createDataStream');
+    }
+  }
+
   /**
    * Calls a function; retries calling it multiple times via p-retry, if it fails.
    * Should retry on 2s, 4s, 8s, 16s.
@@ -47,14 +55,6 @@ export class EsEventStreamInitializer {
         this.deps.logger.warn(message);
       },
     });
-  }
-
-  public async initialize(): Promise<void> {
-    const createdIndexTemplate = await this.#retry(this.createIndexTemplateIfNotExists, 'createIndexTemplateIfNotExists');
-
-    if (createdIndexTemplate) {
-      await this.#retry(this.createDataStream, 'createDataStream');
-    }
   }
 
   protected readonly createIndexTemplateIfNotExists = async (): Promise<boolean> => {
