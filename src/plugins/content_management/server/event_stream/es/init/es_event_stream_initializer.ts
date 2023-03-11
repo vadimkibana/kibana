@@ -11,6 +11,7 @@ import { mappings } from './mappings';
 
 export interface EsEventStreamInitializerDependencies {
   esClient: Promise<EsClient>;
+  kibanaVersion: string;
   names: EsEventStreamNames;
 }
 
@@ -39,10 +40,27 @@ export class EsEventStreamInitializer {
     try {
       const esClient = await this.deps.esClient;
       const { indexPatternWithVersion } = this.deps.names;
+      const version = 1; // In case we will version the template in the future.
 
       await esClient.indices.putIndexTemplate({
         name: indexPatternWithVersion,
+        // This will create the template only if it doesn't exist.
         create: true,
+        // This object is required to make it a data stream template.
+        data_stream: {
+          hidden: true,
+        },
+        // Our own metadata to keep track of the template.
+        _meta: {
+          // Template version.
+          version,
+          // Kibana version when the template was created.
+          kibanaVersion: this.deps.kibanaVersion,
+        },
+        // Setting this to something higher than the default 0 will allow
+        // to define lower priority templates in the future.
+        priority: 50,
+        version,
         index_patterns: [indexPatternWithVersion],
         template: {
           settings: {
