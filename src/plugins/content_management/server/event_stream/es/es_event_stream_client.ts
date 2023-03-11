@@ -7,9 +7,9 @@
  */
 
 
-import type { EsClient, EsEventStreamNames } from './types';
+import type { EsClient } from './types';
 import type { EventStreamClient } from '../types';
-import { computeNames } from './compute_names';
+import { EsEventStreamNames } from './es_event_stream_names';
 import { EsEventStreamInitializer } from './init/es_event_stream_initializer';
 
 export interface EsEventStreamClientDependencies {
@@ -22,7 +22,7 @@ export class EsEventStreamClient implements EventStreamClient {
   readonly #names: EsEventStreamNames;
 
   constructor(private readonly deps: EsEventStreamClientDependencies) {
-    this.#names = computeNames(deps.baseName, deps.kibanaVersion);
+    this.#names = new EsEventStreamNames(deps.baseName);
   }
 
   public async initialize(): Promise<void> {

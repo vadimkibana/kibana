@@ -6,7 +6,8 @@
  * Side Public License, v 1.
  */
 
-import type { EsClient, EsEventStreamNames } from '../types';
+import type { EsClient } from '../types';
+import type { EsEventStreamNames } from '../es_event_stream_names';
 import {newIndexTemplateRequest} from './index_template';
 
 export interface EsEventStreamInitializerDependencies {
@@ -20,6 +21,7 @@ export class EsEventStreamInitializer {
 
   public async initialize(): Promise<void> {
     await this.createIndexTemplateIfNotExists();
+    await this.createDataStream();
   }
 
   protected async createIndexTemplateIfNotExists(): Promise<void> {
@@ -43,10 +45,10 @@ export class EsEventStreamInitializer {
   protected async createIndexTemplate(): Promise<void> {
     try {
       const esClient = await this.deps.esClient;
-      const { indexTemplate, indexPatternWithVersion } = this.deps.names;
+      const { indexTemplate, indexPattern } = this.deps.names;
       const request = newIndexTemplateRequest({
         name: indexTemplate,
-        indexPatterns: [indexPatternWithVersion],
+        indexPatterns: [indexPattern],
         kibanaVersion: this.deps.kibanaVersion,
       });
 
@@ -64,5 +66,13 @@ export class EsEventStreamInitializer {
       Object.assign(error, { wrapped: err });
       throw error;
     }
+  }
+
+  protected async createDataStream(): Promise<void> {
+    const esClient = await this.deps.esClient;
+
+    await esClient.indices.createDataStream({
+      name: this.deps.names.dataStream,
+    });
   }
 }

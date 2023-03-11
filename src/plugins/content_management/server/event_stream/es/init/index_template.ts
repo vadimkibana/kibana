@@ -29,6 +29,7 @@ export const newIndexTemplateRequest = (params: NewIndexTemplateRequestParams): 
     },
     // Our own metadata to keep track of the template.
     _meta: {
+      description: 'This data stream stores events for the Kibana content_management plugin.',
       // Template version.
       version,
       // Kibana version when the template was created.
