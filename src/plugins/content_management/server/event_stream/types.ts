@@ -22,7 +22,7 @@ export interface EventStreamClient {
    * 
    * @param events One or more events to write to the Event Stream.
    */
-  writeEvents: (events: EventStreamEvent) => Promise<void>;
+  writeEvents: (events: EventStreamEvent[]) => Promise<void>;
 
   // listEventsBySubject(): Promise<void>;
   // listEventsByObject(): Promise<void>;

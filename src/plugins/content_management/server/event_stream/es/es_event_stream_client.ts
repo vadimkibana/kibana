@@ -7,6 +7,7 @@
  */
 
 import type { Logger } from '@kbn/core/server';
+import { estypes } from '@elastic/elasticsearch';
 import type { EsClient } from './types';
 import type { EventStreamClient, EventStreamEvent } from '../types';
 import { EsEventStreamNames } from './es_event_stream_names';
@@ -36,5 +37,21 @@ export class EsEventStreamClient implements EventStreamClient {
     await initializer.initialize();
   }
 
-  public async writeEvents(events: EventStreamEvent): Promise<void> {}
+  public async writeEvents(events: EventStreamEvent[]): Promise<void> {
+    const esClient = await this.deps.esClient;
+    const operations: Array<estypes.BulkOperationContainer | EventStreamEvent> = [];
+
+    for (const event of events) {
+      operations.push({create: {}}, event);
+    }
+
+    const { errors } = await esClient.bulk({
+      index: this.#names.dataStream,
+      operations,
+    });
+
+    if (errors) {
+      throw new Error('Some events failed to be indexed.');
+    }
+  }
 }
