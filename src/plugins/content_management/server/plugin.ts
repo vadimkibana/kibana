@@ -21,8 +21,8 @@ import {
   ContentManagementServerStart,
   SetupDependencies,
 } from './types';
-import { procedureNames } from '../common';
 import { EventStreamService } from './event_stream';
+import { procedureNames } from '../common/rpc';
 
 export class ContentManagementPlugin
   implements Plugin<ContentManagementServerSetup, ContentManagementServerStart, SetupDependencies>
