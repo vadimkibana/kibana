@@ -13,72 +13,117 @@ export const testEventStreamClient = (clientPromise: Promise<EventStreamClient>)
   let now = Date.now();
   const getTime = () => now++;
 
-  it('can write a single event', async () => {
-    await tick(1);
-  
-    const client = await clientPromise;
-    const time = getTime();
-  
-    await client.writeEvents([
-      {
-        predicate: ['test', { foo: 'bar' }],
-        time,
-      },
-    ]);
-  
-    await until(async () => {
-      const events = await client.tail();
-      return events.length === 1;
-    }, 100)
-  
-    const tail = await client.tail();
-  
-    expect(tail).toMatchObject([
-      {
-        predicate: ['test', { foo: 'bar' }],
-        time,
-      },
-    ]);
+  describe('.writeEvents()', () => {
+    it('can write a single event', async () => {
+      await tick(1);
+    
+      const client = await clientPromise;
+      const time = getTime();
+    
+      await client.writeEvents([
+        {
+          predicate: ['test', { foo: 'bar' }],
+          time,
+        },
+      ]);
+    
+      await until(async () => {
+        const events = await client.tail();
+        return events.length === 1;
+      }, 100)
+    
+      const tail = await client.tail();
+    
+      expect(tail).toMatchObject([
+        {
+          predicate: ['test', { foo: 'bar' }],
+          time,
+        },
+      ]);
+    });
+    
+    it('can write multiple events', async () => {
+      await tick(1);
+    
+      const client = await clientPromise;
+      const events: EventStreamEvent[] = [
+        {
+          time: getTime(),
+          subject: ['user', '1'],
+          predicate: ['test', { foo: 'bar' }],
+          object: ['dashboard', '1'],
+        },
+        {
+          time: getTime(),
+          subject: ['user', '2'],
+          predicate: ['view'],
+          object: ['map', 'xyz'],
+        },
+        {
+          time: getTime(),
+          subject: ['user', '2'],
+          predicate: ['view'],
+          object: ['canvas', 'xxxx-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'],
+        },
+      ];
+    
+      await client.writeEvents(events);
+    
+      await until(async () => {
+        const events = await client.tail();
+        return events.length === 4;
+      }, 100)
+    
+      const tail = await client.tail();
+    
+      expect(tail.slice(0, 3)).toMatchObject([
+        events[2],
+        events[1],
+        events[0],
+      ]);
+    });
   });
-  
-  it('can write multiple events', async () => {
-    await tick(1);
-  
-    const client = await clientPromise;
-    const events: EventStreamEvent[] = [
-      {
-        time: getTime(),
-        subject: ['user', '1'],
-        predicate: ['test', { foo: 'bar' }],
-        object: ['dashboard', '1'],
-      },
-      {
-        time: getTime(),
-        subject: ['user', '2'],
-        predicate: ['view'],
-        object: ['map', 'xyz'],
-      },
-      {
-        time: getTime(),
-        subject: ['user', '2'],
-        predicate: ['view'],
-        object: ['canvas', 'xxxx-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'],
-      },
-    ];
-  
-    await client.writeEvents(events);
-  
-    await until(async () => {
-      const events = await client.tail();
-      return events.length === 4;
-    }, 100)
-  
-    const tail = await client.tail();
-  
-    expect(tail.slice(0, 3)).toMatchObject([
-      events[2],
-      events[1],
-      events[0],
-    ]);
+
+  describe('.tail()', () => {
+    it('can limit events to last 2', async () => {
+      await tick(1);
+    
+      const client = await clientPromise;
+      const events: EventStreamEvent[] = [
+        {
+          time: getTime(),
+          subject: ['user', '1'],
+          predicate: ['test', { foo: 'bar' }],
+          object: ['dashboard', '1'],
+        },
+        {
+          time: getTime(),
+          subject: ['user', '2'],
+          predicate: ['view'],
+          object: ['map', 'xyz'],
+        },
+        {
+          time: getTime(),
+          subject: ['user', '2'],
+          predicate: ['view'],
+          object: ['canvas', 'xxxx-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'],
+        },
+      ];
+    
+      await client.writeEvents(events);
+    
+      await until(async () => {
+        const events = await client.tail();
+        return events.length === 7;
+      }, 100)
+    
+      const tail = await client.tail(2);
+    
+      expect(tail.length).toBe(2);
+      expect(tail).toMatchObject([
+        events[2],
+        events[1],
+      ]);
+    });
   });
 };
