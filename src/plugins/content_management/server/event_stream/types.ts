@@ -71,3 +71,7 @@ export interface EventStreamEvent {
    */
   payload?: Record<string, unknown>;
 }
+
+import type { Logger } from '@kbn/core/server';
+
+export type EventStreamLogger = Pick<Logger, 'debug' | 'error' | 'info'>;

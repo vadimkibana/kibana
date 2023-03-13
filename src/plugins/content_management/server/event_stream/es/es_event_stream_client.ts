@@ -6,17 +6,16 @@
  * Side Public License, v 1.
  */
 
-import type { Logger } from '@kbn/core/server';
-import { estypes } from '@elastic/elasticsearch';
+import type { estypes } from '@elastic/elasticsearch';
 import type { EsClient } from './types';
-import type { EventStreamClient, EventStreamEvent } from '../types';
+import type { EventStreamClient, EventStreamEvent, EventStreamLogger } from '../types';
 import { EsEventStreamNames } from './es_event_stream_names';
 import { EsEventStreamInitializer } from './init/es_event_stream_initializer';
 
 export interface EsEventStreamClientDependencies {
   baseName: string;
   kibanaVersion: string;
-  logger: Logger;
+  logger: EventStreamLogger;
   esClient: Promise<EsClient>;
 }
 

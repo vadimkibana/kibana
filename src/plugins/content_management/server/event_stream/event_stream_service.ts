@@ -6,15 +6,12 @@
  * Side Public License, v 1.
  */
 
-import type {
-  CoreSetup,
-  Logger,
-} from '@kbn/core/server';
-import type { EventStreamClient } from './types';
+import type { CoreSetup } from '@kbn/core/server';
+import type { EventStreamClient, EventStreamLogger } from './types';
 import { EsEventStreamClient } from './es';
 
 export interface EventStreamInitializerContext {
-  logger: Logger;
+  logger: EventStreamLogger;
   version: string;
 }
 

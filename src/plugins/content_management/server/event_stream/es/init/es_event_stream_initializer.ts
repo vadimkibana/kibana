@@ -7,16 +7,16 @@
  */
 
 import pRetry from 'p-retry';
-import type { Logger } from '@kbn/core/server';
 import type { EsClient } from '../types';
 import type { EsEventStreamNames } from '../es_event_stream_names';
+import type {EventStreamLogger} from '../../types';
 import { newIndexTemplateRequest } from './index_template';
 import { errors } from '@elastic/elasticsearch';
 
 export interface EsEventStreamInitializerDependencies {
   names: EsEventStreamNames;
   kibanaVersion: string;
-  logger: Logger;
+  logger: EventStreamLogger;
   esClient: Promise<EsClient>;
 }
 
