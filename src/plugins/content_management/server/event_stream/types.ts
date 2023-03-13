@@ -74,4 +74,4 @@ export interface EventStreamEvent {
 
 import type { Logger } from '@kbn/core/server';
 
-export type EventStreamLogger = Pick<Logger, 'debug' | 'error' | 'info'>;
+export type EventStreamLogger = Pick<Logger, 'debug' | 'error' | 'info' | 'warn'>;
