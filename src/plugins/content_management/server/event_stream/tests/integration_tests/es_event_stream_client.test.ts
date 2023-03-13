@@ -14,7 +14,8 @@ import {
 } from '@kbn/core-test-helpers-kbn-server';
 import { EsEventStreamClient } from '../../es/es_event_stream_client';
 import { EventStreamLoggerMock } from '../event_stream_logger_mock';
-import { until } from '../util';
+import { until, tick } from '../util';
+import { EventStreamEvent } from '../../types';
 
 describe('EsEventStreamClient', () => {
   let manageES: TestElasticsearchUtils;
@@ -24,6 +25,9 @@ describe('EsEventStreamClient', () => {
 
   const baseName = '.kibana-test';
   const indexTemplateName = `${baseName}-event-stream-template`;
+
+  let now = Date.now();
+  const getTime = () => now++;
 
   beforeAll(async () => {
     const { startES, startKibana } = createTestServers({ adjustTimeout: jest.setTimeout });
@@ -62,10 +66,14 @@ describe('EsEventStreamClient', () => {
   });
 
   it('can write a single event', async () => {
+    await tick(1);
+
+    const time = getTime();
+
     await client.writeEvents([
       {
         predicate: ['test', { foo: 'bar' }],
-        time: Date.now(),
+        time,
       },
     ]);
 
@@ -74,8 +82,53 @@ describe('EsEventStreamClient', () => {
       return events.length === 1;
     }, 100)
 
-    const events = await client.tail();
+    const tail = await client.tail();
 
-    console.log(events);
+    expect(tail).toMatchObject([
+      {
+        predicate: ['test', { foo: 'bar' }],
+        time,
+      },
+    ]);
+  });
+
+  it('can write multiple events', async () => {
+    await tick(1);
+
+    const events: EventStreamEvent[] = [
+      {
+        time: getTime(),
+        subject: ['user', '1'],
+        predicate: ['test', { foo: 'bar' }],
+        object: ['dashboard', '1'],
+      },
+      {
+        time: getTime(),
+        subject: ['user', '2'],
+        predicate: ['view'],
+        object: ['map', 'xyz'],
+      },
+      {
+        time: getTime(),
+        subject: ['user', '2'],
+        predicate: ['view'],
+        object: ['canvas', 'xxxx-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'],
+      },
+    ];
+
+    await client.writeEvents(events);
+
+    await until(async () => {
+      const events = await client.tail();
+      return events.length === 4;
+    }, 100)
+
+    const tail = await client.tail();
+
+    expect(tail.slice(0, 3)).toMatchObject([
+      events[2],
+      events[1],
+      events[0],
+    ]);
   });
 });
