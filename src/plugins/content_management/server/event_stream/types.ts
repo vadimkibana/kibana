@@ -31,45 +31,43 @@ export interface EventStreamClient {
 }
 
 /**
- * Represents a single event in the Event Stream.
+ * Represents a single event in the Event Stream. Events can be thought of as
+ * "Semantic triples" (see https://en.wikipedia.org/wiki/Semantic_triple).
+ * Semantic triples have a subject, a predicate, and an object. In the context
+ * of the Event Stream, the subject is the content item who/which performed the
+ * event, the predicate is the event type (such as `create`, `update`, `delete`,
+ * etc.), and the object is the content item on which the action was performed.
  */
 export interface EventStreamEvent {
   /**
-   * Time when the event occurred.
+   * Specifies who performed the event. The subject is a tuple of the type of
+   * the subject and the ID of the subject.
    */
-  '@timestamp': string;
-
-  /**
-   * Type of the subject. Subject is the content item who/which performed the
-   * event.
-   */
-  subjectType: string;
-
-  /**
-   * ID of the subject.
-   */
-  subjectId: string;
-
-  /**
-   * Type of the object. Object is the content item on which the event was
-   * performed.
-   */
-  objectType: string;
-
-  /**
-   * ID of the object.
-   */
-  objectId: string;
+  subject?: [type: string, id: string];
 
   /**
    * Specifies the event type. Such as `create`, `update`, `delete`, etc.
+   * The predicate is a tuple of the type of the predicate and any attributes
+   * associated with the predicate.
    */
-  predicate: string;
+  predicate: [type: string, attributes?: Record<string, unknown>];
 
   /**
-   * Custom payload, maybe be different per event type.
+   * Specifies the content item on which the event was performed. The object is
+   * a tuple of the type of the object and the ID of the object.
    */
-  payload?: Record<string, unknown>;
+  object?: [type: string, id: string];
+
+  /**
+   * Timestamp in milliseconds since the Unix Epoch when the event occurred.
+   */
+  time: number;
+
+  /**
+   * An ID which allows to trace the event back to the original request. As well
+   * as to associate multiple events together.
+   */
+  traceId?: string;
 }
 
 import type { Logger } from '@kbn/core/server';

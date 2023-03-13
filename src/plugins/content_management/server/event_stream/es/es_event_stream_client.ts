@@ -7,10 +7,11 @@
  */
 
 import type { estypes } from '@elastic/elasticsearch';
-import type { EsClient } from './types';
+import type { EsClient, EsEventStreamEventDto } from './types';
 import type { EventStreamClient, EventStreamEvent, EventStreamLogger } from '../types';
 import { EsEventStreamNames } from './es_event_stream_names';
 import { EsEventStreamInitializer } from './init/es_event_stream_initializer';
+import { eventToDto } from './util';
 
 export interface EsEventStreamClientDependencies {
   baseName: string;
@@ -38,10 +39,12 @@ export class EsEventStreamClient implements EventStreamClient {
 
   public async writeEvents(events: EventStreamEvent[]): Promise<void> {
     const esClient = await this.deps.esClient;
-    const operations: Array<estypes.BulkOperationContainer | EventStreamEvent> = [];
+    const operations: Array<estypes.BulkOperationContainer | EsEventStreamEventDto> = [];
 
     for (const event of events) {
-      operations.push({create: {}}, event);
+      const dto = eventToDto(event);
+
+      operations.push({create: {}}, dto);
     }
 
     const { errors } = await esClient.bulk({

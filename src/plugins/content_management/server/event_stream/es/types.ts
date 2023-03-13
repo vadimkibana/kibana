@@ -13,3 +13,58 @@ export type EsClient = Omit<
   Client,
   'connectionPool' | 'serializer' | 'extend' | 'close' | 'diagnostic'
 >;
+
+/**
+ * Represents a single event as it is stored in Elasticsearch.
+ */
+export interface EsEventStreamEventDto {
+  /**
+   * Time when the event occurred.
+   */
+  '@timestamp': string;
+
+  /**
+   * Type of the subject. Subject is the content item who/which performed the
+   * event.
+   */
+  subjectType?: string;
+
+  /**
+   * ID of the subject.
+   */
+  subjectId?: string;
+
+  /**
+   * Type of the object. Object is the content item on which the event was
+   * performed.
+   */
+  objectType?: string;
+
+  /**
+   * ID of the object.
+   */
+  objectId?: string;
+
+  /**
+   * Specifies the event type. Such as `create`, `update`, `delete`, etc.
+   */
+  predicate: string;
+
+  /**
+   * Custom payload, maybe be different per event type. Provided by the
+   * event type originator.
+   */
+  payload?: Record<string, unknown>;
+
+  /**
+   * ID which allows to trace the event back to the original request, or to
+   * correlate multiple events.
+   */
+  traceId?: string;
+
+  /**
+   * Reserved for future extensions. Custom metadata may be added here by the
+   * Event Stream implementation.
+   */
+  meta?: Record<string, unknown>;
+}
