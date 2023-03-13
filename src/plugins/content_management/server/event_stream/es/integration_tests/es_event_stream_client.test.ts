@@ -12,9 +12,9 @@ import {
   type TestElasticsearchUtils,
   type TestKibanaUtils,
 } from '@kbn/core-test-helpers-kbn-server';
-import { EsEventStreamClient } from '../../es/es_event_stream_client';
-import { EventStreamLoggerMock } from '../event_stream_logger_mock';
-import { testEventStreamClient } from '../test_event_stream_client';
+import { EsEventStreamClient } from '../es_event_stream_client';
+import { EventStreamLoggerMock } from '../../tests/event_stream_logger_mock';
+import { testEventStreamClient } from '../../tests/test_event_stream_client';
 
 describe('EsEventStreamClient', () => {
   let manageES: TestElasticsearchUtils;
