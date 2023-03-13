@@ -48,5 +48,23 @@ export const mappings: estypes.MappingTypeMapping = {
     payload: {
       type: 'flattened',
     },
+
+    /**
+     * ID which allows to trace the event back to the original request or to
+     * correlate multiple events.
+     */
+    traceId: {
+      type: 'keyword',
+      ignore_above: 256,
+    },
+
+    /**
+     * Reserved for future extensions. Event Stream client can add custom
+     * private fields here in the future if needed, without having to update
+     * the index template mappings.
+     */
+    meta: {
+      type: 'flattened',
+    },
   },
 };
