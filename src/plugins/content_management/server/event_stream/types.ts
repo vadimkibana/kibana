@@ -24,10 +24,13 @@ export interface EventStreamClient {
    */
   writeEvents: (events: EventStreamEvent[]) => Promise<void>;
 
-  // listEventsBySubject(): Promise<void>;
-  // listEventsByObject(): Promise<void>;
-  // aggregateEventsBySubject(): Promise<void>;
-  // aggregateEventsByObject(): Promise<void>;
+  /**
+   * Retrieves the most recent events from the Event Stream.
+   * 
+   * @param limit The maximum number of events to return. If not specified, the
+   *              default is 100.
+   */
+  tail(limit?: number): Promise<EventStreamEvent[]>;
 }
 
 /**

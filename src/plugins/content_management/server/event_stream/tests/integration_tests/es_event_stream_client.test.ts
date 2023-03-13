@@ -13,7 +13,8 @@ import {
   type TestKibanaUtils,
 } from '@kbn/core-test-helpers-kbn-server';
 import { EsEventStreamClient } from '../../es/es_event_stream_client';
-import { EventStreamLoggerMock } from '../logger_mock';
+import { EventStreamLoggerMock } from '../event_stream_logger_mock';
+import { until } from '../util';
 
 describe('EsEventStreamClient', () => {
   let manageES: TestElasticsearchUtils;
@@ -44,8 +45,6 @@ describe('EsEventStreamClient', () => {
     await manageES.stop();
   });
 
-  
-
   it('can initialize the Event Stream', async () => {
     const exists1 = await esClient.indices.existsIndexTemplate({
       name: indexTemplateName,
@@ -60,5 +59,23 @@ describe('EsEventStreamClient', () => {
     });
 
     expect(exists2).toBe(true);
+  });
+
+  it('can write a single event', async () => {
+    await client.writeEvents([
+      {
+        predicate: ['test', { foo: 'bar' }],
+        time: Date.now(),
+      },
+    ]);
+
+    await until(async () => {
+      const events = await client.tail();
+      return events.length === 1;
+    }, 100)
+
+    const events = await client.tail();
+
+    console.log(events);
   });
 });

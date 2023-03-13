@@ -11,7 +11,7 @@ import type { EsClient, EsEventStreamEventDto } from './types';
 import type { EventStreamClient, EventStreamEvent, EventStreamLogger } from '../types';
 import { EsEventStreamNames } from './es_event_stream_names';
 import { EsEventStreamInitializer } from './init/es_event_stream_initializer';
-import { eventToDto } from './util';
+import { eventToDto, dtoToEvent } from './util';
 
 export interface EsEventStreamClientDependencies {
   baseName: string;
@@ -55,5 +55,28 @@ export class EsEventStreamClient implements EventStreamClient {
     if (errors) {
       throw new Error('Some events failed to be indexed.');
     }
+  }
+
+  public async tail(limit: number = 100): Promise<EventStreamEvent[]> {
+    const esClient = await this.deps.esClient;
+    const res = await esClient.search<EsEventStreamEventDto>({
+      index: this.#names.dataStream,
+      body: {
+        query: {
+          match_all: {},
+        },
+        sort: [
+          {
+            '@timestamp': {
+              order: 'desc',
+            },
+          },
+        ],
+        size: limit,
+      },
+    });
+    const events = res.hits.hits.map(hit => dtoToEvent(hit._source!));
+    
+    return events;
   }
 }
