@@ -325,8 +325,8 @@ export const testEventStreamClient = (clientPromise: Promise<EventStreamClient>)
         object: [
           ['dashboard', '1'],
         ],
-        from: 1678810695362,
-        to: 1678810695362,
+        from: items[4].time,
+        to: items[4].time,
       });
 
   

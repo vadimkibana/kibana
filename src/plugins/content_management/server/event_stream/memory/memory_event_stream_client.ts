@@ -6,7 +6,7 @@
  * Side Public License, v 1.
  */
 
-import type { EventStreamClient, EventStreamEvent } from '../types';
+import type { EventStreamClient, EventStreamClientFilterOptions, EventStreamClientFilterResult, EventStreamEvent } from '../types';
 import { clone } from './util';
 
 export class MemoryEventStreamClient implements EventStreamClient {
@@ -25,5 +25,99 @@ export class MemoryEventStreamClient implements EventStreamClient {
     const tail = this.#events.slice(0, limit);
 
     return tail.map(clone);
+  }
+
+  public async filter(options: EventStreamClientFilterOptions): Promise<EventStreamClientFilterResult> {
+    let events: EventStreamEvent[] = [...this.#events];
+
+    const {
+      subject,
+      object,
+      predicate,
+      from,
+      to,
+    } = options;
+
+    if (subject && subject.length) {
+      events = events.filter((event) => {
+        if (!event.subject) {
+          return false;
+        }
+
+        return subject.some(([type, id]) => {
+          if (!id) return type === event.subject![0];
+          return type === event.subject![0] && id === event.subject![1];
+        });
+      });
+    }
+
+    if (object && object.length) {
+      events = events.filter((event) => {
+        if (!event.object) {
+          return false;
+        }
+
+        return object.some(([type, id]) => {
+          if (!id) return type === event.object![0];
+          return type === event.object![0] && id === event.object![1];
+        });
+      });
+    }
+
+    if (predicate && predicate.length) {
+      events = events.filter((event) => {
+        if (!event.predicate) {
+          return false;
+        }
+
+        return predicate.some(([type, attributes]) => {
+          if (!attributes) return type === event.predicate![0];
+          
+          if (type && type !== event.predicate![0]) {
+            return false;
+          }
+
+          if (!event.predicate[1] && !!Object.keys(attributes).length) {
+            return false;
+          }
+
+          if (event.predicate[1]) {
+            for (const [key, value] of Object.entries(attributes)) {
+              if (event.predicate![1][key] !== value) {
+                return false;
+              }
+            }
+          }
+
+          return true;
+        });
+      });
+    }
+
+    if (from) {
+      events = events.filter((event) => event.time >= from);
+    }
+
+    if (to) {
+      events = events.filter((event) => event.time <= to);
+    }
+
+    const size = options.limit ?? 100;
+    const offset = options.cursor ? JSON.parse(options.cursor) : 0;
+
+    if (events.length >= size) {
+      events = events.slice(offset, offset + size);
+    }
+
+    let cursor: string = '';
+
+    if (events.length >= size) {
+      cursor = JSON.stringify(offset + size);
+    }
+    
+    return {
+      cursor,
+      events: events.map(clone),
+    };
   }
 }
