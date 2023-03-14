@@ -14,6 +14,7 @@ import type {
   EventStreamEvent,
   EventStreamLogger
 } from './types';
+import { TimedItemBuffer } from '@kbn/bfetch-plugin/common';
 
 export interface EventStreamInitializerContext {
   logger: EventStreamLogger;
@@ -26,6 +27,23 @@ export interface EventStreamSetup {
 
 export class EventStreamService {
   public client?: EventStreamClient;
+
+  public readonly flush = (events: EventStreamEvent[]): void => {
+    if (!this.client) throw new Error('EventStreamClient not initialized.');
+    this.client.writeEvents(events)
+      .catch((error) => {
+        const { logger } = this.ctx;
+
+        logger.error('Failed to write events to Event Stream.');
+        logger.error(error);
+      });
+  };
+
+  readonly #buffer = new TimedItemBuffer<EventStreamEvent>({
+    onFlush: this.flush,
+    flushOnMaxItems: 100,
+    maxItemAge: 250,
+  });
 
   constructor(private readonly ctx: EventStreamInitializerContext) {}
 
@@ -61,13 +79,17 @@ export class EventStreamService {
   }
 
   public addEvent(event: Optional<EventStreamEvent, 'time'>): void {
-    const client = this.#getClient();
     const completeEvent: EventStreamEvent = {
       ...event,
       time: event.time || Date.now(),
     };
-    
-    client.writeEvents([completeEvent])
-      .catch((error) => {});
+
+    this.#buffer.write(completeEvent);
+  }
+
+  public addEvents(events: Optional<EventStreamEvent, 'time'>[]): void {
+    for (const event of events) {
+      this.addEvent(event);
+    }
   }
 }
