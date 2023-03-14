@@ -6,7 +6,7 @@
  * Side Public License, v 1.
  */
 
-import { until, tick } from './util';
+import { until } from './util';
 import { EventStreamClient, EventStreamEvent } from '../types';
 
 export const testEventStreamClient = (clientPromise: Promise<EventStreamClient>) => {
@@ -15,8 +15,6 @@ export const testEventStreamClient = (clientPromise: Promise<EventStreamClient>)
 
   describe('.writeEvents()', () => {
     it('can write a single event', async () => {
-      await tick(1);
-    
       const client = await clientPromise;
       const time = getTime();
     
@@ -43,8 +41,6 @@ export const testEventStreamClient = (clientPromise: Promise<EventStreamClient>)
     });
     
     it('can write multiple events', async () => {
-      await tick(1);
-    
       const client = await clientPromise;
       const events: EventStreamEvent[] = [
         {
@@ -86,27 +82,28 @@ export const testEventStreamClient = (clientPromise: Promise<EventStreamClient>)
 
   describe('.tail()', () => {
     it('can limit events to last 2', async () => {
-      await tick(1);
-    
       const client = await clientPromise;
       const events: EventStreamEvent[] = [
         {
           time: getTime(),
-          subject: ['user', '1'],
-          predicate: ['test', { foo: 'bar' }],
+          subject: ['user', '55'],
+          predicate: ['test', {
+            foo: 'bar',
+            baz: 'qux',
+          }],
           object: ['dashboard', '1'],
         },
         {
           time: getTime(),
-          subject: ['user', '2'],
+          subject: ['user', '66'],
           predicate: ['view'],
           object: ['map', 'xyz'],
         },
         {
           time: getTime(),
-          subject: ['user', '2'],
+          subject: ['user', '77'],
           predicate: ['view'],
-          object: ['canvas', 'xxxx-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'],
+          object: ['canvas', 'yyyy-yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy'],
         },
       ];
     
@@ -124,6 +121,35 @@ export const testEventStreamClient = (clientPromise: Promise<EventStreamClient>)
         events[2],
         events[1],
       ]);
+    });
+  });
+
+  describe('.filter()', () => {
+    it('can fetch all events, cursor is empty', async () => {
+      const result = await (await clientPromise).filter({});
+
+      console.log(JSON.stringify(result, null, 2));
+      
+      expect(result.cursor).toBe('');
+      expect(result.events.length).toBe(7);
+      expect(result.events[0].object).toStrictEqual(
+        ['canvas', 'yyyy-yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy']
+      );
+    });
+
+    it('can paginate through results', async () => {
+      const client = await clientPromise;
+      const result1 = await client.filter({ limit: 3, cursor: '' });
+      const result2 = await client.filter({ limit: 3, cursor: result1.cursor });
+      const result3 = await client.filter({ limit: 3, cursor: result2.cursor });
+
+      expect(!!result1.cursor).toBe(true);
+      expect(!!result2.cursor).toBe(true);
+      expect(!!result3.cursor).toBe(false);
+
+      expect(result1.events.length).toBe(3);
+      expect(result2.events.length).toBe(3);
+      expect(result3.events.length).toBe(1);
     });
   });
 };

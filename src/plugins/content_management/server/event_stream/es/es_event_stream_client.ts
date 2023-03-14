@@ -167,11 +167,12 @@ export class EsEventStreamClient implements EventStreamClient {
     }
 
     const query = toElasticsearchQuery(nodeBuilder.and(topLevelNodes));
+    const size = options.limit ?? 100;
     const request: estypes.SearchRequest = {
       index: this.#names.dataStream,
       query,
       sort,
-      size: options.limit ?? 100,
+      size,
     };
 
     if (options.cursor) {
@@ -184,7 +185,7 @@ export class EsEventStreamClient implements EventStreamClient {
 
     let cursor: string = '';
 
-    if (lastHit && lastHit.sort) {
+    if ((events.length >= size) && lastHit && lastHit.sort) {
       cursor = JSON.stringify(lastHit.sort);
     }
     
