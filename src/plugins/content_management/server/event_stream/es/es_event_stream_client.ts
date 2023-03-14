@@ -7,8 +7,15 @@
  */
 
 import type { estypes } from '@elastic/elasticsearch';
+import { KueryNode, nodeBuilder, toElasticsearchQuery } from '@kbn/es-query';
 import type { EsClient, EsEventStreamEventDto } from './types';
-import type { EventStreamClient, EventStreamEvent, EventStreamLogger } from '../types';
+import type {
+  EventStreamClient,
+  EventStreamClientFilterOptions,
+  EventStreamClientFilterResult,
+  EventStreamEvent,
+  EventStreamLogger
+} from '../types';
 import { EsEventStreamNames } from './es_event_stream_names';
 import { EsEventStreamInitializer } from './init/es_event_stream_initializer';
 import { eventToDto, dtoToEvent } from './util';
@@ -19,6 +26,26 @@ export interface EsEventStreamClientDependencies {
   logger: EventStreamLogger;
   esClient: Promise<EsClient>;
 }
+
+const sort: estypes.Sort = [
+  {
+    // By default we always sort by event timestamp descending.
+    '@timestamp': {
+      order: 'desc',
+    },
+
+    // Tie breakers for events with the same timestamp.
+    'subjectId': {
+      order: 'desc',
+    },
+    'objectId': {
+      order: 'desc',
+    },
+    'predicate': {
+      order: 'desc',
+    },
+  },
+];
 
 export class EsEventStreamClient implements EventStreamClient {
   readonly #names: EsEventStreamNames;
@@ -61,22 +88,109 @@ export class EsEventStreamClient implements EventStreamClient {
     const esClient = await this.deps.esClient;
     const res = await esClient.search<EsEventStreamEventDto>({
       index: this.#names.dataStream,
-      body: {
-        query: {
-          match_all: {},
-        },
-        sort: [
-          {
-            '@timestamp': {
-              order: 'desc',
-            },
-          },
-        ],
-        size: limit,
+      query: {
+        match_all: {},
       },
+      sort,
+      size: limit,
     });
     const events = res.hits.hits.map(hit => dtoToEvent(hit._source!));
     
     return events;
+  }
+
+  public async filter(options: EventStreamClientFilterOptions): Promise<EventStreamClientFilterResult> {
+    const esClient = await this.deps.esClient;
+    const topLevelNodes: KueryNode[] = [];
+
+    if (options.subject && options.subject.length) {
+      topLevelNodes.push(
+        nodeBuilder.or(
+          options.subject.map(([type, id]) => !id
+            ? nodeBuilder.is('subjectType', type)
+            : nodeBuilder.and([
+              nodeBuilder.is('subjectType', type),
+              nodeBuilder.is('subjectId', id),
+            ]))
+        )
+      );
+    }
+
+    if (options.object && options.object.length) {
+      topLevelNodes.push(
+        nodeBuilder.or(
+          options.object.map(([type, id]) => !id
+            ? nodeBuilder.is('objectType', type)
+            : nodeBuilder.and([
+              nodeBuilder.is('objectType', type),
+              nodeBuilder.is('objectId', id),
+            ]))
+        )
+      );
+    }
+
+    if (options.predicate && options.predicate.length) {
+      topLevelNodes.push(
+        nodeBuilder.or(
+          options.predicate.map(([type, attributes]) => {
+            if (!attributes) {
+              return nodeBuilder.is('predicate', type);
+            }
+
+            const attributeNodes = nodeBuilder.and(
+              Object.entries(attributes).map(([key, value]) => {
+                return nodeBuilder.is(`payload.${key}`, value);
+              })
+            );
+
+            if (!type) return attributeNodes;
+
+            return nodeBuilder.and([
+              nodeBuilder.is('predicate', type),
+              attributeNodes,
+            ]);
+          })
+        )
+      );
+    }
+
+    if (options.from) {
+      const node = nodeBuilder.range('@timestamp', 'gte', options.from);
+
+      topLevelNodes.push(node);
+    }
+
+    if (options.to) {
+      const node = nodeBuilder.range('@timestamp', 'lte', options.to);
+
+      topLevelNodes.push(node);
+    }
+
+    const query = toElasticsearchQuery(nodeBuilder.and(topLevelNodes));
+    const request: estypes.SearchRequest = {
+      index: this.#names.dataStream,
+      query,
+      sort,
+      size: options.limit ?? 100,
+    };
+
+    if (options.cursor) {
+      request.search_after = JSON.parse(options.cursor);
+    }
+
+    const res = await esClient.search<EsEventStreamEventDto>(request);
+    const events = res.hits.hits.map(hit => dtoToEvent(hit._source!));
+    const lastHit = res.hits.hits[res.hits.hits.length - 1];
+
+    let cursor: string = '';
+
+    if (lastHit && lastHit.sort) {
+      cursor = JSON.stringify(lastHit.sort);
+    }
+    
+    return {
+      cursor,
+      events,
+    };
   }
 }

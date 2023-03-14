@@ -31,6 +31,76 @@ export interface EventStreamClient {
    *              default is 100.
    */
   tail(limit?: number): Promise<EventStreamEvent[]>;
+
+  /**
+   * Retrieves events from the Event Stream which match the specified filter
+   * options.
+   */
+  filter: (options: EventStreamClientFilterOptions) => Promise<EventStreamClientFilterResult>;
+}
+
+/**
+ * Represents the options which can be used to filter events from the Event
+ * Stream.
+ */
+export interface EventStreamClientFilterOptions {
+  /**
+   * One or more subjects to filter by. Subjects are joined by `OR` logic.
+   */
+  subject?: [type: string, id?: string][];
+
+  /**
+   * One or more predicates to filter by. Predicates are joined by `OR` logic.
+   */
+  predicate?: [type: string, attributes?: Record<string, string>][];
+
+  /**
+   * One or more objects to filter by. Objects are joined by `OR` logic.
+   */
+  object?: [type: string, id?: string][];
+
+  /**
+   * The starting time to filter by. Events which occurred after this time will
+   * be returned. If not specified, the default is the beginning of time.
+   */
+  from?: number;
+
+  /**
+   * The ending time to filter by. Events which occurred before this time will
+   * be returned. If not specified, the default is the current time.
+   */
+  to?: number;
+
+  /**
+   * The maximum number of events to return. If not specified, the default is
+   * 100.
+   */
+  limit?: number;
+
+  /**
+   * A cursor which can be used to retrieve the next page of results. On the
+   * first call, this should be `undefined` or empty string. On subsequent
+   * calls, this should be the value of the `cursor` property returned by the
+   * previous call in the {@link EventStreamClientFilterResult} object.
+   */
+  cursor?: string;
+}
+
+/**
+ * Represents the result of a `.filter()` operation.
+ */
+export interface EventStreamClientFilterResult {
+  /**
+   * A cursor which can be used to retrieve the next page of results. Should be
+   * treated as a opaque value. When empty, there are no more results.
+   */
+  cursor: string;
+
+  /**
+   * The list of events which matched the filter. Sorted by time in descending
+   * order.
+   */
+  events: EventStreamEvent[];
 }
 
 /**
@@ -75,4 +145,7 @@ export interface EventStreamEvent {
 
 import type { Logger } from '@kbn/core/server';
 
+/**
+ * Logger interface used in the Event Stream.
+ */
 export type EventStreamLogger = Pick<Logger, 'debug' | 'error' | 'info' | 'warn'>;
