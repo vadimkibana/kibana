@@ -9,6 +9,11 @@
 import type { EventStreamClient, EventStreamClientFilterOptions, EventStreamClientFilterResult, EventStreamEvent } from '../types';
 import { clone } from './util';
 
+/**
+ * This is an in-memory implementation of the {@link EventStreamClient}
+ * interface (it does not persist events to Elasticsearch). It is useful for
+ * testing and demo purposes.
+ */
 export class MemoryEventStreamClient implements EventStreamClient {
   #events: EventStreamEvent[] = [];
 
