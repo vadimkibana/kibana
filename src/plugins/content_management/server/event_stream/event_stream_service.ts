@@ -7,12 +7,11 @@
  */
 
 import type { CoreSetup } from '@kbn/core/server';
-import type { EventStreamClient, EventStreamLogger } from './types';
-import { EsEventStreamClient } from './es';
+import type { EventStreamClient, EventStreamClientFactory, EventStreamLogger } from './types';
 
 export interface EventStreamInitializerContext {
   logger: EventStreamLogger;
-  version: string;
+  clientFactory: EventStreamClientFactory;
 }
 
 export interface EventStreamSetup {
@@ -25,15 +24,7 @@ export class EventStreamService {
   constructor(private readonly ctx: EventStreamInitializerContext) {}
 
   public setup({ core }: EventStreamSetup): void {
-    const startServices = core.getStartServices();
-    
-    this.client = new EsEventStreamClient({
-      baseName: '.kibana',
-      kibanaVersion: this.ctx.version,
-      logger: this.ctx.logger,
-      esClient: startServices
-        .then(([{ elasticsearch }]) => elasticsearch.client.asInternalUser),
-    });
+    this.client = this.ctx.clientFactory.create(core);
   }
 
   public start(): void {

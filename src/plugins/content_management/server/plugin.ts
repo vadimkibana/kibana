@@ -21,7 +21,7 @@ import {
   ContentManagementServerStart,
   SetupDependencies,
 } from './types';
-import { EventStreamService } from './event_stream';
+import { EventStreamService, EsEventStreamClientFactory } from './event_stream';
 import { procedureNames } from '../common/rpc';
 
 export class ContentManagementPlugin
@@ -32,12 +32,16 @@ export class ContentManagementPlugin
   readonly #eventStream: EventStreamService;
 
   constructor(initializerContext: PluginInitializerContext) {
-    const version = initializerContext.env.packageInfo.version;
+    const kibanaVersion = initializerContext.env.packageInfo.version;
 
     this.logger = initializerContext.logger.get();
     this.#eventStream = new EventStreamService({
       logger: this.logger,
-      version,
+      clientFactory: new EsEventStreamClientFactory({
+        baseName: '.kibana',
+        kibanaVersion,
+        logger: this.logger,
+      }),
     });
     this.core = new Core({
       logger: this.logger,

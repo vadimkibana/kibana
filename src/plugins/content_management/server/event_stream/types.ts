@@ -6,6 +6,20 @@
  * Side Public License, v 1.
  */
 
+import type { CoreSetup } from '@kbn/core/server';
+
+/**
+ * Represents a factory which can be used to create an Event Stream client.
+ */
+export interface EventStreamClientFactory {
+  /**
+   * Creates an Event Stream client.
+   * 
+   * @param core The CoreSetup object provided by the Kibana platform.
+   */
+  create(core: CoreSetup): EventStreamClient;
+}
+
 /**
  * Represents a storage layer for events.
  */

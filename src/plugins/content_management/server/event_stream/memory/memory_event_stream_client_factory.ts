@@ -6,11 +6,14 @@
  * Side Public License, v 1.
  */
 
-export {
-  EsEventStreamClient,
-  type EsEventStreamClientDependencies
-} from './es_event_stream_client';
-export {
-  EsEventStreamClientFactory,
-  type EsEventStreamClientFactoryDependencies
-} from './es_event_stream_client_factory';
+import type {
+  EventStreamClient,
+  EventStreamClientFactory,
+} from '../types';
+import { MemoryEventStreamClient } from './memory_event_stream_client';
+
+export class MemoryEventStreamClientFactory implements EventStreamClientFactory {
+  public create(): EventStreamClient {
+    return new MemoryEventStreamClient();
+  }
+}

@@ -7,3 +7,4 @@
  */
 
 export { MemoryEventStreamClient } from './memory_event_stream_client';
+export { MemoryEventStreamClientFactory } from './memory_event_stream_client_factory';

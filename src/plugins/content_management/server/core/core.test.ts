@@ -5,7 +5,8 @@
  * in compliance with, at your election, the Elastic License 2.0 or the Server
  * Side Public License, v 1.
  */
-import { loggingSystemMock } from '@kbn/core/server/mocks';
+
+import { loggingSystemMock, coreMock } from '@kbn/core/server/mocks';
 import { Core } from './core';
 import { createMemoryStorage, FooContent } from './mocks';
 import { ContentRegistry } from './registry';
@@ -31,6 +32,8 @@ import type {
   SearchItemError,
 } from './event_types';
 import { ContentTypeDefinition, StorageContext } from './types';
+import { MemoryEventStreamClientFactory } from '../event_stream/memory';
+import { EventStreamService } from '../event_stream';
 
 const logger = loggingSystemMock.createLogger();
 
@@ -45,8 +48,19 @@ const setup = ({ registerFooType = false }: { registerFooType?: boolean } = {}) 
     },
   };
 
-  const core = new Core({ logger });
+  const eventStream = new EventStreamService({
+    logger,
+    clientFactory: new MemoryEventStreamClientFactory(),
+  });
+  const core = new Core({
+    logger,
+    eventStream,
+  });
   const coreSetup = core.setup();
+
+  eventStream.setup({ core: coreMock.createSetup() });
+  eventStream.start();
+
   const contentDefinition: ContentTypeDefinition = {
     id: FOO_CONTENT_ID,
     storage: createMemoryStorage(),
