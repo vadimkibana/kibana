@@ -27,7 +27,7 @@ export const nodeBuilder = {
     operator: keyof Pick<RangeFilterParams, 'gt' | 'gte' | 'lt' | 'lte'>,
     value: number | string
   ) => {
-    return nodeTypes.function.buildNode('range', [
+    return nodeTypes.function.buildNodeWithArgumentNodes('range', [
       nodeTypes.literal.buildNode(fieldName),
       operator,
       typeof value === 'string' ? nodeTypes.literal.buildNode(value) : value,

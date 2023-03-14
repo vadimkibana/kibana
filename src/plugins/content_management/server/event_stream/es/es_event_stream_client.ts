@@ -155,18 +155,21 @@ export class EsEventStreamClient implements EventStreamClient {
     }
 
     if (options.from) {
-      const node = nodeBuilder.range('@timestamp', 'gte', options.from);
+      const from = new Date(options.from).toISOString();
+      const node = nodeBuilder.range('@timestamp', 'gte', from);
 
       topLevelNodes.push(node);
     }
 
     if (options.to) {
-      const node = nodeBuilder.range('@timestamp', 'lte', options.to);
+      const to = new Date(options.to).toISOString();
+      const node = nodeBuilder.range('@timestamp', 'lte', to);
 
       topLevelNodes.push(node);
     }
 
     const query = toElasticsearchQuery(nodeBuilder.and(topLevelNodes));
+
     const size = options.limit ?? 100;
     const request: estypes.SearchRequest = {
       index: this.#names.dataStream,
