@@ -169,7 +169,6 @@ export class EsEventStreamClient implements EventStreamClient {
     }
 
     const query = toElasticsearchQuery(nodeBuilder.and(topLevelNodes));
-
     const size = options.limit ?? 100;
     const request: estypes.SearchRequest = {
       index: this.#names.dataStream,

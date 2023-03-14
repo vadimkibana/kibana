@@ -20,7 +20,7 @@ export const testEventStreamClient = (clientPromise: Promise<EventStreamClient>)
     {
       time: getTime(),
       subject: ['user', '1'],
-      predicate: ['test', { foo: 'bar' }],
+      predicate: ['create', { foo: 'bar' }],
       object: ['dashboard', '1'],
     },
     {
@@ -38,7 +38,7 @@ export const testEventStreamClient = (clientPromise: Promise<EventStreamClient>)
     {
       time: getTime(),
       subject: ['user', '55'],
-      predicate: ['test', {
+      predicate: ['share', {
         foo: 'bar',
         baz: 'qux',
       }],
@@ -197,7 +197,7 @@ export const testEventStreamClient = (clientPromise: Promise<EventStreamClient>)
       );
     });
 
-    it('can filter results by a single subject', async () => {
+    it('can filter results for a single subject', async () => {
       const client = await clientPromise;
       const result = await client.filter({
         subject: [['user', '55']],
@@ -208,12 +208,131 @@ export const testEventStreamClient = (clientPromise: Promise<EventStreamClient>)
       expect(result.events[0]).toStrictEqual({
         time: expect.any(Number),
         subject: ['user', '55'],
-        predicate: ['test', {
+        predicate: ['share', {
           foo: 'bar',
           baz: 'qux',
         }],
         object: ['dashboard', '1'],
       });
+    });
+
+    it('can filter results for multiple subjects', async () => {
+      const client = await clientPromise;
+      const result = await client.filter({
+        subject: [
+          ['user', '55'],
+          ['user', '1'],
+        ],
+      });
+
+      expect(result.cursor).toBe('');
+      expect(result.events.length).toBe(3);
+      expect(result.events).toMatchObject([
+        items[5],
+        items[4],
+        items[1],
+      ]);
+    });
+
+    it('can filter results for a single object', async () => {
+      const client = await clientPromise;
+      const event = items[6];
+      const result = await client.filter({
+        object: [event.object!],
+      });
+  
+      expect(result.cursor).toBe('');
+      expect(result.events.length).toBe(1);
+      expect(result.events[0]).toStrictEqual(event);
+    });
+  
+    it('can filter results for a two objects', async () => {
+      const client = await clientPromise;
+      const result = await client.filter({
+        object: [
+          ['dashboard', '1'],
+          ['map', 'xyz'],
+        ],
+      });
+  
+      expect(result.cursor).toBe('');
+      expect(result.events.length).toBe(4);
+    });
+  
+    it('can filter results by predicate type', async () => {
+      const client = await clientPromise;
+      const result = await client.filter({
+        predicate: [
+          ['view']
+        ],
+      });
+  
+      expect(result.cursor).toBe('');
+      expect(result.events.length).toBe(4);
+      expect(result.events).toMatchObject([
+        items[6],
+        items[5],
+        items[3],
+        items[2],
+      ]);
+    });
+  
+    it('can filter results by multiple predicates', async () => {
+      const client = await clientPromise;
+      const result = await client.filter({
+        predicate: [
+          ['create'],
+          ['share'],
+        ],
+      });
+  
+      expect(result.cursor).toBe('');
+      expect(result.events.length).toBe(2);
+      expect(result.events).toMatchObject([
+        items[4],
+        items[1],
+      ]);
+    });
+  
+    it('can filter results by predicate attributes', async () => {
+      const client = await clientPromise;
+      const result1 = await client.filter({
+        predicate: [
+          ['', { foo: 'bar' }],
+        ],
+      });
+  
+      expect(result1.cursor).toBe('');
+      expect(result1.events.length).toBe(3);
+
+      const result2 = await client.filter({
+        predicate: [
+          ['', { baz: 'qux' }],
+        ],
+      });
+  
+      expect(result2.cursor).toBe('');
+      expect(result2.events.length).toBe(1);
+      expect(result2.events[0]).toStrictEqual(items[4]);
+    });
+  
+    it('can combine multiple filters using AND clause', async () => {
+      const client = await clientPromise;
+      const result = await client.filter({
+        predicate: [
+          ['', { foo: 'bar' }],
+        ],
+        object: [
+          ['dashboard', '1'],
+        ],
+        from: 1678810695362,
+        to: 1678810695362,
+      });
+
+  
+      expect(result.cursor).toBe('');
+      expect(result.events.length).toBe(1);
+      expect(result.events[0]).toMatchObject(items[4]);
     });
   });
 };
