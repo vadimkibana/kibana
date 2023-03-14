@@ -7,7 +7,13 @@
  */
 
 import type { CoreSetup } from '@kbn/core/server';
-import type { EventStreamClient, EventStreamClientFactory, EventStreamLogger } from './types';
+import type { Optional } from 'utility-types';
+import type {
+  EventStreamClient,
+  EventStreamClientFactory,
+  EventStreamEvent,
+  EventStreamLogger
+} from './types';
 
 export interface EventStreamInitializerContext {
   logger: EventStreamLogger;
@@ -41,5 +47,27 @@ export class EventStreamService {
         logger.error('Failed to initialize Event Stream. Events will not be indexed.');
         logger.error(error);
       });
+  }
+
+  #getClient(): EventStreamClient {
+    if (!this.client) throw new Error('EventStreamClient not initialized.');
+    return this.client;
+  }
+
+  public async tail(limit: number = 100): Promise<EventStreamEvent[]> {
+    const client = this.#getClient();
+
+    return await client.tail(limit);
+  }
+
+  public addEvent(event: Optional<EventStreamEvent, 'time'>): void {
+    const client = this.#getClient();
+    const completeEvent: EventStreamEvent = {
+      ...event,
+      time: event.time || Date.now(),
+    };
+    
+    client.writeEvents([completeEvent])
+      .catch((error) => {});
   }
 }

@@ -42,7 +42,7 @@ export class Core {
   private contentRegistry: ContentRegistry;
   private eventBus: EventBus;
 
-  constructor(ctx: CoreInitializerContext) {
+  constructor(private readonly ctx: CoreInitializerContext) {
     const contentTypeValidator = (contentType: string) =>
       this.contentRegistry?.isContentRegistered(contentType) ?? false;
     this.eventBus = new EventBus(contentTypeValidator);
@@ -63,8 +63,13 @@ export class Core {
   }
 
   private setupEventStream() {
-    this.eventBus.on('createItemSuccess', (event) => {
-      console.log('EVENT', event);
+    // TODO: This should be cleaned up and support added for all CRUD events.
+    this.eventBus.on('deleteItemSuccess', (event) => {
+      this.ctx.eventStream.addEvent({
+        // TODO: add "subject" field to event
+        predicate: ['delete'],
+        object: [event.contentTypeId, (event as any).contentId]
+      });
     });
   }
 }
