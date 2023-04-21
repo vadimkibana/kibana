@@ -34,6 +34,7 @@ import {
   AnonymousAccessState,
 } from '../../common/anonymous_access';
 import type { BrowserUrlService } from '../types';
+import type {LocatorPublic} from '@kbn/share-plugin/common';
 
 export interface UrlPanelContentProps {
   allowShortUrl: boolean;
@@ -42,6 +43,10 @@ export interface UrlPanelContentProps {
   objectType: string;
   shareableUrl?: string;
   shareableUrlForSavedObject?: string;
+  shareableUrlLocatorParams?: {
+    locator: LocatorPublic<any>;
+    params: any;
+  };
   urlParamExtensions?: UrlParamExtension[];
   anonymousAccess?: AnonymousAccessServiceContract;
   showPublicUrlSwitch?: (anonymousUserCapabilities: Capabilities) => boolean;
@@ -351,16 +356,23 @@ export class UrlPanelContent extends Component<UrlPanelContentProps, State> {
     });
 
     try {
-      const snapshotUrl = this.getSnapshotUrl();
-      const shortUrl = await this.props.urlService.shortUrls
-        .get(null)
-        .createFromLongUrl(snapshotUrl);
+      const { shareableUrlLocatorParams } = this.props;
+      if (shareableUrlLocatorParams) {
+        const shortUrls = this.props.urlService.shortUrls.get(null);
+        const shortUrl = await shortUrls.createWithLocator(shareableUrlLocatorParams);
+        this.shortUrlCache = await shortUrl.locator.getUrl(shortUrl.params, {absolute: true});
+      } else {
+        const snapshotUrl = this.getSnapshotUrl();
+        const shortUrl = await this.props.urlService.shortUrls
+          .get(null)
+          .createFromLongUrl(snapshotUrl);
+        this.shortUrlCache = shortUrl.url;
+      }
 
       if (!this.mounted) {
         return;
       }
-
-      this.shortUrlCache = shortUrl.url;
+  
       this.setState(
         {
           isCreatingShortUrl: false,

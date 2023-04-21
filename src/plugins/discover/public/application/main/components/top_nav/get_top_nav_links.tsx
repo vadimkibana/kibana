@@ -174,8 +174,10 @@ export const getTopNavLinks = ({
         refreshInterval,
       });
       const shareableUrl = relativeToAbsolute(relativeUrl);
-      const shareableUrlForSavedObject = await services.locator.getUrl(
-        { savedSearchId: savedSearch.id },
+      const locator = services.locator;
+      const params = { savedSearchId: savedSearch.id };
+      const shareableUrlForSavedObject = await locator.getUrl(
+        params,
         { absolute: true }
       );
       const sharingData = await getSharingData(searchSource, appState, services);
@@ -186,6 +188,7 @@ export const getTopNavLinks = ({
         allowShortUrl: !!services.capabilities.discover.createShortUrl,
         shareableUrl,
         shareableUrlForSavedObject,
+        shareableUrlLocatorParams: { locator, params },
         objectId: savedSearch.id,
         objectType: 'search',
         sharingData: {
