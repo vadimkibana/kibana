@@ -17,6 +17,7 @@ import { StartDeps } from '../types';
 import { TodoApp } from './todos';
 import { MSearchApp } from './msearch';
 import { FinderApp } from './finder';
+import {PickerApp} from './picker';
 
 export const renderApp = (
   core: CoreStart,
@@ -52,6 +53,12 @@ export const renderApp = (
                       'data-test-subj': 'finderExample',
                       href: '/app/contentManagementExamples/finder',
                     },
+                    {
+                      id: 'picker',
+                      name: 'Picker',
+                      'data-test-subj': 'pickerExample',
+                      href: '/app/contentManagementExamples/picker',
+                    },
                   ],
                 },
               ]}
@@ -77,6 +84,9 @@ export const renderApp = (
                   core={core}
                   savedObjectsTagging={savedObjectsTaggingOss}
                 />
+              </Route>
+              <Route path="/picker">
+                <PickerApp />
               </Route>
             </Routes>
           </EuiPageTemplate.Section>

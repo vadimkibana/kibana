@@ -16,6 +16,7 @@ import {
 import { ContentClient } from './content_client';
 import { ContentTypeRegistry } from './registry';
 import { RpcClient } from './rpc_client';
+import * as picker from './content_picker';
 
 export class ContentManagementPlugin
   implements
@@ -53,6 +54,7 @@ export class ContentManagementPlugin
         get: this.contentTypeRegistry.get.bind(this.contentTypeRegistry),
         getAll: this.contentTypeRegistry.getAll.bind(this.contentTypeRegistry),
       },
+      picker,
     };
   }
 }
