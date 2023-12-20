@@ -7,17 +7,20 @@
  */
 
 import * as React from 'react';
-import { ContentPicker } from '@kbn/content-management-plugin/public';
+import { ContentPicker, ItemViewListItem } from '@kbn/content-management-plugin/public';
+import { EuiFlexGroup, EuiFlexItem } from '@elastic/eui';
 
 export const ItemViewApp: React.FC = () => {
   return (
     <div>
-      <div>
-        <ContentPicker types={['dashboard', 'visualization']} />
-      </div>
-      <div>
-        view...
-      </div>
+      <EuiFlexGroup gutterSize="l">
+        <EuiFlexItem>
+          <ContentPicker types={['dashboard', 'visualization']} />
+        </EuiFlexItem>
+        <EuiFlexItem>
+          <ItemViewListItem id={['dashboard', 'asdf']} />
+        </EuiFlexItem>
+      </EuiFlexGroup>
     </div>
   );
 };

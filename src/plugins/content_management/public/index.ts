@@ -34,3 +34,4 @@ export function plugin() {
 
 export type { ContentManagementPublicStart, ContentManagementPublicSetup } from './types';
 export * from './content_picker';
+export * from './item_views';

@@ -13,7 +13,6 @@ export class ContentItem<D = unknown> {
     const fields: ContentTypeCommonFields = {
       id: this.contentId,
     };
-    console.log(this);
     const mapper = this.type.fields;
     if (mapper) {
       Object.assign(fields, mapper(this.data));
