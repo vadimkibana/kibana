@@ -38,6 +38,12 @@ export class ContentPickerState {
     if (!hasId) this.selected$.next([...selected, id]);
   }
 
+  public unselect(id: ContentId) {
+    const selected = this.selected$.getValue();
+    const filtered = selected.filter((sel) => !compareId(sel, id));
+    if (filtered.length !== selected.length) this.selected$.next(filtered);
+  }
+
   public useSelected() {
     return useBehaviorSubject(this.selected$);
   }

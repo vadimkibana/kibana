@@ -1,8 +1,8 @@
 import * as React from 'react';
 import {ItemViewListItem} from '../../../item_views/list_item';
-import type {ContentId} from '../../types';
 import {useContentPicker} from '../../context/state';
 import {compareId} from '../../utils';
+import type {ContentId} from '../../types';
 
 export interface InlinePickerItemProps {
   id: ContentId;
@@ -12,13 +12,17 @@ export const InlinePickerItem: React.FC<InlinePickerItemProps> = ({id}) => {
   const {state} = useContentPicker();
   const selected = state.useSelected();
 
-  const isActive = selected.some((selectedId) => compareId(id, selectedId));
+  const isSelected = selected.some((selectedId) => compareId(id, selectedId));
 
   const handleClick = () => {
-    state.select(id);
+    if (isSelected) {
+      state.unselect(id);
+    } else {
+      state.select(id);
+    }
   };
 
   return (
-    <ItemViewListItem id={id} isActive={isActive} onClick={handleClick} />
+    <ItemViewListItem id={id} isActive={isSelected} onClick={handleClick} />
   );
 };
