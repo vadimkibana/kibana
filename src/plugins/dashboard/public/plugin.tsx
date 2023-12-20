@@ -69,7 +69,7 @@ import {
 } from './dashboard_constants';
 import { DashboardMountContextProps } from './dashboard_app/types';
 import type { FindDashboardsService } from './services/dashboard_content_management/types';
-import { CONTENT_ID, LATEST_VERSION } from '../common/content_management';
+import { CONTENT_ID, type DashboardContentItemData, LATEST_VERSION } from '../common/content_management';
 
 export interface DashboardFeatureFlagConfig {
   allowByValueEmbeddables: boolean;
@@ -300,13 +300,16 @@ export class DashboardPlugin
     }
 
     // register content management
-    contentManagement.registry.register({
+    contentManagement.registry.register<DashboardContentItemData>({
       id: CONTENT_ID,
       icon: 'dashboardApp',
       version: {
         latest: LATEST_VERSION,
       },
       name: dashboardAppTitle,
+      fields: (data: DashboardContentItemData) => ({
+        title: data.attributes.title,
+      }),
     });
 
     return {

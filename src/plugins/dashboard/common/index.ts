@@ -15,7 +15,7 @@ export type {
   DashboardContainerByReferenceInput,
 } from './dashboard_container/types';
 
-export type { DashboardAttributes } from './content_management';
+export type { DashboardAttributes, DashboardContentItemData } from './content_management';
 
 export {
   injectReferences,

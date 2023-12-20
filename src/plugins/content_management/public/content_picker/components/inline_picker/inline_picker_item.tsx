@@ -10,6 +10,7 @@ export interface Props {
 export const InlinePickerItem: React.FC<Props> = ({id}) => {
   const item = useItem(id);
   const content = item.useContent();
+  const title = item.useTitle();
   
   if (!content) {
     return (
@@ -21,10 +22,12 @@ export const InlinePickerItem: React.FC<Props> = ({id}) => {
     );
   }
 
+  console.log(content.fields());
+
   return (
     <EuiListGroupItem
       iconType={content.type.icon || 'bullseye'}
-      label={item.id[1]}
+      label={title}
       onClick={() => {}}
       // isActive
     />

@@ -9,6 +9,7 @@
 export { LATEST_VERSION, CONTENT_ID } from './constants';
 
 export type { DashboardContentType } from './types';
+export type { DashboardContentItemData } from './v1';
 
 export type {
   GridData,

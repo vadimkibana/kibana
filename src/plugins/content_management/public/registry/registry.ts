@@ -12,9 +12,9 @@ import type { ContentTypeDefinition } from './content_type_definition';
 import { ContentType } from './content_type';
 
 export class ContentTypeRegistry {
-  private readonly types: Map<string, ContentType> = new Map();
+  private readonly types: Map<string, ContentType<any>> = new Map();
 
-  public register(definition: ContentTypeDefinition): ContentType {
+  public register<Data = unknown>(definition: ContentTypeDefinition<Data>): ContentType<Data> {
     if (this.types.has(definition.id)) {
       throw new Error(`Content type with id "${definition.id}" already registered.`);
     }
@@ -28,10 +28,11 @@ export class ContentTypeRegistry {
       throw new Error(`Version must be >= 1`);
     }
 
-    const type = new ContentType({
+    const def: ContentTypeDefinition<Data> = {
       ...definition,
       version: { ...definition.version, latest: value },
-    });
+    };
+    const type = new ContentType<Data>(def);
     this.types.set(type.id, type);
 
     return type;

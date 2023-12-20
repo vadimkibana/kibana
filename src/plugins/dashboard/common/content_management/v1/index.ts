@@ -14,3 +14,4 @@ export type {
   SavedDashboardPanel,
 } from './types';
 export type DashboardItem = DashboardCrudTypes['Item'];
+export type {DashboardContentItemData} from './cm_services';

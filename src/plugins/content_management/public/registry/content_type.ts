@@ -8,9 +8,10 @@
 
 import { ContentTypeDefinition } from './content_type_definition';
 import type { CrudClient } from '../crud_client';
+import type { CommonFieldsMapper } from './types';
 
-export class ContentType {
-  constructor(public readonly definition: ContentTypeDefinition) {}
+export class ContentType<Data = unknown> {
+  constructor(public readonly definition: ContentTypeDefinition<Data>) {}
 
   public get id(): string {
     return this.definition.id;
@@ -34,5 +35,9 @@ export class ContentType {
 
   public get version(): ContentTypeDefinition['version'] {
     return this.definition.version;
+  }
+
+  public get fields(): CommonFieldsMapper<Data> | undefined {
+    return this.definition.fields;
   }
 }

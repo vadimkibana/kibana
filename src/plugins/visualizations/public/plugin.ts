@@ -396,6 +396,9 @@ export class VisualizationsPlugin
         latest: LATEST_VERSION,
       },
       name: 'Visualize Library',
+      fields: (data: any) => ({
+        title: data.attributes.title,
+      }),
     });
 
     return {

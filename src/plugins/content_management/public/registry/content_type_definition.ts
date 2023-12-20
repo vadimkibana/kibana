@@ -13,7 +13,7 @@ import type { CommonFieldsMapper } from './types';
 /**
  * Content type definition as it is registered in the content registry.
  */
-export interface ContentTypeDefinition {
+export interface ContentTypeDefinition<Data = unknown> {
   /**
    * ID of the type. Must be unique. Like "dashboard", "visualization", etc.
    */
@@ -45,7 +45,7 @@ export interface ContentTypeDefinition {
   /**
    * Optional mapper for common field extraction from content items.
    */
-  fields?: CommonFieldsMapper<unknown>;
+  fields?: CommonFieldsMapper<Data>;
 
   version: {
     /** The latest version for this content */
