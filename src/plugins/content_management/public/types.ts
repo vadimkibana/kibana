@@ -6,8 +6,8 @@
  * Side Public License, v 1.
  */
 
-import type { ContentClient } from './content_client';
 import type { ContentTypeRegistry } from './registry';
+import type {ContentManagementPlugin} from './plugin';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface SetupDependencies {}
@@ -19,7 +19,4 @@ export interface ContentManagementPublicSetup {
   registry: Pick<ContentTypeRegistry, 'register'>;
 }
 
-export interface ContentManagementPublicStart {
-  client: ContentClient;
-  registry: Pick<ContentTypeRegistry, 'get' | 'getAll'>;
-}
+export type ContentManagementPublicStart = ReturnType<ContentManagementPlugin['start']>;

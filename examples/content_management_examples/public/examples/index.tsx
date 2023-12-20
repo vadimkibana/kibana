@@ -86,7 +86,9 @@ export const renderApp = (
                 />
               </Route>
               <Route path="/picker">
-                <PickerApp />
+                <contentManagement.ContentPickerGlobalProvider>
+                  <PickerApp />
+                </contentManagement.ContentPickerGlobalProvider>
               </Route>
             </Routes>
           </EuiPageTemplate.Section>

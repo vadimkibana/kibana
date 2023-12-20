@@ -7,11 +7,12 @@
  */
 
 import * as React from 'react';
+import { ContentPicker } from '@kbn/content-management-plugin/public';
 
 export const PickerApp: React.FC = () => {
   return (
     <div>
-      Picker app...
+      <ContentPicker />
     </div>
   );
 };

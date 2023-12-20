@@ -6,6 +6,8 @@
  * Side Public License, v 1.
  */
 
+import * as React from 'react';
+import {createElement as h} from 'react';
 import type { CoreStart, Plugin } from '@kbn/core/public';
 import {
   ContentManagementPublicStart,
@@ -17,6 +19,7 @@ import { ContentClient } from './content_client';
 import { ContentTypeRegistry } from './registry';
 import { RpcClient } from './rpc_client';
 import * as picker from './content_picker';
+import {context} from './content_picker/context/global';
 
 export class ContentManagementPlugin
   implements
@@ -48,6 +51,17 @@ export class ContentManagementPlugin
       if (!contentType) return rpcClient;
       return this.contentTypeRegistry.get(contentType)?.crud ?? rpcClient;
     }, this.contentTypeRegistry);
+
+    const ContentPickerGlobalProvider: React.FC<{children: React.ReactNode}> = ({children}) => 
+      h(context.Provider, {
+        value: {
+          core,
+          client: contentClient,
+          registry: this.contentTypeRegistry,
+        },
+        children,
+      });
+    
     return {
       client: contentClient,
       registry: {
@@ -55,6 +69,7 @@ export class ContentManagementPlugin
         getAll: this.contentTypeRegistry.getAll.bind(this.contentTypeRegistry),
       },
       picker,
+      ContentPickerGlobalProvider,
     };
   }
 }
