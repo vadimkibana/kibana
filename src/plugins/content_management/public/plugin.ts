@@ -19,7 +19,7 @@ import { ContentClient } from './content_client';
 import { ContentTypeRegistry } from './registry';
 import { RpcClient } from './rpc_client';
 import * as picker from './content_picker';
-import {context} from './content_picker/context/global';
+import {context} from './content_picker/context/services';
 
 export class ContentManagementPlugin
   implements

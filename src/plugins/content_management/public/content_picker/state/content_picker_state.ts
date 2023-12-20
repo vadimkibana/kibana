@@ -1,5 +1,5 @@
 import {BehaviorSubject} from "rxjs";
-import {ContentPickerGlobalContextValue} from "../context/global";
+import {ContentPickerServices} from "../context/services";
 import type {PickerProps} from "../components/types";
 import type {ContentId} from "../types";
 
@@ -7,7 +7,7 @@ export class ContentPickerState {
   /** Query string to list of IDs. */
   protected readonly queryCache = new Map<string, BehaviorSubject<ContentId[]>>();
 
-  constructor (public readonly services: ContentPickerGlobalContextValue, public readonly props: PickerProps) {
+  constructor (public readonly services: ContentPickerServices, public readonly props: PickerProps) {
     this.loadInitial().catch(() => {});
   }
 
