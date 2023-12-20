@@ -8,7 +8,7 @@
 
 import * as React from 'react';
 import { ContentPicker } from '@kbn/content-management-plugin/public';
-import { EuiFlexGroup, EuiFlexItem } from '@elastic/eui';
+import { EuiFlexGroup, EuiFlexItem, EuiSpacer, EuiTitle } from '@elastic/eui';
 import type { ContentPickerState } from '@kbn/content-management-plugin/public';
 import {SelectedPreview} from './selected_preview';
 
@@ -19,9 +19,17 @@ export const ItemViewApp: React.FC = () => {
     <div>
       <EuiFlexGroup gutterSize="l">
         <EuiFlexItem>
+          <EuiTitle size="xs">
+            <h5>Content Picker</h5>
+          </EuiTitle>
+          <EuiSpacer size={'s'} />
           <ContentPicker types={['dashboard', 'visualization']} onState={setState} />
         </EuiFlexItem>
         <EuiFlexItem>
+          <EuiTitle size="xs">
+            <h5>Selected</h5>
+          </EuiTitle>
+          <EuiSpacer size={'s'} />
           {!!state && <SelectedPreview state={state} />}
         </EuiFlexItem>
       </EuiFlexGroup>
