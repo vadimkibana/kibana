@@ -23,7 +23,14 @@ export interface ContentPickerStateProviderProps {
 
 export const ContentPickerStateProvider: React.FC<ContentPickerStateProviderProps> = ({props, children}) => {
   const services = useContentPickerServices();
-  const state = React.useMemo(() => new ContentPickerState(services, props), []);
+  const state = React.useMemo(() => {
+    const state = new ContentPickerState(services, props);
+    if (props.onState) {
+      props.onState(state);
+    }
+
+    return state;
+  }, []);
 
   return (
     <context.Provider value={{state}}>

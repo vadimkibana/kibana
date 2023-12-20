@@ -7,18 +7,22 @@
  */
 
 import * as React from 'react';
-import { ContentPicker, ItemViewListItem } from '@kbn/content-management-plugin/public';
+import { ContentPicker } from '@kbn/content-management-plugin/public';
 import { EuiFlexGroup, EuiFlexItem } from '@elastic/eui';
+import type { ContentPickerState } from '@kbn/content-management-plugin/public';
+import {SelectedPreview} from './selected_preview';
 
 export const ItemViewApp: React.FC = () => {
+  const [state, setState] = React.useState<ContentPickerState | null>(null);
+
   return (
     <div>
       <EuiFlexGroup gutterSize="l">
         <EuiFlexItem>
-          <ContentPicker types={['dashboard', 'visualization']} />
+          <ContentPicker types={['dashboard', 'visualization']} onState={setState} />
         </EuiFlexItem>
         <EuiFlexItem>
-          <ItemViewListItem id={['dashboard', 'asdf']} />
+          {!!state && <SelectedPreview state={state} />}
         </EuiFlexItem>
       </EuiFlexGroup>
     </div>
