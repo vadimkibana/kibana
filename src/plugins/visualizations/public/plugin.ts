@@ -391,6 +391,7 @@ export class VisualizationsPlugin
 
     contentManagement.registry.register({
       id: CONTENT_ID,
+      icon: 'visualizeApp',
       version: {
         latest: LATEST_VERSION,
       },

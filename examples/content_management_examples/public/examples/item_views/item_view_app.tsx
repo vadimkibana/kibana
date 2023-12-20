@@ -12,7 +12,9 @@ import { ContentPicker } from '@kbn/content-management-plugin/public';
 export const ItemViewApp: React.FC = () => {
   return (
     <div>
-      item view
+      <div>
+        <ContentPicker types={['dashboard', 'visualization']} />
+      </div>
     </div>
   );
 };

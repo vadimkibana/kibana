@@ -8,6 +8,7 @@
 
 import type { Version } from '@kbn/object-versioning';
 import type { CrudClient } from '../crud_client';
+import type { CommonFieldsMapper } from './types';
 
 /**
  * Content type definition as it is registered in the content registry.
@@ -40,6 +41,11 @@ export interface ContentTypeDefinition {
    * If not provided the default CRUD client is used assuming that this type has a server-side content registry
    */
   crud?: CrudClient;
+
+  /**
+   * Optional mapper for common field extraction from content items.
+   */
+  fields?: CommonFieldsMapper<unknown>;
 
   version: {
     /** The latest version for this content */

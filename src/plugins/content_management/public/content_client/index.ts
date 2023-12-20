@@ -18,3 +18,4 @@ export {
   useUpdateContentMutation,
   useDeleteContentMutation,
 } from './content_client_mutation_hooks';
+export { ContentClientItem } from './content_client_item';

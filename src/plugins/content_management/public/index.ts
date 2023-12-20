@@ -15,10 +15,18 @@ export {
   useUpdateContentMutation,
   useDeleteContentMutation,
   useSearchContentQuery,
+  ContentClientItem,
   useGetContentQuery,
   useContentClient,
   type QueryOptions,
 } from './content_client';
+
+export {
+  ContentTypeRegistry,
+  ContentType,
+  ContentItem,
+  type ContentTypeDefinition,
+} from './registry';
 
 export function plugin() {
   return new ContentManagementPlugin();

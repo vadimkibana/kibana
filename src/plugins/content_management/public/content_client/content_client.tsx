@@ -21,6 +21,7 @@ import type {
   MSearchResult,
 } from '../../common';
 import type { ContentTypeRegistry } from '../registry';
+import {ContentClientItem} from './content_client_item';
 
 export const queryKeyBuilder = {
   all: (type: string) => [type] as const,
@@ -109,6 +110,13 @@ export class ContentClient {
 
   get$<I extends GetIn = GetIn, O = unknown>(input: I) {
     return createQueryObservable(this.queryClient, this.queryOptionBuilder.get<I, O>(input));
+  }
+
+  getItem<I extends GetIn = GetIn, O = unknown>(input: I) {
+    const type = this.contentTypeRegistry.get(input.contentTypeId);
+    if (!type) throw new Error(`Unknown content type [${input.contentTypeId}]`);
+    const query$ = createQueryObservable(this.queryClient, this.queryOptionBuilder.get<I, O>(input));
+    return new ContentClientItem<O>(this, type, [input.contentTypeId, input.id], query$);
   }
 
   create<I extends CreateIn, O = unknown>(input: I): Promise<O> {

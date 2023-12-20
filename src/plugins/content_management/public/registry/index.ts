@@ -8,4 +8,5 @@
 
 export type { ContentTypeDefinition } from './content_type_definition';
 export { ContentType } from './content_type';
+export { ContentItem } from './content_item';
 export { ContentTypeRegistry } from './registry';
