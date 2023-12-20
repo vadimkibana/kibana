@@ -7,7 +7,8 @@
  */
 
 import * as React from 'react';
-import { ItemViewListItem, type ContentPickerState } from '@kbn/content-management-plugin/public';
+import { type ContentPickerState, ItemView, ItemViewProps } from '@kbn/content-management-plugin/public';
+import {EuiSelect, EuiSpacer} from '@elastic/eui';
 
 export interface Props {
   state: ContentPickerState;
@@ -15,6 +16,7 @@ export interface Props {
 
 export const SelectedPreview: React.FC<Props> = ({state}) => {
   const selected = state.useSelected();
+  const [view, setView] = React.useState<ItemViewProps['view']>('list-item');
 
   if (!selected.length) {
     return null;
@@ -22,8 +24,19 @@ export const SelectedPreview: React.FC<Props> = ({state}) => {
 
   return (
     <>
+      <EuiSelect
+        options={[
+          {value: 'avatar', text: 'Avatar'},
+          {value: 'list-item', text: 'List item'},
+        ]}
+        value={view}
+        onChange={(e) => {
+          setView(e.target.value as ItemViewProps['view']);
+        }}
+      />
+      <EuiSpacer />
       {selected.map((id) => (
-        <ItemViewListItem key={id[0] + ':' + id[1]} id={id} />
+        <ItemView key={id[0] + ':' + id[1]} view={view} id={id} />
       ))}
     </>
   );

@@ -25,12 +25,13 @@ export const ContentPickerStateProvider: React.FC<ContentPickerStateProviderProp
   const services = useContentPickerServices();
   const state = React.useMemo(() => {
     const state = new ContentPickerState(services, props);
-    if (props.onState) {
-      props.onState(state);
-    }
-
     return state;
   }, []);
+  React.useLayoutEffect(() => {
+    if (props.onState && state) {
+      props.onState(state);
+    }
+  }, [state]);
 
   return (
     <context.Provider value={{state}}>
