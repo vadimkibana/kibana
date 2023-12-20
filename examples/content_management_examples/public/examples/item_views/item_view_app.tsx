@@ -15,6 +15,9 @@ export const ItemViewApp: React.FC = () => {
       <div>
         <ContentPicker types={['dashboard', 'visualization']} />
       </div>
+      <div>
+        view...
+      </div>
     </div>
   );
 };
