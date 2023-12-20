@@ -22,7 +22,9 @@ export const SelectedPreview: React.FC<Props> = ({state}) => {
 
   return (
     <>
-      <ItemViewListItem id={selected[0]} />
+      {selected.map((id) => (
+        <ItemViewListItem key={id[0] + ':' + id[1]} id={id} />
+      ))}
     </>
   );
 };
