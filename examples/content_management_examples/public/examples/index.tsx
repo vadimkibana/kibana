@@ -18,6 +18,7 @@ import { TodoApp } from './todos';
 import { MSearchApp } from './msearch';
 import { FinderApp } from './finder';
 import {PickerApp} from './picker';
+import {ItemViewApp} from './item_views';
 
 export const renderApp = (
   core: CoreStart,
@@ -54,6 +55,12 @@ export const renderApp = (
                       href: '/app/contentManagementExamples/finder',
                     },
                     {
+                      id: 'item-views',
+                      name: 'Item views',
+                      'data-test-subj': 'itemViewExample',
+                      href: '/app/contentManagementExamples/item-views',
+                    },
+                    {
                       id: 'picker',
                       name: 'Picker',
                       'data-test-subj': 'pickerExample',
@@ -84,6 +91,11 @@ export const renderApp = (
                   core={core}
                   savedObjectsTagging={savedObjectsTaggingOss}
                 />
+              </Route>
+              <Route path="/item-views">
+                <contentManagement.ContentPickerGlobalProvider>
+                  <ItemViewApp />
+                </contentManagement.ContentPickerGlobalProvider>
               </Route>
               <Route path="/picker">
                 <contentManagement.ContentPickerGlobalProvider>
