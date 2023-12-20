@@ -4,8 +4,6 @@ import type {PickerProps} from './components/types';
 
 export const ContentPicker: React.FC<PickerProps> = (props) => {
   return (
-    <div>
-      <InlinePicker {...props} />
-    </div>
+    <InlinePicker key={props.types.join(',')} {...props} />
   );
 };

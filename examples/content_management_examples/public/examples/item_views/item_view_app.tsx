@@ -8,12 +8,15 @@
 
 import * as React from 'react';
 import { ContentPicker } from '@kbn/content-management-plugin/public';
-import { EuiFlexGroup, EuiFlexItem, EuiSpacer, EuiTitle } from '@elastic/eui';
+import { EuiComboBox, EuiComboBoxProps, EuiFlexGroup, EuiFlexItem, EuiSpacer, EuiTitle } from '@elastic/eui';
 import type { ContentPickerState } from '@kbn/content-management-plugin/public';
 import {SelectedPreview} from './selected_preview';
 
+const defaultType = {label: 'Dashboard', value: 'dashboard'};
+
 export const ItemViewApp: React.FC = () => {
   const [state, setState] = React.useState<ContentPickerState | null>(null);
+  const [types, setTypes] = React.useState<EuiComboBoxProps<any>['selectedOptions']>([defaultType]);
 
   return (
     <div>
@@ -23,7 +26,18 @@ export const ItemViewApp: React.FC = () => {
             <h5>Content Picker</h5>
           </EuiTitle>
           <EuiSpacer size={'s'} />
-          <ContentPicker types={['dashboard', 'visualization']} onState={setState} />
+          <EuiComboBox
+            placeholder="Select content types"
+            options={[
+              {label: 'Dashboard', value: 'dashboard'},
+              {label: 'Visualization', value: 'visualization'},
+            ]}
+            selectedOptions={types}
+            onChange={(newTypes) => newTypes.length ? setTypes(newTypes) : setTypes([defaultType])}
+            isClearable={true}
+          />
+          <EuiSpacer size={'s'} />
+          <ContentPicker types={types!.length ? types!.map(t => t.value) : ['dashboard']} onState={setState} />
         </EuiFlexItem>
         <EuiFlexItem>
           <EuiTitle size="xs">
