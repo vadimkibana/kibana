@@ -302,6 +302,7 @@ export class DashboardPlugin
     // register content management
     contentManagement.registry.register({
       id: CONTENT_ID,
+      icon: 'dashboardApp',
       version: {
         latest: LATEST_VERSION,
       },
