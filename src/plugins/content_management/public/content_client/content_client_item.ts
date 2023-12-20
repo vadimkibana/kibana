@@ -4,6 +4,7 @@ import { ContentItem, ContentType } from '../registry';
 import type { ContentClient } from './content_client';
 import { BehaviorSubject, type Observable } from 'rxjs';
 import useObservable from 'react-use/lib/useObservable';
+import { useBehaviorSubject } from '../content_picker/hooks/use_behavior_subject';
 
 export class ContentClientItem<D = unknown> {
   public readonly content$ = new BehaviorSubject<ContentItem<D> | undefined>(undefined);
@@ -21,11 +22,15 @@ export class ContentClientItem<D = unknown> {
     });
   }
 
+  public content(): ContentItem<D> | undefined {
+    return this.content$.getValue();
+  }
+
   public readonly useQuery = () => {
     return useObservable(this.query$);
   };
 
-  public content(): ContentItem<D> | undefined {
-    return this.content$.getValue();
-  }
+  public readonly useContent = () => {
+    return useBehaviorSubject(this.content$);
+  };
 }
