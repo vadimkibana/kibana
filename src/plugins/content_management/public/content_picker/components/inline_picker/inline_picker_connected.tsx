@@ -12,7 +12,7 @@ export const InlinePickerConnected: React.FC = () => {
     <EuiListGroup maxWidth={288}>
       {
         ids.map((id) => (
-          <InlinePickerItem key={id} id={id} />
+          <InlinePickerItem key={id[0] + ':' + id[1]} id={id} />
         ))
       }
     </EuiListGroup>
