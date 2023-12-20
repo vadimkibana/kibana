@@ -12,7 +12,7 @@ import { ContentPicker } from '@kbn/content-management-plugin/public';
 export const PickerApp: React.FC = () => {
   return (
     <div>
-      <ContentPicker />
+      <ContentPicker types={['dashboard']} />
     </div>
   );
 };

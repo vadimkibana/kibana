@@ -1,5 +1,6 @@
 import * as React from 'react';
 import {ContentPickerState} from '../state/content_picker_state';
+import {useContentPickerGlobalContext} from './global';
 import type {PickerProps} from '../components/types';
 
 export interface ContentPickerStateContextValue {
@@ -21,7 +22,8 @@ export interface ContentPickerStateProviderProps {
 }
 
 export const ContentPickerStateProvider: React.FC<ContentPickerStateProviderProps> = ({props, children}) => {
-  const state = React.useMemo(() => new ContentPickerState(props), []);
+  const services = useContentPickerGlobalContext();
+  const state = React.useMemo(() => new ContentPickerState(services, props), []);
 
   return (
     <context.Provider value={{state}}>

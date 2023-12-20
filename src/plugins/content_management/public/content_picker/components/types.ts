@@ -1,3 +1,3 @@
 export interface PickerProps {
-  contentType: string;
+  types: string[];
 }
