@@ -1,14 +1,14 @@
 import {BehaviorSubject} from "rxjs";
 import {ContentPickerServices} from "../context/services";
-import type {PickerProps} from "../components/types";
-import type {ContentId} from "../types";
 import {compareId} from "../utils";
 import {useBehaviorSubject} from "../hooks/use_behavior_subject";
+import type {PickerProps} from "../components/types";
+import type {ContentId} from "../types";
 
 export class ContentPickerState {
   /** Query string to list of IDs. */
   protected readonly queryCache = new Map<string, BehaviorSubject<ContentId[]>>();
-  public readonly selected$ = new BehaviorSubject<ContentId | null>(null);
+  public readonly selected$ = new BehaviorSubject<ContentId[]>([]);
 
   constructor (public readonly services: ContentPickerServices, public readonly props: PickerProps) {
     this.loadInitial().catch(() => {});
@@ -34,7 +34,8 @@ export class ContentPickerState {
 
   public select(id: ContentId) {
     const selected = this.selected$.getValue();
-    if (!selected || !compareId(selected, id)) this.selected$.next(id);
+    const hasId = selected.some((sel) => compareId(sel, id));
+    if (!hasId) this.selected$.next([...selected, id]);
   }
 
   public useSelected() {
