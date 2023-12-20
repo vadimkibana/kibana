@@ -1,7 +1,6 @@
 import * as React from 'react';
-import useObservable from 'react-use/lib/useObservable';
 import {EuiListGroupItem} from '@elastic/eui';
-import {useContentPicker} from '../../context/state';
+import {useItem} from '../../hooks/use_item';
 import type {ContentId} from '../../types';
 
 export interface Props {
@@ -9,9 +8,7 @@ export interface Props {
 }
 
 export const InlinePickerItem: React.FC<Props> = ({id}) => {
-  const {state} = useContentPicker();
-  const item$ = React.useMemo(() => state.services.client.get$({contentTypeId: id[0], id: id[1]}), [id[0], id[1]]);
-  const item = useObservable(item$);
+  const item = useItem(id);
   
   if (item?.status !== 'success') {
     return (
