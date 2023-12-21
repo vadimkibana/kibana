@@ -29,6 +29,7 @@ export const SelectedPreview: React.FC<Props> = ({ids}) => {
           {value: 'avatar', text: 'Avatar'},
           {value: 'badge', text: 'Badge'},
           {value: 'list-item', text: 'List item'},
+          {value: 'thumbnail', text: 'Thumbnail'},
           {value: 'card', text: 'Card'},
         ]}
         value={view}
