@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { EuiModal, EuiModalHeader, EuiModalHeaderTitle, EuiButton, EuiModalFooter, EuiModalBody, EuiButtonEmpty } from '@elastic/eui';
 import type {PickerProps} from '../types';
-import {InlinePicker} from '../inline_picker/inline_picker';
+import {GridPicker} from '../grid_picker/grid_picker';
 
 export const InlinePickerModal: React.FC<PickerProps> = (props) => {
   const [open, setOpen] = React.useState(false);
@@ -17,12 +17,14 @@ export const InlinePickerModal: React.FC<PickerProps> = (props) => {
   );
 
   const modal = open ? (
-    <EuiModal onClose={() => setOpen(false)}>
+    <EuiModal onClose={() => setOpen(false)} maxWidth={2000}>
       <EuiModalHeader>
         <EuiModalHeaderTitle>Select content</EuiModalHeaderTitle>
       </EuiModalHeader>
       <EuiModalBody>
-        <InlinePicker {...props} />
+        <div style={{width: '80vw', height: '70vh'}}>
+          <GridPicker {...props} />
+        </div>
       </EuiModalBody>
       <EuiModalFooter>
         <EuiButton type="submit" onClick={() => setOpen(false)} fill>
