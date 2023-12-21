@@ -7,7 +7,6 @@
  */
 
 import * as React from 'react';
-import { ContentPicker } from '@kbn/content-management-plugin/public';
 import {
   EuiFlexGroup,
   EuiFlexItem,
@@ -16,16 +15,21 @@ import {
   EuiSpacer,
   EuiTitle,
 } from '@elastic/eui';
-import type { ContentPickerState } from '@kbn/content-management-plugin/public';
 import { SelectedPreview } from './selected_preview';
+import {ContentId} from '@kbn/content-management-plugin/public/content_picker/types';
+
+export interface RenderPickerProps {
+  onPick: (ids: ContentId[]) => void;
+}
 
 export interface PickerExampleProps {
   title: string;
   types: string[];
+  renderPicker: (props: RenderPickerProps) => React.ReactNode;
 }
 
-export const PickerExample: React.FC<PickerExampleProps> = ({ title, types }) => {
-  const [state, setState] = React.useState<ContentPickerState | null>(null);
+export const PickerExample: React.FC<PickerExampleProps> = ({ title, types, renderPicker }) => {
+  const [ids, setIds] = React.useState<ContentId[]>([]);
 
   return (
     <>
@@ -39,17 +43,18 @@ export const PickerExample: React.FC<PickerExampleProps> = ({ title, types }) =>
               <h5>Content Picker</h5>
             </EuiTitle>
             <EuiSpacer size={'s'} />
-            <ContentPicker
-              types={types}
-              onState={setState}
-            />
+            {renderPicker({
+              onPick: (ids) => {
+                setIds(ids);
+              },
+            })}
           </EuiFlexItem>
           <EuiFlexItem>
             <EuiTitle size="xs">
               <h5>Selected</h5>
             </EuiTitle>
             <EuiSpacer size={'s'} />
-            {!!state && <SelectedPreview state={state} />}
+            <SelectedPreview ids={ids} />
           </EuiFlexItem>
         </EuiFlexGroup>
       </EuiPageSection>

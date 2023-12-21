@@ -5,7 +5,7 @@ import type {PickerProps} from '../types';
 
 export const InlinePicker: React.FC<PickerProps> = (props) => {
   return (
-    <ContentPickerStateProvider props={props}>
+    <ContentPickerStateProvider props={{...props, pickOnSelect: true}}>
       <InlinePickerConnected />
     </ContentPickerStateProvider>
   );

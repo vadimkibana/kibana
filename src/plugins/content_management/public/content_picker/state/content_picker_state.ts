@@ -20,6 +20,11 @@ export class ContentPickerState {
       const results = this.getQueryResults(q as string);
       results.next((res as any).hits.map(({type, id}: any) => [type, id]));
     });
+    this.selected$.subscribe((selected) => {
+      if (this.props.pickOnSelect) {
+        this.props.onPick?.(selected);
+      }
+    });
   }
 
   public getQueryResults(query: string): BehaviorSubject<ContentId[]> {
