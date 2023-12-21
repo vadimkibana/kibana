@@ -27,6 +27,7 @@ export const SelectedPreview: React.FC<Props> = ({ids}) => {
       <EuiSelect
         options={[
           {value: 'avatar', text: 'Avatar'},
+          {value: 'badge', text: 'Badge'},
           {value: 'list-item', text: 'List item'},
           {value: 'card', text: 'Card'},
         ]}
