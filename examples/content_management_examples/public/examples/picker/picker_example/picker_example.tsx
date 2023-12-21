@@ -9,8 +9,6 @@
 import * as React from 'react';
 import { ContentPicker } from '@kbn/content-management-plugin/public';
 import {
-  EuiComboBox,
-  EuiComboBoxProps,
   EuiFlexGroup,
   EuiFlexItem,
   EuiPageHeader,
@@ -21,55 +19,40 @@ import {
 import type { ContentPickerState } from '@kbn/content-management-plugin/public';
 import { SelectedPreview } from './selected_preview';
 
-const defaultType = { label: 'Dashboard', value: 'dashboard' };
-
 export interface PickerExampleProps {
   title: string;
+  types: string[];
 }
 
-export const PickerExample: React.FC<PickerExampleProps> = ({title}) => {
+export const PickerExample: React.FC<PickerExampleProps> = ({ title, types }) => {
   const [state, setState] = React.useState<ContentPickerState | null>(null);
-  const [types, setTypes] = React.useState<EuiComboBoxProps<any>['selectedOptions']>([defaultType]);
 
   return (
     <>
-    <EuiPageSection>
-      <EuiPageHeader pageTitle={title} />
-    </EuiPageSection>
-    <EuiPageSection color="transparent" bottomBorder>
-      <EuiFlexGroup gutterSize="l">
-        <EuiFlexItem>
-          <EuiTitle size="xs">
-            <h5>Content Picker</h5>
-          </EuiTitle>
-          <EuiSpacer size={'s'} />
-          <EuiComboBox
-            placeholder="Select content types"
-            options={[
-              { label: 'Dashboard', value: 'dashboard' },
-              { label: 'Visualization', value: 'visualization' },
-            ]}
-            selectedOptions={types}
-            onChange={(newTypes) =>
-              newTypes.length ? setTypes(newTypes) : setTypes([defaultType])
-            }
-            isClearable={true}
-          />
-          <EuiSpacer size={'s'} />
-          <ContentPicker
-            types={types!.length ? types!.map((t) => t.value) : ['dashboard']}
-            onState={setState}
-          />
-        </EuiFlexItem>
-        <EuiFlexItem>
-          <EuiTitle size="xs">
-            <h5>Selected</h5>
-          </EuiTitle>
-          <EuiSpacer size={'s'} />
-          {!!state && <SelectedPreview state={state} />}
-        </EuiFlexItem>
-      </EuiFlexGroup>
-    </EuiPageSection>
+      <EuiPageSection>
+        <EuiPageHeader pageTitle={title} />
+      </EuiPageSection>
+      <EuiPageSection color="transparent" bottomBorder>
+        <EuiFlexGroup gutterSize="l">
+          <EuiFlexItem>
+            <EuiTitle size="xs">
+              <h5>Content Picker</h5>
+            </EuiTitle>
+            <EuiSpacer size={'s'} />
+            <ContentPicker
+              types={types}
+              onState={setState}
+            />
+          </EuiFlexItem>
+          <EuiFlexItem>
+            <EuiTitle size="xs">
+              <h5>Selected</h5>
+            </EuiTitle>
+            <EuiSpacer size={'s'} />
+            {!!state && <SelectedPreview state={state} />}
+          </EuiFlexItem>
+        </EuiFlexGroup>
+      </EuiPageSection>
     </>
   );
 };
