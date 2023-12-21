@@ -5,7 +5,7 @@ import {ItemViewBaseProps} from '../types';
 
 export interface ItemViewThumbnailProps extends ItemViewBaseProps {}
 
-export const ItemViewThumbnail: React.FC<ItemViewThumbnailProps> = ({id, onClick}) => {
+export const ItemViewThumbnail: React.FC<ItemViewThumbnailProps> = ({id, isActive, onClick}) => {
   const item = useItem(id);
   const title = item.useTitle();
 
@@ -15,7 +15,8 @@ export const ItemViewThumbnail: React.FC<ItemViewThumbnailProps> = ({id, onClick
       titleSize='xs'
       paddingSize="l"
       hasBorder
-      style={{width: 200, height: 200}}
+      onClick={onClick}
+      style={{width: 200, height: 200, cursor: 'pointer', outline: isActive ? '2px solid #006BB4' : undefined}}
       title={(
         <>
           <div>
