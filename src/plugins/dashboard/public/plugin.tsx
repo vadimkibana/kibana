@@ -309,6 +309,9 @@ export class DashboardPlugin
       name: dashboardAppTitle,
       fields: (data: DashboardContentItemData) => ({
         title: data.attributes.title,
+        description: data.attributes.description,
+        createdAt: data.createdAt ? new Date(data.createdAt).getTime() : undefined,
+        updatedAt: data.updatedAt ? new Date(data.updatedAt).getTime() : undefined,
       }),
     });
 

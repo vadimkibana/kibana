@@ -37,7 +37,10 @@ export const SelectedPreview: React.FC<Props> = ({state}) => {
       />
       <EuiSpacer />
       {selected.map((id) => (
-        <ItemView key={id[0] + ':' + id[1]} view={view} id={id} />
+        <>
+          <ItemView key={id[0] + ':' + id[1]} view={view} id={id} />
+          <EuiSpacer size="s" />
+        </>
       ))}
     </div>
   );
