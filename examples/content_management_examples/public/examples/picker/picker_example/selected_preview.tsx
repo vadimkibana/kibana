@@ -16,7 +16,7 @@ export interface Props {
 }
 
 export const SelectedPreview: React.FC<Props> = ({ids}) => {
-  const [view, setView] = React.useState<ItemViewProps['view']>('list-item');
+  const [view, setView] = React.useState<ItemViewProps['view']>('card');
 
   if (!ids.length) {
     return null;
