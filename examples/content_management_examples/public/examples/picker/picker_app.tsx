@@ -10,6 +10,7 @@ import * as React from 'react';
 import { PickerExample } from './picker_example';
 import { EuiComboBox, EuiComboBoxProps, EuiSpacer } from '@elastic/eui';
 import { Picker1 } from './pickers/picker1';
+import {Picker2} from './pickers/picker2';
 
 const defaultType = { label: 'Dashboard', value: 'dashboard' };
 
@@ -30,7 +31,7 @@ export const PickerApp: React.FC = () => {
       />
       <EuiSpacer size={'s'} />
       <PickerExample title={'Inline box'} types={types!.map((t) => t.value!)} renderPicker={props => <Picker1 {...props} />} />
-      {/* <PickerExample title={'Popup'} types={types!.map((t) => t.value!)} /> */}
+      <PickerExample title={'Popup'} types={types!.map((t) => t.value!)} renderPicker={props => <Picker2 {...props} />} />
     </div>
   );
 };
