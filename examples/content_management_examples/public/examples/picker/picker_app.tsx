@@ -9,7 +9,7 @@
 import * as React from 'react';
 import { PickerExample } from './picker_example';
 import { EuiComboBox, EuiComboBoxProps, EuiSpacer } from '@elastic/eui';
-import {Picker1} from './pickers/picker1';
+import { Picker1 } from './pickers/picker1';
 
 const defaultType = { label: 'Dashboard', value: 'dashboard' };
 

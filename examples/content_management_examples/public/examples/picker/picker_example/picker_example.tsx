@@ -20,6 +20,7 @@ import {ContentId} from '@kbn/content-management-plugin/public/content_picker/ty
 
 export interface RenderPickerProps {
   onPick: (ids: ContentId[]) => void;
+  types: string[];
 }
 
 export interface PickerExampleProps {
@@ -47,6 +48,7 @@ export const PickerExample: React.FC<PickerExampleProps> = ({ title, types, rend
               onPick: (ids) => {
                 setIds(ids);
               },
+              types,
             })}
           </EuiFlexItem>
           <EuiFlexItem>
