@@ -7,12 +7,13 @@
  */
 
 import * as React from 'react';
-import { ContentPicker } from '@kbn/content-management-plugin/public';
+import {PickerExample} from './picker_example';
 
 export const PickerApp: React.FC = () => {
   return (
     <div>
-      <ContentPicker types={['dashboard']} />
+      <PickerExample title={'Inline box'} />
+      <PickerExample title={'Popup'} />
     </div>
   );
 };
