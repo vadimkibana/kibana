@@ -9,6 +9,7 @@ export class ContentPickerState {
   /** Query string to list of IDs. */
   protected readonly queryCache = new Map<string, BehaviorSubject<ContentId[]>>();
   public readonly selected$ = new BehaviorSubject<ContentId[]>([]);
+  public readonly query$ = new BehaviorSubject<string>('');
 
   constructor (public readonly services: ContentPickerServices, public readonly props: PickerProps) {
     this.loadInitial().catch(() => {});
@@ -44,7 +45,15 @@ export class ContentPickerState {
     if (filtered.length !== selected.length) this.selected$.next(filtered);
   }
 
+  public query(query: string) {
+    this.query$.next(query);
+  }
+
   public useSelected() {
     return useBehaviorSubject(this.selected$);
+  }
+
+  public useQuery() {
+    return useBehaviorSubject(this.query$);
   }
 }
