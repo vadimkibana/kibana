@@ -1,4 +1,4 @@
-import {BehaviorSubject} from "rxjs";
+import {BehaviorSubject, filter, switchMap} from "rxjs";
 import {ContentPickerServices} from "../context/services";
 import {compareId} from "../utils";
 import {useBehaviorSubject} from "../hooks/use_behavior_subject";
@@ -13,6 +13,13 @@ export class ContentPickerState {
 
   constructor (public readonly services: ContentPickerServices, public readonly props: PickerProps) {
     this.loadInitial().catch(() => {});
+    this.query$.pipe(
+      filter(q => !!q),
+      switchMap(q => this.search(q).then(res => [q, res])),
+    ).subscribe(([q, res]) => {
+      const results = this.getQueryResults(q as string);
+      results.next((res as any).hits.map(({type, id}: any) => [type, id]));
+    });
   }
 
   public getQueryResults(query: string): BehaviorSubject<ContentId[]> {
@@ -22,13 +29,17 @@ export class ContentPickerState {
     return this.queryCache.get(query)!;
   }
 
-  public async loadInitial() {
-    const res = await this.services.client.mSearch<{type: string, id: string}>({
+  private async search(query: string) {
+    return await this.services.client.mSearch<{type: string, id: string}>({
       query: {
-        text: '',
+        text: query + '*',
       },
       contentTypes: this.props.types.map(contentTypeId => ({contentTypeId}))
     });
+  }
+
+  public async loadInitial() {
+    const res = await this.search('');
     const results = this.getQueryResults('');
     results.next(res.hits.map(({type, id}) => [type, id]));
   }

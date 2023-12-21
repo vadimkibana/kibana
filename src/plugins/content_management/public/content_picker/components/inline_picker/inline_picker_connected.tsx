@@ -7,7 +7,8 @@ import {SearchBar} from './search_bar';
 
 export const InlinePickerConnected: React.FC = () => {
   const {state} = useContentPicker();
-  const ids = useBehaviorSubject(state.getQueryResults(''));
+  const query = state.useQuery();
+  const ids = useBehaviorSubject(state.getQueryResults(query));
 
   return (
     <>
