@@ -12,6 +12,6 @@ export const ItemViewAvatar: React.FC<ItemViewAvatarProps> = ({size, id, isActiv
   const title = item.useTitle();
 
   return (
-    <EuiAvatar size={size} name={title} />
+    <EuiAvatar size={size} name={title} type='space' />
   );
 };

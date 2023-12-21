@@ -23,11 +23,12 @@ export const SelectedPreview: React.FC<Props> = ({state}) => {
   }
 
   return (
-    <>
+    <div style={{maxWidth: 400}}>
       <EuiSelect
         options={[
           {value: 'avatar', text: 'Avatar'},
           {value: 'list-item', text: 'List item'},
+          {value: 'card', text: 'Card'},
         ]}
         value={view}
         onChange={(e) => {
@@ -38,6 +39,6 @@ export const SelectedPreview: React.FC<Props> = ({state}) => {
       {selected.map((id) => (
         <ItemView key={id[0] + ':' + id[1]} view={view} id={id} />
       ))}
-    </>
+    </div>
   );
 };
