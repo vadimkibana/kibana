@@ -5,6 +5,7 @@ import type {RenderPickerProps} from '../../picker_example';
 export const Picker1: React.FC<RenderPickerProps> = ({types, onPick}) => {
   return (
     <ContentPicker
+      picker={'box'}
       types={types}
       onPick={onPick}
     />
