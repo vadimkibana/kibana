@@ -1,0 +1,19 @@
+{
+  "type": "plugin",
+  "id": "@kbn/ui-content-management-security-plugin",
+  "owner": "@elastic/appex-sharedux",
+  "description": "Extends Content Management plugin with security functionality",
+  "plugin": {
+    "id": "contentManagementSecurity",
+    "server": true,
+    "browser": false,
+    "configPath": [
+      "src",
+      "content_management_security"
+    ],
+    "optionalPlugins": [
+      "content_management",
+      "security"
+    ]
+  }
+}
