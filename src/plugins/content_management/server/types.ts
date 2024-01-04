@@ -6,7 +6,8 @@
  * Side Public License, v 1.
  */
 
-import { CoreApi } from './core';
+import type { CoreApi } from './core';
+import type { ContentManagementPlugin } from './plugin';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface ContentManagementServerSetupDependencies {}
@@ -17,5 +18,4 @@ export interface ContentManagementServerStartDependencies {}
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface ContentManagementServerSetup extends CoreApi {}
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface ContentManagementServerStart {}
+export type ContentManagementServerStart = ReturnType<ContentManagementPlugin['start']>;

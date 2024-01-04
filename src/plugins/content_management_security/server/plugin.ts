@@ -6,7 +6,7 @@
  * Side Public License, v 1.
  */
 
-import { CoreSetup, Plugin } from '@kbn/core/server';
+import { CoreSetup, CoreStart, Plugin } from '@kbn/core/server';
 import { ContentManagementServerSetup, ContentManagementServerStart } from '@kbn/content-management-plugin/server';
 import { SecurityPluginSetup, SecurityPluginStart } from '@kbn/security-plugin/server';
 
@@ -35,10 +35,17 @@ export class ContentManagementSecurityServerPlugin
 {
   constructor() {}
 
-  public setup(_core: CoreSetup, plugins: ContentManagementSecurityServerSetupDependencies): ContentManagementSecurityServerSetup {
+  public setup(core: CoreSetup, plugins: ContentManagementSecurityServerSetupDependencies): ContentManagementSecurityServerSetup {
+    // Nothing to do here yet
   }
 
-  public start(): ContentManagementSecurityServerStart {}
+  public start(core: CoreStart, plugins: ContentManagementSecurityServerStartDependencies): ContentManagementSecurityServerStart {
+    const {contentManagement, security} = plugins;
+
+    if (contentManagement && security) {
+        contentManagement.setSecurity(security);
+    }
+  }
 
   public stop() {}
 }

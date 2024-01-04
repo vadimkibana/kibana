@@ -11,7 +11,7 @@ import { EventStreamService } from '../event_stream';
 import { ContentCrud } from './crud';
 import { EventBus } from './event_bus';
 import { ContentRegistry } from './registry';
-import type { UserProfileServiceStart } from '@kbn/security-plugin/server';
+import type { SecurityPluginStart } from '@kbn/security-plugin/server';
 
 export interface CoreApi {
   /**
@@ -42,14 +42,14 @@ export interface CoreSetup {
 export class Core {
   private contentRegistry: ContentRegistry;
   private eventBus: EventBus;
-  private userProfilesService?: UserProfileServiceStart;
+  private security?: SecurityPluginStart;
   
 
   constructor(private readonly ctx: CoreInitializerContext) {
     const contentTypeValidator = (contentType: string) =>
       this.contentRegistry?.isContentRegistered(contentType) ?? false;
     this.eventBus = new EventBus(contentTypeValidator);
-    this.contentRegistry = new ContentRegistry(this.eventBus, this.getUserProfilesService);
+    this.contentRegistry = new ContentRegistry(this.eventBus, this.getSecurity);
   }
 
   public setup(): CoreSetup {
@@ -65,12 +65,12 @@ export class Core {
     };
   }
 
-  public start(userProfiles: UserProfileServiceStart | undefined): void {
-    this.userProfilesService = userProfiles;
+  public setSecurity(security: SecurityPluginStart | undefined): void {
+    this.security = security;
   }
 
-  private getUserProfilesService = () => {
-    return this.userProfilesService;
+  private getSecurity = (): SecurityPluginStart | undefined => {
+    return this.security;
   };
 
   private setupEventStream() {

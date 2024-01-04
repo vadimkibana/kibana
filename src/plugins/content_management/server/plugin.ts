@@ -13,6 +13,7 @@ import type {
   PluginInitializerContext,
   Logger,
 } from '@kbn/core/server';
+import type { SecurityPluginStart } from '@kbn/security-plugin/server';
 import { Core } from './core';
 import { initRpcRoutes, registerProcedures, RpcService } from './rpc';
 import type { Context as RpcContext } from './rpc';
@@ -80,13 +81,15 @@ export class ContentManagementPlugin
   }
 
   public start(core: CoreStart, plugins: ContentManagementServerStartDependencies) {
-    // this.core!.start(plugins.security?.userProfiles);
-
     if (this.#eventStream) {
       this.#eventStream.start();
     }
 
-    return {};
+    return {
+      setSecurity: (security: SecurityPluginStart) => {
+        this.core!.setSecurity(security);
+      },
+    };
   }
 
   public async stop(): Promise<void> {

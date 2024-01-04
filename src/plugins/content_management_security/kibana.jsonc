@@ -12,7 +12,7 @@
       "content_management_security"
     ],
     "optionalPlugins": [
-      "content_management",
+      "contentManagement",
       "security"
     ]
   }
