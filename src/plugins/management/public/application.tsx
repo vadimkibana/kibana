@@ -7,8 +7,7 @@
  */
 
 import React from 'react';
-import ReactDOM from 'react-dom';
-
+import { render } from '@kbn/react-kibana-mount';
 import { AppMountParameters } from '@kbn/core/public';
 import { ManagementApp, ManagementAppDependencies } from './components/management_app';
 
@@ -16,6 +15,7 @@ export const renderApp = async (
   { history, appBasePath, element, theme$ }: AppMountParameters,
   dependencies: ManagementAppDependencies
 ) => {
-  ReactDOM.render(<ManagementApp {...{ history, appBasePath, theme$, dependencies }} />, element);
-  return () => ReactDOM.unmountComponentAtNode(element);
+  const unmount = render(<ManagementApp {...{ history, appBasePath, theme$, dependencies }} />, element);
+
+  return unmount;
 };
