@@ -6,8 +6,10 @@
  * Side Public License, v 1.
  */
 
+import {EuiForm} from '@elastic/eui';
 import * as React from 'react';
 import { useConnectionDetails } from '../../context';
+import { EndpointUrlRow } from './rows/endpoints_url_row';
 
 export const EndpointsTab: React.FC = () => {
   const { endpoints } = useConnectionDetails();
@@ -15,8 +17,8 @@ export const EndpointsTab: React.FC = () => {
   if (!endpoints) return null;
 
   return (
-    <>
-      Endpoints: {endpoints.url}
-    </>
+    <EuiForm component="div">
+      {!!endpoints?.url && <EndpointUrlRow url={endpoints.url} />}
+    </EuiForm>
   );
 };
