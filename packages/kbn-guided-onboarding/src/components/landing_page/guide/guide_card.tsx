@@ -13,6 +13,7 @@ import { i18n } from '@kbn/i18n';
 
 import { css } from '@emotion/react';
 import { DeploymentDetailsModal, DeploymentDetailsProvider } from '@kbn/cloud/deployment_details';
+import { ConnectionDetailsFlyout } from '@kbn/cloud/connection_details';
 import type { ToMountPointParams } from '@kbn/react-kibana-mount';
 import { MountPoint } from '@kbn/core-mount-utils-browser';
 import ReactDOM from 'react-dom';
@@ -32,6 +33,15 @@ const toMountPoint = (node: React.ReactNode, params: ToMountPointParams): MountP
   }
 
   return mount;
+};
+
+const openConnectionDetailsFlyout = (opts: Pick<GuideCardsProps, 'overlays' | 'i18nStart' | 'theme'>) => {
+  opts.overlays.openFlyout(toMountPoint((
+    <ConnectionDetailsFlyout />
+  ), {
+    i18n: opts.i18nStart,
+    theme: opts.theme,
+  }));
 };
 
 const getProgressLabel = (guideState: GuideState | undefined): string | undefined => {
@@ -113,7 +123,11 @@ export const GuideCard = ({
         path: card.navigateTo.path,
       });
     } else if (card.openEndpointModal) {
-      openESApiModal();
+      openConnectionDetailsFlyout({
+        overlays,
+        i18nStart,
+        theme,
+      });
     }
     setIsLoading(false);
   }, [
@@ -123,7 +137,6 @@ export const GuideCard = ({
     guideState,
     navigateToApp,
     card.openEndpointModal,
-    openESApiModal,
   ]);
 
   const isHighlighted = activeFilter === card.solution;
