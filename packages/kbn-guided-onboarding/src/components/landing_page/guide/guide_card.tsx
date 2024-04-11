@@ -6,42 +6,28 @@
  * Side Public License, v 1.
  */
 
-import React, { Fragment, useCallback, useState } from 'react';
-
+import React, { useCallback, useState } from 'react';
+import ReactDOM from 'react-dom';
 import { EuiCard, EuiFlexGroup, EuiIcon, EuiTextColor, useEuiTheme } from '@elastic/eui';
 import { i18n } from '@kbn/i18n';
-
 import { css } from '@emotion/react';
-import { DeploymentDetailsModal, DeploymentDetailsProvider } from '@kbn/cloud/deployment_details';
 import { ConnectionDetailsFlyout } from '@kbn/cloud/connection_details';
-import type { ToMountPointParams } from '@kbn/react-kibana-mount';
-import { MountPoint } from '@kbn/core-mount-utils-browser';
-import ReactDOM from 'react-dom';
 import { GuideState } from '../../../types';
 import { GuideCardConstants } from './guide_cards.constants';
 import { GuideCardsProps } from './guide_cards';
+import { KibanaRenderContextProvider } from '@kbn/react-kibana-context-render';
 
-const toMountPoint = (node: React.ReactNode, params: ToMountPointParams): MountPoint => {
+const openConnectionDetails = (opts: Pick<GuideCardsProps, 'overlays' | 'i18nStart' | 'theme'>) => {
   const mount = (element: HTMLElement) => {
-    ReactDOM.render(<Fragment {...params}>{node}</Fragment>, element);
+    const reactElement = (
+      <KibanaRenderContextProvider i18n={opts.i18nStart} theme={opts.theme}>
+        <ConnectionDetailsFlyout />
+      </KibanaRenderContextProvider>
+    );
+    ReactDOM.render(reactElement, element);
     return () => ReactDOM.unmountComponentAtNode(element);
   };
-
-  // only used for tests and snapshots serialization
-  if (process.env.NODE_ENV !== 'production') {
-    mount.__reactMount__ = node;
-  }
-
-  return mount;
-};
-
-const openConnectionDetailsFlyout = (opts: Pick<GuideCardsProps, 'overlays' | 'i18nStart' | 'theme'>) => {
-  opts.overlays.openFlyout(toMountPoint((
-    <ConnectionDetailsFlyout />
-  ), {
-    i18n: opts.i18nStart,
-    theme: opts.theme,
-  }));
+  return opts.overlays.openFlyout(mount);
 };
 
 const getProgressLabel = (guideState: GuideState | undefined): string | undefined => {
@@ -77,42 +63,12 @@ export const GuideCard = ({
   docLinks,
   navigateToUrl,
 }: GuideCardsProps & { card: GuideCardConstants }) => {
-  const {openModal} = overlays;
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const { euiTheme } = useEuiTheme();
   let guideState: GuideState | undefined;
   if (card.guideId) {
     guideState = guidesState.find((state) => state.guideId === card.guideId);
   }
-
-  const managementUrl = url.locators
-    .get('MANAGEMENT_APP_LOCATOR')
-    ?.useUrl({ sectionId: 'security', appId: 'api_keys' });
-
-  const openESApiModal = useCallback(() => {
-    const modal = openModal(
-      toMountPoint(
-        <DeploymentDetailsProvider
-          cloudId={cloud.isCloudEnabled ? cloud.cloudId : ''}
-          elasticsearchUrl={cloud.elasticsearchUrl}
-          managementUrl={managementUrl}
-          apiKeysLearnMoreUrl={docLinks.links.fleet.apiKeysLearnMore}
-          cloudIdLearnMoreUrl={docLinks.links.cloud.beatsAndLogstashConfiguration}
-          navigateToUrl={navigateToUrl}
-        >
-          <DeploymentDetailsModal closeModal={() => modal.close()} />
-        </DeploymentDetailsProvider>,
-        {
-          theme,
-          i18n: i18nStart,
-        }
-      ),
-      {
-        maxWidth: 400,
-        'data-test-subj': 'guideModalESApi',
-      }
-    );
-  }, [openModal, i18nStart, theme, cloud, docLinks, managementUrl, navigateToUrl]);
 
   const onClick = useCallback(async () => {
     setIsLoading(true);
@@ -123,7 +79,7 @@ export const GuideCard = ({
         path: card.navigateTo.path,
       });
     } else if (card.openEndpointModal) {
-      openConnectionDetailsFlyout({
+      openConnectionDetails({
         overlays,
         i18nStart,
         theme,
