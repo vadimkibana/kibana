@@ -17,16 +17,23 @@ import { GuideCardConstants } from './guide_cards.constants';
 import { GuideCardsProps } from './guide_cards';
 import { KibanaRenderContextProvider } from '@kbn/react-kibana-context-render';
 
-const openConnectionDetails = (opts: Pick<GuideCardsProps, 'overlays' | 'i18nStart' | 'theme'>) => {
+type OpenConnectionDetailsOpts = Pick<GuideCardsProps, 'overlays' | 'i18nStart' | 'theme'>;
+
+const openConnectionDetails = (opts: OpenConnectionDetailsOpts) => {
   const mount = (element: HTMLElement) => {
     const reactElement = (
-      <KibanaRenderContextProvider i18n={opts.i18nStart} theme={opts.theme}>
+      <KibanaRenderContextProvider
+        i18n={opts.i18nStart}
+        theme={opts.theme}
+      >
         <ConnectionDetailsFlyout />
       </KibanaRenderContextProvider>
     );
     ReactDOM.render(reactElement, element);
+
     return () => ReactDOM.unmountComponentAtNode(element);
   };
+
   return opts.overlays.openFlyout(mount);
 };
 
