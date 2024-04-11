@@ -59,7 +59,7 @@ export const GuideCard = ({
   activateGuide,
   navigateToApp,
   activeFilter,
-  openModal,
+  overlays,
   i18nStart,
   theme,
   url,
@@ -67,6 +67,7 @@ export const GuideCard = ({
   docLinks,
   navigateToUrl,
 }: GuideCardsProps & { card: GuideCardConstants }) => {
+  const {openModal} = overlays;
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const { euiTheme } = useEuiTheme();
   let guideState: GuideState | undefined;
