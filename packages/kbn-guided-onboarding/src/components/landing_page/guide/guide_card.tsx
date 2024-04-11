@@ -17,14 +17,14 @@ import { GuideCardConstants } from './guide_cards.constants';
 import { GuideCardsProps } from './guide_cards';
 import { KibanaRenderContextProvider } from '@kbn/react-kibana-context-render';
 
-type OpenConnectionDetailsOpts = Pick<GuideCardsProps, 'overlays' | 'i18nStart' | 'theme'>;
+interface OpenConnectionDetailsOpts extends Pick<GuideCardsProps, 'overlays' | 'i18nStart' | 'theme'> {
+  details: Pick<conn.ConnectionDetailsContextValue, 'endpoints' | 'apiKeys'>;
+}
 
 const openConnectionDetails = (opts: OpenConnectionDetailsOpts) => {
   const mount = (element: HTMLElement) => {
     const ctx: conn.ConnectionDetailsContextValue = {
-      endpoints: {
-        url: 'https://www.elastic.co',
-      },
+      ...opts.details,
     };
     const reactElement = (
       <KibanaRenderContextProvider
@@ -94,6 +94,11 @@ export const GuideCard = ({
       });
     } else if (card.openEndpointModal) {
       openConnectionDetails({
+        details: {
+          endpoints: {
+            url: 'hello.com',
+          }
+        },
         overlays,
         i18nStart,
         theme,
