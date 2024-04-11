@@ -9,13 +9,33 @@
 import * as React from 'react';
 import {
   EuiFlyoutBody,
+  EuiFlyoutFooter,
+  EuiFlyoutHeader,
+  EuiSpacer,
+  EuiText,
+  EuiTitle,
 } from '@elastic/eui';
 import {ConnectionDetails} from './connection_details';
 
 export const ConnectionDetailsFlyout: React.FC = () => {
   return (
-    <EuiFlyoutBody>
-      <ConnectionDetails />
-    </EuiFlyoutBody>
+    <>
+      <EuiFlyoutHeader hasBorder>
+        <EuiTitle size="m" data-test-subj="connectionDetailsModalTitle">
+          <h2>Connection details</h2>
+        </EuiTitle>
+        <EuiSpacer size="s" />
+        <EuiText color="subdued">
+          <p>
+            Put navigation items in the header, and cross tab actions in a
+            footer.
+          </p>
+        </EuiText>
+      </EuiFlyoutHeader>
+      <EuiFlyoutBody data-test-subj="connectionDetailsModalBody">
+        <ConnectionDetails />
+      </EuiFlyoutBody>
+      <EuiFlyoutFooter />
+    </>
   );
 };
