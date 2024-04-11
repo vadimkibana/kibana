@@ -6,16 +6,4 @@
  * Side Public License, v 1.
  */
 
-import * as React from 'react';
-import { useConnectionDetails } from './context';
-import { EndpointsTab } from './tabs/endpoints_tab';
-
-export const ConnectionDetails: React.FC = () => {
-  const ctx = useConnectionDetails();
-
-  return (
-    <>
-      {!!ctx.endpoints && <EndpointsTab />}
-    </>
-  );
-};
+export * from './endpoints_tab';

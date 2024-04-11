@@ -7,15 +7,16 @@
  */
 
 import * as React from 'react';
-import { useConnectionDetails } from './context';
-import { EndpointsTab } from './tabs/endpoints_tab';
+import { useConnectionDetails } from '../../context';
 
-export const ConnectionDetails: React.FC = () => {
-  const ctx = useConnectionDetails();
+export const EndpointsTab: React.FC = () => {
+  const { endpoints } = useConnectionDetails();
+
+  if (!endpoints) return null;
 
   return (
     <>
-      {!!ctx.endpoints && <EndpointsTab />}
+      Endpoints: {endpoints.url}
     </>
   );
 };

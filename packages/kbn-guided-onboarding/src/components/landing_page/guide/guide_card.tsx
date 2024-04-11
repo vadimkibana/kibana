@@ -11,7 +11,7 @@ import ReactDOM from 'react-dom';
 import { EuiCard, EuiFlexGroup, EuiIcon, EuiTextColor, useEuiTheme } from '@elastic/eui';
 import { i18n } from '@kbn/i18n';
 import { css } from '@emotion/react';
-import { ConnectionDetailsFlyout } from '@kbn/cloud/connection_details';
+import * as conn from '@kbn/cloud/connection_details';
 import { GuideState } from '../../../types';
 import { GuideCardConstants } from './guide_cards.constants';
 import { GuideCardsProps } from './guide_cards';
@@ -21,12 +21,19 @@ type OpenConnectionDetailsOpts = Pick<GuideCardsProps, 'overlays' | 'i18nStart' 
 
 const openConnectionDetails = (opts: OpenConnectionDetailsOpts) => {
   const mount = (element: HTMLElement) => {
+    const ctx: conn.ConnectionDetailsContextValue = {
+      endpoints: {
+        url: 'https://www.elastic.co',
+      },
+    };
     const reactElement = (
       <KibanaRenderContextProvider
         i18n={opts.i18nStart}
         theme={opts.theme}
       >
-        <ConnectionDetailsFlyout />
+        <conn.context.Provider value={ctx}>
+          <conn.ConnectionDetailsFlyout />
+        </conn.context.Provider>
       </KibanaRenderContextProvider>
     );
     ReactDOM.render(reactElement, element);
