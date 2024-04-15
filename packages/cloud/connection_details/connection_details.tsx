@@ -8,9 +8,10 @@
 
 import * as React from 'react';
 import { EuiTab, EuiTabs } from '@elastic/eui';
+import { i18n } from '@kbn/i18n';
 import { useConnectionDetails } from './context';
 import { EndpointsTab } from './tabs/endpoints_tab';
-import { i18n } from '@kbn/i18n';
+import { ApiKeysTab } from './tabs/api_keys_tab';
 
 export const ConnectionDetails: React.FC = () => {
   type TabID = 'endpoints' | 'apiKeys';
@@ -41,7 +42,7 @@ export const ConnectionDetails: React.FC = () => {
       i18n.translate('cloud.connectionDetails.tab.apiKeys', {
         defaultMessage: 'API key',
       }),
-      null,
+      <ApiKeysTab />,
     ]);
   }
 

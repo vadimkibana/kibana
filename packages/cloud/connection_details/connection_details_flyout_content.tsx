@@ -55,11 +55,15 @@ export const ConnectionDetailsFlyoutContent: React.FC = () => {
     </EuiFlyoutBody>
   );
 
+  const footer = (
+    <EuiFlyoutFooter />
+  );
+
   return (
     <>
       {header}
       {body}
-      <EuiFlyoutFooter />
+      {footer}
     </>
   );
 };
