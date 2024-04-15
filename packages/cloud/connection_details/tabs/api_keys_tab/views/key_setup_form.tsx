@@ -6,21 +6,19 @@
  * Side Public License, v 1.
  */
 
-import { EuiButton, EuiFieldText, EuiFlexGroup, EuiFlexItem, EuiForm, EuiFormRow, EuiLink, EuiSpacer } from '@elastic/eui';
+import { EuiButton, EuiFieldText, EuiFlexGroup, EuiFlexItem, EuiForm, EuiFormRow, EuiSpacer } from '@elastic/eui';
 import * as React from 'react';
 import { i18n } from '@kbn/i18n';
-import { useConnectionDetailsService } from '@kbn/cloud/connection_details/context';
-import { useBehaviorSubject } from '../../../hooks/use_behavior_subject';
 import { ManageKeysLink } from '../components/manage_keys_link';
 
 export interface KeySetupFormProps {
+  name: string;
   loading?: boolean;
+  onNameChange: React.ChangeEventHandler<HTMLInputElement>;
+  onSubmit: React.FormEventHandler<HTMLFormElement>;
 }
 
-export const KeySetupForm: React.FC<KeySetupFormProps> = ({loading}) => {
-  const service = useConnectionDetailsService();
-  const keyName = useBehaviorSubject(service.apiKeyName$);
-
+export const KeySetupForm: React.FC<KeySetupFormProps> = ({ name, loading, onNameChange, onSubmit }) => {
   const footer = (
     <EuiFlexGroup justifyContent="spaceBetween">
       <EuiFlexItem grow={false}>
@@ -41,7 +39,7 @@ export const KeySetupForm: React.FC<KeySetupFormProps> = ({loading}) => {
   );
 
   return (
-    <EuiForm component="form" fullWidth>
+    <EuiForm component="form" fullWidth onSubmit={onSubmit}>
       <EuiFormRow
         label={i18n.translate('cloud.connectionDetails.tab.apiKeys.nameField.label', {
           defaultMessage: 'API key name',
@@ -56,10 +54,8 @@ export const KeySetupForm: React.FC<KeySetupFormProps> = ({loading}) => {
           name="api-key-name"
           disabled={loading}
           isLoading={loading}
-          value={keyName}
-          onChange={event => {
-            service.setApiKeyName(event.target.value);
-          }}
+          value={name}
+          onChange={onNameChange}
         />
       </EuiFormRow>
       <EuiSpacer />

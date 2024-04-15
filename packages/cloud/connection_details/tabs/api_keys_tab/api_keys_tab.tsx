@@ -7,17 +7,31 @@
  */
 
 import * as React from 'react';
-import { useConnectionDetailsOpts } from '../../context';
+import { useConnectionDetailsService } from '../../context';
+import {useBehaviorSubject} from '../../hooks/use_behavior_subject';
 import { KeySetupForm } from './views/key_setup_form';
 
 export const ApiKeysTab: React.FC = () => {
-  const { apiKeys } = useConnectionDetailsOpts();
+  const service = useConnectionDetailsService();
+  const { apiKeys } = service.opts;
+  const keyName = useBehaviorSubject(service.apiKeyName$);
+  const keyStatus = useBehaviorSubject(service.apiKeyStatus$);
 
   if (!apiKeys) return null;
 
   return (
     <>
-      <KeySetupForm />
+      <KeySetupForm
+        name={keyName}
+        loading={keyStatus === 'creating'}
+        onNameChange={(event) => {
+          service.setApiKeyName(event.target.value);
+        }}
+        onSubmit={(event) => {
+          event.preventDefault();
+          service.createKey();
+        }}
+      />
     </>
   );
 };
