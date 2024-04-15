@@ -8,33 +8,33 @@
 
 import * as React from 'react';
 
-export interface ConnectionDetailsContextValue {
-  links?: ConnectionDetailsContextValueLinks;
-  endpoints?: ConnectionDetailsContextValueEndpoints;
-  apiKeys?: ConnectionDetailsContextValueApiKeys;
+export interface ConnectionDetailsOptsContextValue {
+  links?: ConnectionDetailsOptsContextValueLinks;
+  endpoints?: ConnectionDetailsOptsContextValueEndpoints;
+  apiKeys?: ConnectionDetailsOptsContextValueApiKeys;
 }
 
 
-export interface ConnectionDetailsContextValueLinks {
+export interface ConnectionDetailsOptsContextValueLinks {
   learnMore?: string;
 }
 
-export interface ConnectionDetailsContextValueEndpoints {
+export interface ConnectionDetailsOptsContextValueEndpoints {
   url?: string;
   id?: string;
 }
 
-export interface ConnectionDetailsContextValueApiKeys {
+export interface ConnectionDetailsOptsContextValueApiKeys {
   createKey: (name: string) => Promise<{key: string}>;
 }
 
-export const context = React.createContext<ConnectionDetailsContextValue>({});
+export const context = React.createContext<ConnectionDetailsOptsContextValue>({});
 
-export const useConnectionDetails = (): ConnectionDetailsContextValue => {
+export const useConnectionDetailsOpts = (): ConnectionDetailsOptsContextValue => {
   const value = React.useContext(context);
 
   if (!value || Object.keys(value).length === 0) {
-    throw new Error('ConnectionDetailsContextValue is not set up.');
+    throw new Error('ConnectionDetailsOptsContextValue is not set up.');
   }
 
   return value;

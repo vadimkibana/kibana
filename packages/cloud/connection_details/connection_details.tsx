@@ -9,7 +9,7 @@
 import * as React from 'react';
 import { EuiTab, EuiTabs } from '@elastic/eui';
 import { i18n } from '@kbn/i18n';
-import { useConnectionDetails } from './context';
+import { useConnectionDetailsOpts } from './context';
 import { EndpointsTab } from './tabs/endpoints_tab';
 import { ApiKeysTab } from './tabs/api_keys_tab';
 
@@ -21,7 +21,7 @@ export const ConnectionDetails: React.FC = () => {
     content: React.ReactNode,
   ];
 
-  const ctx = useConnectionDetails();
+  const ctx = useConnectionDetailsOpts();
   const [tab, setTab] = React.useState<TabID>('endpoints');
 
   const tabs: Tab[] = [];

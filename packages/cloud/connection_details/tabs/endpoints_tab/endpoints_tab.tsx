@@ -8,11 +8,11 @@
 
 import {EuiForm} from '@elastic/eui';
 import * as React from 'react';
-import { useConnectionDetails } from '../../context';
+import { useConnectionDetailsOpts } from '../../context';
 import { EndpointUrlRow } from './rows/endpoints_url_row';
 
 export const EndpointsTab: React.FC = () => {
-  const { endpoints } = useConnectionDetails();
+  const { endpoints } = useConnectionDetailsOpts();
 
   if (!endpoints) return null;
 

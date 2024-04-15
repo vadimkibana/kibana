@@ -7,11 +7,11 @@
  */
 
 import * as React from 'react';
-import { useConnectionDetails } from '../../context';
+import { useConnectionDetailsOpts } from '../../context';
 import { KeySetupForm } from './views/key_setup_form';
 
 export const ApiKeysTab: React.FC = () => {
-  const { apiKeys } = useConnectionDetails();
+  const { apiKeys } = useConnectionDetailsOpts();
 
   if (!apiKeys) return null;
 

@@ -18,10 +18,10 @@ import {
 } from '@elastic/eui';
 import { ConnectionDetails } from './connection_details';
 import { i18n } from '@kbn/i18n';
-import { useConnectionDetails } from './context';
+import { useConnectionDetailsOpts } from './context';
 
 export const ConnectionDetailsFlyoutContent: React.FC = () => {
-  const ctx = useConnectionDetails();
+  const ctx = useConnectionDetailsOpts();
 
   const header = (
     <EuiFlyoutHeader hasBorder>
