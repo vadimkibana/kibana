@@ -6,11 +6,12 @@
  * Side Public License, v 1.
  */
 
-import { EuiCallOut } from '@elastic/eui';
+import { EuiCallOut, EuiFormRow } from '@elastic/eui';
 import * as React from 'react';
 import { i18n } from '@kbn/i18n';
 import { ApiKey } from './types';
 import { FormatSelect, type Format } from './format_select';
+import {CopyInput} from '@kbn/cloud/connection_details/components/copy_input';
 
 export interface SuccessFormControlledProps {
   apiKey: ApiKey;
@@ -35,7 +36,24 @@ export const SuccessFormControlled: React.FC<SuccessFormControlledProps> = ({ ap
             'after you close this dialogue. The API key will expire in 90 days.',
         })}
       </p>
-      <FormatSelect value={format} onChange={onFormatChange} />
+
+      <EuiFormRow
+        label={i18n.translate('cloud.connectionDetails.apiKeys.successForm.keyFormatTitle', {
+          defaultMessage: 'API key format',
+        })}
+        fullWidth
+      >
+        <FormatSelect value={format} onChange={onFormatChange} />
+      </EuiFormRow>
+      
+      <EuiFormRow
+        label={i18n.translate('cloud.connectionDetails.apiKeys.successForm.keyValueTitle', {
+          defaultMessage: 'API key value',
+        })}
+        fullWidth
+      >
+        <CopyInput value={apiKey.encoded} />
+      </EuiFormRow>
     </EuiCallOut>
   );
 };

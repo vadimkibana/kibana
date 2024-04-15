@@ -7,8 +7,8 @@
  */
 
 import { BehaviorSubject } from 'rxjs';
-import {ApiKey} from './tabs/api_keys_tab/views/success_form/types';
-import type {Format} from './tabs/api_keys_tab/views/success_form/format_select';
+import { ApiKey } from './tabs/api_keys_tab/views/success_form/types';
+import type { Format } from './tabs/api_keys_tab/views/success_form/format_select';
 import type { ConnectionDetailsOpts } from './types';
 
 export class ConnectionDetailsService {
