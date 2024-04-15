@@ -7,6 +7,8 @@
  */
 
 import * as React from 'react';
+import { ConnectionDetailsService } from '../service';
+import { context as serviceContext } from './service';
 
 export interface ConnectionDetailsOptsContextValue {
   links?: ConnectionDetailsOptsContextValueLinks;
@@ -29,6 +31,18 @@ export interface ConnectionDetailsOptsContextValueApiKeys {
 }
 
 export const context = React.createContext<ConnectionDetailsOptsContextValue>({});
+
+export const ConnectionDetailsOpts: React.FC<ConnectionDetailsOptsContextValue> = ({children, ...opts}) => {
+  const service = React.useMemo(() => new ConnectionDetailsService(opts), []);
+
+  return (
+    <context.Provider value={opts}>
+      <serviceContext.Provider value={service}>
+        {children}
+      </serviceContext.Provider>
+    </context.Provider>
+  );
+};
 
 export const useConnectionDetailsOpts = (): ConnectionDetailsOptsContextValue => {
   const value = React.useContext(context);

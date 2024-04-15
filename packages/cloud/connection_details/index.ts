@@ -6,6 +6,12 @@
  * Side Public License, v 1.
  */
 
-export * from './context';
+export {
+  ConnectionDetailsOpts,
+  type ConnectionDetailsOptsContextValue,
+  type ConnectionDetailsOptsContextValueApiKeys,
+  type ConnectionDetailsOptsContextValueEndpoints,
+  type ConnectionDetailsOptsContextValueLinks
+} from './context';
 export * from './connection_details';
 export * from './connection_details_flyout_content';
