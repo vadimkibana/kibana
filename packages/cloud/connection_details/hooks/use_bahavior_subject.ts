@@ -6,18 +6,9 @@
  * Side Public License, v 1.
  */
 
-import * as React from 'react';
-import { useConnectionDetailsOpts } from '../../context';
-import { KeySetupForm } from './views/key_setup_form';
+import useObservable from 'react-use/lib/useObservable';
+import type { BehaviorSubject } from 'rxjs';
 
-export const ApiKeysTab: React.FC = () => {
-  const { apiKeys } = useConnectionDetailsOpts();
-
-  if (!apiKeys) return null;
-
-  return (
-    <>
-      <KeySetupForm />
-    </>
-  );
+export const useBehaviorSubject = <T>(subject: BehaviorSubject<T>): T => {
+  return useObservable(subject, subject.getValue());
 };

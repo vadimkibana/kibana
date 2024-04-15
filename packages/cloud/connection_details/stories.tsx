@@ -7,23 +7,25 @@
  */
 
 import * as React from 'react';
-import {context} from './context';
+import { ConnectionDetailsOpts } from './context';
 
 export const StoriesProvider: React.FC = ({children}) => {
+  const opts = {
+    links: {
+      learnMore: 'https://www.elastic.co/',
+    },
+    endpoints: {
+      url: 'http://localhost:9200',
+      id: 'my-cluster-id:dXMtZWFzdC0xLmF3cy5zdGFnaW5nLmZvdW5kaXQubm8kZjY3ZDZiZjFhM2NmNDA4ODhlODg2M2Y2Y2IyY2RjNGMkOWViYzEzYjRkOTU0NDI2NDljMzcwZTNlZjMyZWYzOGI=',
+    },
+    apiKeys: {
+      createKey: async (name: string) => ({key: '123'}),
+    },
+  };
+
   return (
-    <context.Provider value={{
-      links: {
-        learnMore: 'https://www.elastic.co/',
-      },
-      endpoints: {
-        url: 'http://localhost:9200',
-        id: 'my-cluster-id:dXMtZWFzdC0xLmF3cy5zdGFnaW5nLmZvdW5kaXQubm8kZjY3ZDZiZjFhM2NmNDA4ODhlODg2M2Y2Y2IyY2RjNGMkOWViYzEzYjRkOTU0NDI2NDljMzcwZTNlZjMyZWYzOGI=',
-      },
-      apiKeys: {
-        createKey: async (name: string) => ({key: '123'}),
-      },
-    }}>
+    <ConnectionDetailsOpts {...opts}>
       {children}
-    </context.Provider>
+    </ConnectionDetailsOpts>
   );
 };
