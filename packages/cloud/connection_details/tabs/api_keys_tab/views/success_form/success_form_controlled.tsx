@@ -6,12 +6,13 @@
  * Side Public License, v 1.
  */
 
-import { EuiCallOut, EuiFormRow } from '@elastic/eui';
+import { EuiCallOut, EuiFormRow, EuiSpacer } from '@elastic/eui';
 import * as React from 'react';
 import { i18n } from '@kbn/i18n';
 import { ApiKey } from './types';
 import { FormatSelect, type Format } from './format_select';
-import {CopyInput} from '@kbn/cloud/connection_details/components/copy_input';
+import { CopyInput } from '../../../../components/copy_input';
+import { ManageKeysLink } from '../../components/manage_keys_link';
 
 export interface SuccessFormControlledProps {
   apiKey: ApiKey;
@@ -21,39 +22,45 @@ export interface SuccessFormControlledProps {
 
 export const SuccessFormControlled: React.FC<SuccessFormControlledProps> = ({ apiKey, format, onFormatChange }) => {
   return (
-    <EuiCallOut
-      color="success"
-      iconType="check"
-      title={i18n.translate('cloud.connectionDetails.apiKeys.successForm.title', {
-        defaultMessage: 'Created API key "{name}"',
-        values: { name: apiKey.name },
-      })}
-    >
-      <p>
-        {i18n.translate('cloud.connectionDetails.apiKeys.successForm.message', {
-          defaultMessage:
-            'Copy your API key below now. It will not be available ' +
-            'after you close this dialogue. The API key will expire in 90 days.',
+    <>
+      <EuiCallOut
+        color="success"
+        iconType="check"
+        title={i18n.translate('cloud.connectionDetails.apiKeys.successForm.title', {
+          defaultMessage: 'Created API key "{name}"',
+          values: { name: apiKey.name },
         })}
-      </p>
+      >
+        <p>
+          {i18n.translate('cloud.connectionDetails.apiKeys.successForm.message', {
+            defaultMessage:
+              'Copy your API key below now. It will not be available ' +
+              'after you close this dialogue. The API key will expire in 90 days.',
+          })}
+        </p>
 
-      <EuiFormRow
-        label={i18n.translate('cloud.connectionDetails.apiKeys.successForm.keyFormatTitle', {
-          defaultMessage: 'API key format',
-        })}
-        fullWidth
-      >
-        <FormatSelect value={format} onChange={onFormatChange} />
-      </EuiFormRow>
-      
-      <EuiFormRow
-        label={i18n.translate('cloud.connectionDetails.apiKeys.successForm.keyValueTitle', {
-          defaultMessage: 'API key value',
-        })}
-        fullWidth
-      >
-        <CopyInput value={apiKey.encoded} />
-      </EuiFormRow>
-    </EuiCallOut>
+        <EuiFormRow
+          label={i18n.translate('cloud.connectionDetails.apiKeys.successForm.keyFormatTitle', {
+            defaultMessage: 'API key format',
+          })}
+          fullWidth
+        >
+          <FormatSelect value={format} onChange={onFormatChange} />
+        </EuiFormRow>
+        
+        <EuiFormRow
+          label={i18n.translate('cloud.connectionDetails.apiKeys.successForm.keyValueTitle', {
+            defaultMessage: 'API key value',
+          })}
+          fullWidth
+        >
+          <CopyInput value={apiKey.encoded} />
+        </EuiFormRow>
+      </EuiCallOut>
+
+      <EuiSpacer size={'m'} />
+
+      <ManageKeysLink />
+    </>
   );
 };
