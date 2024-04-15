@@ -7,8 +7,8 @@
  */
 
 import React from 'react';
-import {StoriesProvider} from '../../stories';
-import {EndpointsTab} from './endpoints_tab';
+import { StoriesProvider } from '../../stories';
+import { EndpointsTab } from './endpoints_tab';
 
 export default {
   title: 'Connection Details/Tabs/Endpoints Tab',
