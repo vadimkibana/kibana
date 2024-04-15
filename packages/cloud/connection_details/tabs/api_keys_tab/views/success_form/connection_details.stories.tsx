@@ -7,17 +7,24 @@
  */
 
 import React from 'react';
-import {StoriesProvider} from '../../stories';
-import {ApiKeysTab} from './api_keys_tab';
+import { StoriesProvider } from '../../../../stories';
+import { SuccessForm } from './success_form';
 
 export default {
-  title: 'Connection Details/Tabs/API Keys',
+  title: 'Connection Details/Tabs/API Keys/Success Form',
 };
 
 export const Default = () => {
   return (
     <StoriesProvider>
-      <ApiKeysTab />
+      <SuccessForm
+        apiKey={{
+          id: 'KEY_ID',
+          name: 'KEY_NAME',
+          encoded: 'ENCODED_KEY',
+          key: 'THE_KEY',
+        }}
+      />
     </StoriesProvider>
   );
 };

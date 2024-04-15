@@ -6,18 +6,9 @@
  * Side Public License, v 1.
  */
 
-import React from 'react';
-import {StoriesProvider} from '../../stories';
-import {ApiKeysTab} from './api_keys_tab';
-
-export default {
-  title: 'Connection Details/Tabs/API Keys',
-};
-
-export const Default = () => {
-  return (
-    <StoriesProvider>
-      <ApiKeysTab />
-    </StoriesProvider>
-  );
-};
+export interface ApiKey {
+  id: string;
+  name: string;
+  key: string;
+  encoded: string;
+}
