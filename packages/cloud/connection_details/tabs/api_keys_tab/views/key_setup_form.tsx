@@ -19,6 +19,27 @@ export interface KeySetupFormProps {
 }
 
 export const KeySetupForm: React.FC<KeySetupFormProps> = ({ name, loading, onNameChange, onSubmit }) => {
+  const body = (
+    <EuiFormRow
+      label={i18n.translate('cloud.connectionDetails.tab.apiKeys.nameField.label', {
+        defaultMessage: 'API key name',
+      })}
+      helpText={i18n.translate('cloud.connectionDetails.tab.apiKeys.nameField.helpText', {
+        defaultMessage: 'A good name makes it clear what your API key does.',
+      })}
+      isDisabled={loading}
+      fullWidth
+    >
+      <EuiFieldText
+        name="api-key-name"
+        disabled={loading}
+        isLoading={loading}
+        value={name}
+        onChange={onNameChange}
+      />
+    </EuiFormRow>
+  );
+
   const footer = (
     <EuiFlexGroup justifyContent="spaceBetween">
       <EuiFlexItem grow={false}>
@@ -40,24 +61,7 @@ export const KeySetupForm: React.FC<KeySetupFormProps> = ({ name, loading, onNam
 
   return (
     <EuiForm component="form" fullWidth onSubmit={onSubmit}>
-      <EuiFormRow
-        label={i18n.translate('cloud.connectionDetails.tab.apiKeys.nameField.label', {
-          defaultMessage: 'API key name',
-        })}
-        helpText={i18n.translate('cloud.connectionDetails.tab.apiKeys.nameField.helpText', {
-          defaultMessage: 'A good name makes it clear what your API key does.',
-        })}
-        isDisabled={loading}
-        fullWidth
-      >
-        <EuiFieldText
-          name="api-key-name"
-          disabled={loading}
-          isLoading={loading}
-          value={name}
-          onChange={onNameChange}
-        />
-      </EuiFormRow>
+      {body}
       <EuiSpacer />
       {footer}
     </EuiForm>

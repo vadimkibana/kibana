@@ -8,7 +8,7 @@
 
 import * as React from 'react';
 import { useConnectionDetailsService } from '../../context';
-import {useBehaviorSubject} from '../../hooks/use_behavior_subject';
+import { useBehaviorSubject } from '../../hooks/use_behavior_subject';
 import { KeySetupForm } from './views/key_setup_form';
 
 export const ApiKeysTab: React.FC = () => {
