@@ -7,15 +7,9 @@
  */
 
 import * as React from 'react';
-import {
-  EuiFormRow,
-  EuiFieldText,
-  EuiCopy,
-  EuiButtonIcon,
-  EuiFlexGroup,
-  EuiFlexItem,
-} from '@elastic/eui';
+import { EuiFormRow } from '@elastic/eui';
 import { i18n } from '@kbn/i18n';
+import {CopyInput} from '../../../components/copy_input';
 
 export interface EndpointUrlProps {
   url: string;
@@ -30,24 +24,9 @@ export const EndpointUrlRow: React.FC<EndpointUrlProps> = ({
         defaultMessage: 'Elasticsearch endpoint',
       })}
       fullWidth
+      data-test-subj="connectionDetailsEsEndpoint"
     >
-      <EuiFlexGroup gutterSize="s">
-        <EuiFlexItem>
-          <EuiFieldText
-            value={url}
-            fullWidth
-            disabled
-            data-test-subj="connectionDetailsEsEndpoint"
-          />
-        </EuiFlexItem>
-        <EuiFlexItem grow={false}>
-          <EuiCopy textToCopy={url}>
-            {(copy) => (
-              <EuiButtonIcon onClick={copy} iconType="copyClipboard" display="base" size="m" />
-            )}
-          </EuiCopy>
-        </EuiFlexItem>
-      </EuiFlexGroup>
+      <CopyInput value={url} />
     </EuiFormRow>
   );
 };
