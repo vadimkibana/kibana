@@ -6,11 +6,11 @@
  * Side Public License, v 1.
  */
 
-import { EuiFieldText, EuiForm, EuiFormRow } from '@elastic/eui';
+import { EuiButton, EuiFieldText, EuiFlexGroup, EuiFlexItem, EuiForm, EuiFormRow, EuiSpacer } from '@elastic/eui';
 import * as React from 'react';
 import { i18n } from '@kbn/i18n';
 import { useConnectionDetailsService } from '@kbn/cloud/connection_details/context';
-import { useBehaviorSubject } from '../../../hooks/use_bahavior_subject';
+import { useBehaviorSubject } from '../../../hooks/use_behavior_subject';
 
 export interface KeySetupFormProps {
   loading?: boolean;
@@ -20,8 +20,25 @@ export const KeySetupForm: React.FC<KeySetupFormProps> = ({loading}) => {
   const service = useConnectionDetailsService();
   const keyName = useBehaviorSubject(service.apiKeyName$);
 
+  const footer = (
+    <EuiFlexGroup justifyContent="spaceBetween">
+      <EuiFlexItem grow={false}>LINK</EuiFlexItem>
+      <EuiFlexItem grow={false}>
+        <EuiButton
+          fill
+          type="submit"
+          data-test-subj="createKeySubmitBtn"
+        >
+          {i18n.translate('cloud.connectionDetails.tab.apiKeys.nameField.createButton.label', {
+            defaultMessage: 'Create API key',
+          })}
+        </EuiButton>
+      </EuiFlexItem>
+    </EuiFlexGroup>
+  );
+
   return (
-    <EuiForm component="form">
+    <EuiForm component="form" fullWidth>
       <EuiFormRow
         label={i18n.translate('cloud.connectionDetails.tab.apiKeys.nameField.label', {
           defaultMessage: 'API key name',
@@ -30,6 +47,7 @@ export const KeySetupForm: React.FC<KeySetupFormProps> = ({loading}) => {
           defaultMessage: 'A good name makes it clear what your API key does.',
         })}
         isDisabled={loading}
+        fullWidth
       >
         <EuiFieldText
           name="api-key-name"
@@ -41,6 +59,8 @@ export const KeySetupForm: React.FC<KeySetupFormProps> = ({loading}) => {
           }}
         />
       </EuiFormRow>
+      <EuiSpacer />
+      {footer}
     </EuiForm>
   );
 };
