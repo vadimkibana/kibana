@@ -7,7 +7,6 @@ export interface ConnectionDetailsOpts {
 
 export interface ConnectionDetailsOptsLinks {
   learnMore?: string;
-  manageApiKeys?: string;
 }
 
 export interface ConnectionDetailsOptsEndpoints {
@@ -16,5 +15,6 @@ export interface ConnectionDetailsOptsEndpoints {
 }
 
 export interface ConnectionDetailsOptsApiKeys {
+  manageKeysLink?: string;
   createKey: (name: string) => Promise<{key: string}>;
 }

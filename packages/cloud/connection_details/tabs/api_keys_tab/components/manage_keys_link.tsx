@@ -18,7 +18,7 @@ export interface KeySetupFormProps {
 export const ManageKeysLink: React.FC<KeySetupFormProps> = ({loading}) => {
   const service = useConnectionDetailsService();
 
-  const link = service.opts.links?.manageApiKeys;
+  const link = service.opts.apiKeys?.manageKeysLink;
   
   if (!link) return null;
 
