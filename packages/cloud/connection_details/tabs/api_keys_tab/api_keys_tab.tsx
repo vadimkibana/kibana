@@ -18,15 +18,10 @@ export const ApiKeysTab: React.FC = () => {
   const keyName = useBehaviorSubject(service.apiKeyName$);
   const keyStatus = useBehaviorSubject(service.apiKeyStatus$);
   const apiKey = useBehaviorSubject(service.apiKey$);
-  const error = useBehaviorSubject(service.apiKeyError$);
 
   if (!apiKeys) return null;
 
-  if (apiKey) {
-    return (
-      <SuccessForm apiKey={apiKey} />
-    );
-  }
+  if (apiKey) return <SuccessForm />;
 
   return (
     <KeySetupForm

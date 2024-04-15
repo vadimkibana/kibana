@@ -6,33 +6,23 @@
  * Side Public License, v 1.
  */
 
-import { EuiCallOut } from '@elastic/eui';
 import * as React from 'react';
-import { i18n } from '@kbn/i18n';
-import { ApiKey } from './types';
+import { useConnectionDetailsService } from '../../../../context';
+import { useBehaviorSubject } from '../../../../hooks/use_behavior_subject';
+import { SuccessFormControlled } from './success_form_controlled';
 
-export interface SuccessFormProps {
-  apiKey: ApiKey;
-}
+export const SuccessForm: React.FC = () => {
+  const service = useConnectionDetailsService();
+  const apiKey = useBehaviorSubject(service.apiKey$);
+  const format = useBehaviorSubject(service.apiKeyFormat$);
 
-export const SuccessForm: React.FC<SuccessFormProps> = ({ apiKey }) => {
+  if (!apiKey) return null;
+
   return (
-    <EuiCallOut
-      color="success"
-      iconType="check"
-      title={i18n.translate('cloud.connectionDetails.apiKeys.successForm.title', {
-        defaultMessage: 'Created API key "{name}"!',
-        values: { name: apiKey.name },
-      })}
-    >
-      <p>
-        {i18n.translate('cloud.connectionDetails.apiKeys.successForm.message', {
-          defaultMessage:
-            'Copy your API key below now. It will not be available ' +
-            'after you close this dialogue. The API key will expire in 90 days.',
-        })}
-      </p>
-      rest ...
-    </EuiCallOut>
+    <SuccessFormControlled
+      apiKey={apiKey}
+      format={format}
+      onFormatChange={service.setApiKeyFormat}
+    />
   );
 };

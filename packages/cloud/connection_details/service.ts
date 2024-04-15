@@ -8,6 +8,7 @@
 
 import { BehaviorSubject } from 'rxjs';
 import {ApiKey} from './tabs/api_keys_tab/views/success_form/types';
+import type {Format} from './tabs/api_keys_tab/views/success_form/format_select';
 import type { ConnectionDetailsOpts } from './types';
 
 export class ConnectionDetailsService {
@@ -15,11 +16,16 @@ export class ConnectionDetailsService {
   public readonly apiKeyStatus$ = new BehaviorSubject<'configuring' | 'creating'>('configuring');
   public readonly apiKeyError$ = new BehaviorSubject<Error | null>(null);
   public readonly apiKey$ = new BehaviorSubject<ApiKey | null>(null);
+  public readonly apiKeyFormat$ = new BehaviorSubject<Format>('encoded');
 
   constructor (public readonly opts: ConnectionDetailsOpts) {}
 
   public readonly setApiKeyName = (name: string) => {
     this.apiKeyName$.next(name);
+  };
+
+  public readonly setApiKeyFormat = (format: Format) => {
+    this.apiKeyFormat$.next(format);
   };
 
   private readonly createKeyAsync = async () => {

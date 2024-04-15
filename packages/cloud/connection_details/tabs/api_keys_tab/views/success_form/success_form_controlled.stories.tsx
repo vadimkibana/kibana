@@ -8,22 +8,27 @@
 
 import React from 'react';
 import { StoriesProvider } from '../../../../stories';
-import { SuccessForm } from './success_form';
+import { SuccessFormControlled } from './success_form_controlled';
+import type { Format } from './format_select';
 
 export default {
-  title: 'Connection Details/Tabs/API Keys/Success Form',
+  title: 'Connection Details/Tabs/API Keys/Success Form (controlled)',
 };
 
 export const Default = () => {
+  const [format, setFormat] = React.useState<Format>('encoded');
+
   return (
     <StoriesProvider>
-      <SuccessForm
+      <SuccessFormControlled
         apiKey={{
           id: 'KEY_ID',
           name: 'KEY_NAME',
           encoded: 'ENCODED_KEY',
           key: 'THE_KEY',
         }}
+        format={format}
+        onFormatChange={setFormat}
       />
     </StoriesProvider>
   );
