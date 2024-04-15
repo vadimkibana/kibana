@@ -39,7 +39,7 @@ export const ConnectionDetailsFlyoutContent: React.FC = () => {
           {' '}
           {!!ctx.links?.learnMore && (
             <EuiLink external href={ctx.links.learnMore} target="_blank">
-              {i18n.translate('cloud.deploymentDetails.learnMoreButtonLabel', {
+              {i18n.translate('cloud.connectionDetails.learnMoreButtonLabel', {
                 defaultMessage: 'Learn more',
               })}
             </EuiLink>

@@ -19,6 +19,7 @@ export interface ConnectionDetailsOptsContextValue {
 
 export interface ConnectionDetailsOptsContextValueLinks {
   learnMore?: string;
+  manageApiKeys?: string;
 }
 
 export interface ConnectionDetailsOptsContextValueEndpoints {

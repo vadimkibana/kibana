@@ -7,12 +7,13 @@
  */
 
 import * as React from 'react';
-import { ConnectionDetailsOpts } from './context';
+import { ConnectionDetailsOpts, type ConnectionDetailsOptsContextValue } from './context';
 
 export const StoriesProvider: React.FC = ({children}) => {
-  const opts = {
+  const opts: ConnectionDetailsOptsContextValue = {
     links: {
-      learnMore: 'https://www.elastic.co/',
+      learnMore: 'https://www.elastic.co/LEARN_MORE',
+      manageApiKeys: 'https://www.elastic.co/MANAGE_API_KEYS',
     },
     endpoints: {
       url: 'http://localhost:9200',

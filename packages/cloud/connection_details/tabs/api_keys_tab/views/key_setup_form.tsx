@@ -6,11 +6,12 @@
  * Side Public License, v 1.
  */
 
-import { EuiButton, EuiFieldText, EuiFlexGroup, EuiFlexItem, EuiForm, EuiFormRow, EuiSpacer } from '@elastic/eui';
+import { EuiButton, EuiFieldText, EuiFlexGroup, EuiFlexItem, EuiForm, EuiFormRow, EuiLink, EuiSpacer } from '@elastic/eui';
 import * as React from 'react';
 import { i18n } from '@kbn/i18n';
 import { useConnectionDetailsService } from '@kbn/cloud/connection_details/context';
 import { useBehaviorSubject } from '../../../hooks/use_behavior_subject';
+import { ManageKeysLink } from '../components/manage_keys_link';
 
 export interface KeySetupFormProps {
   loading?: boolean;
@@ -22,7 +23,9 @@ export const KeySetupForm: React.FC<KeySetupFormProps> = ({loading}) => {
 
   const footer = (
     <EuiFlexGroup justifyContent="spaceBetween">
-      <EuiFlexItem grow={false}>LINK</EuiFlexItem>
+      <EuiFlexItem grow={false}>
+        <ManageKeysLink />
+      </EuiFlexItem>
       <EuiFlexItem grow={false}>
         <EuiButton
           fill
