@@ -7,10 +7,11 @@
  */
 
 import * as React from 'react';
-import { ConnectionDetailsOpts, type ConnectionDetailsOptsContextValue } from './context';
+import { ConnectionDetailsOptsProvider } from './context';
+import type { ConnectionDetailsOpts } from './types';
 
 export const StoriesProvider: React.FC = ({children}) => {
-  const opts: ConnectionDetailsOptsContextValue = {
+  const opts: ConnectionDetailsOpts = {
     links: {
       learnMore: 'https://www.elastic.co/LEARN_MORE',
       manageApiKeys: 'https://www.elastic.co/MANAGE_API_KEYS',
@@ -25,8 +26,8 @@ export const StoriesProvider: React.FC = ({children}) => {
   };
 
   return (
-    <ConnectionDetailsOpts {...opts}>
+    <ConnectionDetailsOptsProvider {...opts}>
       {children}
-    </ConnectionDetailsOpts>
+    </ConnectionDetailsOptsProvider>
   );
 };

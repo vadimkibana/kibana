@@ -7,12 +7,12 @@
  */
 
 import { BehaviorSubject } from 'rxjs';
-import type { ConnectionDetailsOptsContextValue } from "./context";
+import type { ConnectionDetailsOpts } from './types';
 
 export class ConnectionDetailsService {
   public readonly apiKeyName$ = new BehaviorSubject<string>('');
 
-  constructor (public readonly opts: ConnectionDetailsOptsContextValue) {}
+  constructor (public readonly opts: ConnectionDetailsOpts) {}
 
   public readonly setApiKeyName = (name: string) => {
     this.apiKeyName$.next(name);

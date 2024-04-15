@@ -8,32 +8,12 @@
 
 import * as React from 'react';
 import { ConnectionDetailsService } from '../service';
+import { ConnectionDetailsOpts } from '../types';
 import { context as serviceContext } from './service';
 
-export interface ConnectionDetailsOptsContextValue {
-  links?: ConnectionDetailsOptsContextValueLinks;
-  endpoints?: ConnectionDetailsOptsContextValueEndpoints;
-  apiKeys?: ConnectionDetailsOptsContextValueApiKeys;
-}
+export const context = React.createContext<ConnectionDetailsOpts>({});
 
-
-export interface ConnectionDetailsOptsContextValueLinks {
-  learnMore?: string;
-  manageApiKeys?: string;
-}
-
-export interface ConnectionDetailsOptsContextValueEndpoints {
-  url?: string;
-  id?: string;
-}
-
-export interface ConnectionDetailsOptsContextValueApiKeys {
-  createKey: (name: string) => Promise<{key: string}>;
-}
-
-export const context = React.createContext<ConnectionDetailsOptsContextValue>({});
-
-export const ConnectionDetailsOpts: React.FC<ConnectionDetailsOptsContextValue> = ({children, ...opts}) => {
+export const ConnectionDetailsOptsProvider: React.FC<ConnectionDetailsOpts> = ({children, ...opts}) => {
   const service = React.useMemo(() => new ConnectionDetailsService(opts), []);
 
   return (
@@ -45,7 +25,7 @@ export const ConnectionDetailsOpts: React.FC<ConnectionDetailsOptsContextValue> 
   );
 };
 
-export const useConnectionDetailsOpts = (): ConnectionDetailsOptsContextValue => {
+export const useConnectionDetailsOpts = (): ConnectionDetailsOpts => {
   const value = React.useContext(context);
 
   if (!value || Object.keys(value).length === 0) {
