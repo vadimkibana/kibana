@@ -9,16 +9,16 @@
 import { EuiButton, EuiFieldText, EuiFlexGroup, EuiFlexItem, EuiForm, EuiFormRow, EuiSpacer } from '@elastic/eui';
 import * as React from 'react';
 import { i18n } from '@kbn/i18n';
-import { ManageKeysLink } from '../components/manage_keys_link';
+import { ManageKeysLink } from '../../components/manage_keys_link';
 
-export interface KeySetupFormProps {
+export interface ConfigurationFormControlledProps {
   name: string;
   loading?: boolean;
   onNameChange: React.ChangeEventHandler<HTMLInputElement>;
   onSubmit: React.FormEventHandler<HTMLFormElement>;
 }
 
-export const KeySetupForm: React.FC<KeySetupFormProps> = ({ name, loading, onNameChange, onSubmit }) => {
+export const ConfigurationFormControlled: React.FC<ConfigurationFormControlledProps> = ({ name, loading, onNameChange, onSubmit }) => {
   const body = (
     <EuiFormRow
       label={i18n.translate('cloud.connectionDetails.tab.apiKeys.nameField.label', {

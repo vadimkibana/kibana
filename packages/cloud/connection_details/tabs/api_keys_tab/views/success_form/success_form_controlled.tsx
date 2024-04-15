@@ -24,7 +24,7 @@ export const SuccessFormControlled: React.FC<SuccessFormControlledProps> = ({ ap
       color="success"
       iconType="check"
       title={i18n.translate('cloud.connectionDetails.apiKeys.successForm.title', {
-        defaultMessage: 'Created API key "{name}"!',
+        defaultMessage: 'Created API key "{name}"',
         values: { name: apiKey.name },
       })}
     >
