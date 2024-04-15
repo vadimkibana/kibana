@@ -39,7 +39,7 @@ export const ConnectionDetails: React.FC = () => {
     tabs.push([
       'apiKeys',
       i18n.translate('cloud.connectionDetails.tab.apiKeys', {
-        defaultMessage: 'API Keys',
+        defaultMessage: 'API key',
       }),
       null,
     ]);

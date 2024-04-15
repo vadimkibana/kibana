@@ -8,4 +8,4 @@
 
 export * from './context';
 export * from './connection_details';
-export * from './connection_details_flyout';
+export * from './connection_details_flyout_content';
