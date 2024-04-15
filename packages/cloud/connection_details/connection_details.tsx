@@ -7,7 +7,7 @@
  */
 
 import * as React from 'react';
-import { EuiTab, EuiTabs } from '@elastic/eui';
+import { EuiSpacer, EuiTab, EuiTabs } from '@elastic/eui';
 import { i18n } from '@kbn/i18n';
 import { useConnectionDetailsOpts } from './context';
 import { EndpointsTab } from './tabs/endpoints_tab';
@@ -61,6 +61,7 @@ export const ConnectionDetails: React.FC = () => {
           >{name}</EuiTab>  
         ))}
       </EuiTabs>
+      <EuiSpacer />
       {tabs.find(([id]) => id === tab)?.[2] || null}
     </>
   );
