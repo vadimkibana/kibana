@@ -9,8 +9,14 @@
 import * as React from 'react';
 
 export interface ConnectionDetailsContextValue {
+  links?: ConnectionDetailsContextValueLinks;
   endpoints?: ConnectionDetailsContextValueEndpoints;
   apiKeys?: ConnectionDetailsContextValueApiKeys;
+}
+
+
+export interface ConnectionDetailsContextValueLinks {
+  learnMore?: string;
 }
 
 export interface ConnectionDetailsContextValueEndpoints {

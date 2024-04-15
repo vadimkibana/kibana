@@ -12,6 +12,9 @@ import {context} from './context';
 export const StoriesProvider: React.FC = ({children}) => {
   return (
     <context.Provider value={{
+      links: {
+        learnMore: 'https://www.elastic.co/',
+      },
       endpoints: {
         url: 'http://localhost:9200',
         id: 'my-cluster-id:dXMtZWFzdC0xLmF3cy5zdGFnaW5nLmZvdW5kaXQubm8kZjY3ZDZiZjFhM2NmNDA4ODhlODg2M2Y2Y2IyY2RjNGMkOWViYzEzYjRkOTU0NDI2NDljMzcwZTNlZjMyZWYzOGI=',

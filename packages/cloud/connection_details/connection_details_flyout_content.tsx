@@ -11,14 +11,18 @@ import {
   EuiFlyoutBody,
   EuiFlyoutFooter,
   EuiFlyoutHeader,
+  EuiLink,
   EuiSpacer,
   EuiText,
   EuiTitle,
 } from '@elastic/eui';
 import { ConnectionDetails } from './connection_details';
 import { i18n } from '@kbn/i18n';
+import { useConnectionDetails } from './context';
 
 export const ConnectionDetailsFlyoutContent: React.FC = () => {
+  const ctx = useConnectionDetails();
+
   const header = (
     <EuiFlyoutHeader hasBorder>
       <EuiTitle size="m" data-test-subj="connectionDetailsModalTitle">
@@ -32,6 +36,14 @@ export const ConnectionDetailsFlyoutContent: React.FC = () => {
           {i18n.translate('cloud.connectionDetails.flyout.subtitle', {
             defaultMessage: 'Connect to the Elasticsearch API by using the following details.',
           })}
+          {' '}
+          {!!ctx.links?.learnMore && (
+            <EuiLink external href={ctx.links.learnMore} target="_blank">
+              {i18n.translate('cloud.deploymentDetails.learnMoreButtonLabel', {
+                defaultMessage: 'Learn more',
+              })}
+            </EuiLink>
+          )}
         </p>
       </EuiText>
     </EuiFlyoutHeader>
