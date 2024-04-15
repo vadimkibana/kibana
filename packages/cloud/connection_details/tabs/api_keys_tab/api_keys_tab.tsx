@@ -6,20 +6,18 @@
  * Side Public License, v 1.
  */
 
-import {EuiFieldText, EuiForm, EuiFormRow} from '@elastic/eui';
 import * as React from 'react';
 import { useConnectionDetails } from '../../context';
+import { KeySetupForm } from './views/key_setup_form';
 
 export const ApiKeysTab: React.FC = () => {
-  const { endpoints } = useConnectionDetails();
+  const { apiKeys } = useConnectionDetails();
 
-  if (!endpoints) return null;
+  if (!apiKeys) return null;
 
   return (
-    <EuiForm component="form">
-      <EuiFormRow label="Text field" helpText="I am some friendly help text.">
-        <EuiFieldText name="first" />
-      </EuiFormRow>
-    </EuiForm>
+    <>
+      <KeySetupForm loading />
+    </>
   );
 };
