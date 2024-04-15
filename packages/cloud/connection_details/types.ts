@@ -1,9 +1,10 @@
+import type { ApiKey } from "./tabs/api_keys_tab/views/success_form/types";
+
 export interface ConnectionDetailsOpts {
   links?: ConnectionDetailsOptsLinks;
   endpoints?: ConnectionDetailsOptsEndpoints;
   apiKeys?: ConnectionDetailsOptsApiKeys;
 }
-
 
 export interface ConnectionDetailsOptsLinks {
   learnMore?: string;
@@ -16,5 +17,7 @@ export interface ConnectionDetailsOptsEndpoints {
 
 export interface ConnectionDetailsOptsApiKeys {
   manageKeysLink?: string;
-  createKey: (name: string) => Promise<{key: string}>;
+  createKey: (params: {name: string}) => Promise<{
+    apiKey: ApiKey;
+  }>;
 }

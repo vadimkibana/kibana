@@ -21,7 +21,18 @@ export const StoriesProvider: React.FC = ({children}) => {
     },
     apiKeys: {
       manageKeysLink: 'https://www.elastic.co/MANAGE_API_KEYS',
-      createKey: async (name: string) => ({key: '123'}),
+      createKey: async ({ name }) => {
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+
+        return {
+          apiKey: {
+            id: 'KEY_ID',
+            name,
+            encoded: 'ENCODED_KEY',
+            key: 'THE_KEY',
+          },
+        };
+      },
     },
   };
 
