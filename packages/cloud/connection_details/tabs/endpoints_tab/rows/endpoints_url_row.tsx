@@ -24,10 +24,9 @@ export interface EndpointUrlProps {
 export const EndpointUrlRow: React.FC<EndpointUrlProps> = ({
   url,
 }) => {
-  // TODO: rename translations and test subjects
   return (
     <EuiFormRow
-      label={i18n.translate('cloud.deploymentDetails.elasticEndpointLabel', {
+      label={i18n.translate('cloud.connectionDetails.elasticEndpointLabel', {
         defaultMessage: 'Elasticsearch endpoint',
       })}
       fullWidth
@@ -38,7 +37,7 @@ export const EndpointUrlRow: React.FC<EndpointUrlProps> = ({
             value={url}
             fullWidth
             disabled
-            data-test-subj="deploymentDetailsEsEndpoint"
+            data-test-subj="connectionDetailsEsEndpoint"
           />
         </EuiFlexItem>
         <EuiFlexItem grow={false}>
