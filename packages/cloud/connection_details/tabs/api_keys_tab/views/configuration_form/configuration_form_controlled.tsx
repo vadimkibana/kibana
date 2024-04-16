@@ -6,7 +6,7 @@
  * Side Public License, v 1.
  */
 
-import { EuiButton, EuiFieldText, EuiFlexGroup, EuiFlexItem, EuiForm, EuiFormRow, EuiSpacer } from '@elastic/eui';
+import { EuiButton, EuiCallOut, EuiFieldText, EuiFlexGroup, EuiFlexItem, EuiForm, EuiFormRow, EuiSpacer } from '@elastic/eui';
 import * as React from 'react';
 import { i18n } from '@kbn/i18n';
 import { ManageKeysLink } from '../../components/manage_keys_link';
@@ -14,30 +14,49 @@ import { ManageKeysLink } from '../../components/manage_keys_link';
 export interface ConfigurationFormControlledProps {
   name: string;
   loading?: boolean;
+  error?: Error | unknown;
   onNameChange: React.ChangeEventHandler<HTMLInputElement>;
   onSubmit: React.FormEventHandler<HTMLFormElement>;
 }
 
-export const ConfigurationFormControlled: React.FC<ConfigurationFormControlledProps> = ({ name, loading, onNameChange, onSubmit }) => {
+export const ConfigurationFormControlled: React.FC<ConfigurationFormControlledProps> = ({ name, loading, error, onNameChange, onSubmit }) => {
   const body = (
-    <EuiFormRow
-      label={i18n.translate('cloud.connectionDetails.tab.apiKeys.nameField.label', {
-        defaultMessage: 'API key name',
-      })}
-      helpText={i18n.translate('cloud.connectionDetails.tab.apiKeys.nameField.helpText', {
-        defaultMessage: 'A good name makes it clear what your API key does.',
-      })}
-      isDisabled={loading}
-      fullWidth
-    >
-      <EuiFieldText
-        name="api-key-name"
-        disabled={loading}
-        isLoading={loading}
-        value={name}
-        onChange={onNameChange}
-      />
-    </EuiFormRow>
+    <>
+      {!!error && (
+        <>
+          <EuiCallOut
+            color="danger"
+            iconType="error"
+            title={i18n.translate('cloud.connectionDetails.tab.apiKeys.error.title', {
+              defaultMessage: 'Error',
+            })}
+          >
+            {error instanceof Error ? error.message : String(error)}
+          </EuiCallOut>
+          <EuiSpacer />
+        </>
+      )}
+      
+      <EuiFormRow
+        label={i18n.translate('cloud.connectionDetails.tab.apiKeys.nameField.label', {
+          defaultMessage: 'API key name',
+        })}
+        helpText={i18n.translate('cloud.connectionDetails.tab.apiKeys.nameField.helpText', {
+          defaultMessage: 'A good name makes it clear what your API key does.',
+        })}
+        error={'test'}
+        isDisabled={loading}
+        fullWidth
+      >
+        <EuiFieldText
+          name="api-key-name"
+          disabled={loading}
+          isLoading={loading}
+          value={name}
+          onChange={onNameChange}
+        />
+      </EuiFormRow>
+    </>
   );
 
   const footer = (

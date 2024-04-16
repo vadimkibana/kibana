@@ -15,10 +15,12 @@ export const ConfigurationForm: React.FC = () => {
   const service = useConnectionDetailsService();
   const keyName = useBehaviorSubject(service.apiKeyName$);
   const keyStatus = useBehaviorSubject(service.apiKeyStatus$);
+  const keyError = useBehaviorSubject(service.apiKeyError$);
 
   return (
     <ConfigurationFormControlled
       name={keyName}
+      error={keyError}
       loading={keyStatus === 'creating'}
       onNameChange={(event) => {
         service.setApiKeyName(event.target.value);

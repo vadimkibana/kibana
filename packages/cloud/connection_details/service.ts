@@ -8,6 +8,7 @@
 
 import { BehaviorSubject } from 'rxjs';
 import { ApiKey } from './tabs/api_keys_tab/views/success_form/types';
+import { i18n } from '@kbn/i18n';
 import type { Format } from './tabs/api_keys_tab/views/success_form/format_select';
 import type { ConnectionDetailsOpts } from './types';
 
@@ -15,7 +16,7 @@ export class ConnectionDetailsService {
   public readonly showCloudId$ = new BehaviorSubject<boolean>(false);
   public readonly apiKeyName$ = new BehaviorSubject<string>('');
   public readonly apiKeyStatus$ = new BehaviorSubject<'configuring' | 'creating'>('configuring');
-  public readonly apiKeyError$ = new BehaviorSubject<Error | null>(null);
+  public readonly apiKeyError$ = new BehaviorSubject<Error | unknown | undefined>(undefined);
   public readonly apiKey$ = new BehaviorSubject<ApiKey | null>(null);
   public readonly apiKeyFormat$ = new BehaviorSubject<Format>('encoded');
 
@@ -27,10 +28,22 @@ export class ConnectionDetailsService {
 
   public readonly setApiKeyName = (name: string) => {
     this.apiKeyName$.next(name);
+    this.apiKeyError$.next(undefined);
   };
 
   public readonly setApiKeyFormat = (format: Format) => {
     this.apiKeyFormat$.next(format);
+  };
+
+  private validateName = () => {
+    const name = this.apiKeyName$.getValue();
+
+    if (!name) {
+      const message = i18n.translate('cloud.connectionDetails.tab.apiKeys.nameField.missingError', {
+        defaultMessage: 'API key name is required.',
+      });
+      throw new Error(message);
+    }
   };
 
   private readonly createKeyAsync = async () => {
@@ -42,6 +55,7 @@ export class ConnectionDetailsService {
 
     this.apiKeyStatus$.next('creating');
     try {
+      this.validateName();
       const { apiKey } = await createKey({
         name: this.apiKeyName$.getValue(),
       });
