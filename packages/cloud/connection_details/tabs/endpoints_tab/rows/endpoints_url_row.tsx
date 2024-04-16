@@ -20,8 +20,11 @@ export const EndpointUrlRow: React.FC<EndpointUrlProps> = ({
 }) => {
   return (
     <EuiFormRow
-      label={i18n.translate('cloud.connectionDetails.elasticEndpointLabel', {
+      label={i18n.translate('cloud.connectionDetails.tab.endpoints.endpointField.label', {
         defaultMessage: 'Elasticsearch endpoint',
+      })}
+      helpText={i18n.translate('cloud.connectionDetails.tab.endpoints.endpointField.helpText', {
+        defaultMessage: 'The most common method for establishing an Elasticsearch connection.',
       })}
       fullWidth
       data-test-subj="connectionDetailsEsEndpoint"
