@@ -22,7 +22,9 @@ export const MissingPermissionsPanel: React.FC = () => {
     >
       <p>
         {i18n.translate('cloud.connectionDetails.tabs.apiKeys.missingPermPanel.description', {
-          defaultMessage: 'Your assigned role does not have the necessary permissions to create an API key. Please contact your administrator.',
+          defaultMessage:
+            'Your assigned role does not have the necessary permissions to create an API key. ' +
+            'Please contact your administrator.',
         })}
       </p>
     </EuiCallOut>
