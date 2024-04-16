@@ -7,7 +7,8 @@
  */
 
 import * as React from 'react';
-import {FancySelect} from '../../../../components/fancy_select';
+import { FancySelect } from '../../../../components/fancy_select';
+import { i18n } from '@kbn/i18n';
 
 export type Format = 'encoded' | 'beats' | 'logstash';
 
@@ -24,20 +25,32 @@ export const FormatSelect: React.FC<FormatSelectProps> = ({ value, onChange}) =>
         {
           id: 'encoded',
           icon: 'key',
-          title: 'Encoded',
-          description: 'Format used to make requests to Elasticsearch REST API.',
+          title: i18n.translate('cloud.connectionDetails.apiKeyFormat.encoded.title', {
+            defaultMessage: 'Encoded',
+          }),
+          description: i18n.translate('cloud.connectionDetails.apiKeyFormat.encoded.description', {
+            defaultMessage: 'Use to make requests to Elasticsearch REST API',
+          })
         },
         {
           id: 'beats',
           icon: 'logoBeats',
-          title: 'Beats',
-          description: 'Format used to configure Beats.',
+          title: i18n.translate('cloud.connectionDetails.apiKeyFormat.beats.title', {
+            defaultMessage: 'Beats',
+          }),
+          description: i18n.translate('cloud.connectionDetails.apiKeyFormat.beats.description', {
+            defaultMessage: 'Use to configure Beats',
+          })
         },
         {
           id: 'logstash',
           icon: 'logoLogstash',
-          title: 'Logstash',
-          description: 'Format used to configure Logstash.',
+          title: i18n.translate('cloud.connectionDetails.apiKeyFormat.logstash.title', {
+            defaultMessage: 'Logstash',
+          }),
+          description: i18n.translate('cloud.connectionDetails.apiKeyFormat.logstash.description', {
+            defaultMessage: 'Use to configure Logstash',
+          })
         },
       ]}
       onChange={(value) => onChange(value as Format)}
