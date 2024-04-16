@@ -7,9 +7,9 @@
  */
 
 import React from 'react';
-import {StoriesProvider} from './stories';
-import {ConnectionDetailsFlyoutContent} from './connection_details_flyout_content';
-import {EuiFlyout} from '@elastic/eui';
+import { StoriesProvider, StoriesProviderKeyCreationError } from './stories';
+import { ConnectionDetailsFlyoutContent } from './connection_details_flyout_content';
+import { EuiFlyout } from '@elastic/eui';
 
 export default {
   title: 'Connection Details/Flyout',
@@ -21,6 +21,16 @@ export const Default = () => {
       <StoriesProvider>
         <ConnectionDetailsFlyoutContent />
       </StoriesProvider>
+    </EuiFlyout>
+  );
+};
+
+export const CreationError = () => {
+  return (
+    <EuiFlyout size="l"  onClose={() => {}}>
+      <StoriesProviderKeyCreationError>
+        <ConnectionDetailsFlyoutContent />
+      </StoriesProviderKeyCreationError>
     </EuiFlyout>
   );
 };
