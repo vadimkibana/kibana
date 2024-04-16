@@ -21,6 +21,9 @@ export interface SuccessFormControlledProps {
 }
 
 export const SuccessFormControlled: React.FC<SuccessFormControlledProps> = ({ apiKey, format, onFormatChange }) => {
+  const keyValue = format === 'encoded'
+    ? apiKey.encoded : `${apiKey.id}:${apiKey.key}`;
+
   return (
     <>
       <EuiCallOut
@@ -54,7 +57,7 @@ export const SuccessFormControlled: React.FC<SuccessFormControlledProps> = ({ ap
           })}
           fullWidth
         >
-          <CopyInput value={apiKey.encoded} />
+          <CopyInput value={keyValue} />
         </EuiFormRow>
       </EuiCallOut>
 

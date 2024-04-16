@@ -16,7 +16,7 @@ export const StoriesProvider: React.FC = ({children}) => {
       learnMore: 'https://www.elastic.co/LEARN_MORE',
     },
     endpoints: {
-      url: 'http://localhost:9200',
+      url: 'https://f67d6bf1a3cf40888e8863f6cb2cdc4c.us-east-1.aws.staging.foundit.no:443',
       id: 'my-cluster-id:dXMtZWFzdC0xLmF3cy5zdGFnaW5nLmZvdW5kaXQubm8kZjY3ZDZiZjFhM2NmNDA4ODhlODg2M2Y2Y2IyY2RjNGMkOWViYzEzYjRkOTU0NDI2NDljMzcwZTNlZjMyZWYzOGI=',
     },
     apiKeys: {
@@ -26,10 +26,10 @@ export const StoriesProvider: React.FC = ({children}) => {
 
         return {
           apiKey: {
-            id: 'KEY_ID',
+            id: 'hjfq4o4BTjxWQruxIear',
             name,
-            encoded: 'ENCODED_KEY',
-            key: 'THE_KEY',
+            encoded: 'aGpmcTRvNEJUanhXUXJ1eEllYXI6VUJYc1lPNkhSTy1PempUTk0tSjF6Zw==',
+            key: 'UBXsYO6HRO-OzjTNM-J1zg',
           },
         };
       },
