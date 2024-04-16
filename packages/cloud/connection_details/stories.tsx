@@ -32,6 +32,11 @@ const defaultOpts: ConnectionDetailsOpts = {
         },
       };
     },
+    hasPermission: async () => {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      return true;
+    },
   },
 };
 
@@ -51,6 +56,26 @@ export const StoriesProviderKeyCreationError: React.FC = ({children}) => {
       createKey: async () => {
         await new Promise((resolve) => setTimeout(resolve, 1000));
         throw new Error('Failed to create API key');
+      },
+    },
+  };
+
+  return (
+    <ConnectionDetailsOptsProvider {...opts}>
+      {children}
+    </ConnectionDetailsOptsProvider>
+  );
+};
+
+export const StoriesProviderNoKeyPermissions: React.FC = ({children}) => {
+  const opts: ConnectionDetailsOpts = {
+    ...defaultOpts,
+    apiKeys: {
+      ...defaultOpts!.apiKeys!,
+      hasPermission: async () => {
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+
+        return false;
       },
     },
   };

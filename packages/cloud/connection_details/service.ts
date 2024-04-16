@@ -19,8 +19,15 @@ export class ConnectionDetailsService {
   public readonly apiKeyError$ = new BehaviorSubject<Error | unknown | undefined>(undefined);
   public readonly apiKey$ = new BehaviorSubject<ApiKey | null>(null);
   public readonly apiKeyFormat$ = new BehaviorSubject<Format>('encoded');
+  public readonly apiKeyHasAccess$ = new BehaviorSubject<null | boolean>(null);
 
-  constructor (public readonly opts: ConnectionDetailsOpts) {}
+  constructor (public readonly opts: ConnectionDetailsOpts) {
+    opts.apiKeys?.hasPermission().then((hasAccess) => {
+      this.apiKeyHasAccess$.next(hasAccess);
+    }).catch((error) => {
+      console.error('Error checking API key creation permissions', error);
+    });
+  }
 
   public readonly toggleShowCloudId = () => {
     this.showCloudId$.next(!this.showCloudId$.getValue());

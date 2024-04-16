@@ -7,7 +7,7 @@
  */
 
 import React from 'react';
-import { StoriesProvider, StoriesProviderKeyCreationError } from './stories';
+import { StoriesProvider, StoriesProviderKeyCreationError, StoriesProviderNoKeyPermissions } from './stories';
 import { ConnectionDetailsFlyoutContent } from './connection_details_flyout_content';
 import { EuiFlyout } from '@elastic/eui';
 
@@ -31,6 +31,16 @@ export const CreationError = () => {
       <StoriesProviderKeyCreationError>
         <ConnectionDetailsFlyoutContent />
       </StoriesProviderKeyCreationError>
+    </EuiFlyout>
+  );
+};
+
+export const MissingPermissions = () => {
+  return (
+    <EuiFlyout size="l"  onClose={() => {}}>
+      <StoriesProviderNoKeyPermissions>
+        <ConnectionDetailsFlyoutContent />
+      </StoriesProviderNoKeyPermissions>
     </EuiFlyout>
   );
 };

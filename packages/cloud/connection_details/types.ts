@@ -20,4 +20,5 @@ export interface ConnectionDetailsOptsApiKeys {
   createKey: (params: {name: string}) => Promise<{
     apiKey: ApiKey;
   }>;
+  hasPermission: () => Promise<boolean>;
 }
