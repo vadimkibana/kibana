@@ -12,6 +12,7 @@ import type { Format } from './tabs/api_keys_tab/views/success_form/format_selec
 import type { ConnectionDetailsOpts } from './types';
 
 export class ConnectionDetailsService {
+  public readonly showCloudId$ = new BehaviorSubject<boolean>(false);
   public readonly apiKeyName$ = new BehaviorSubject<string>('');
   public readonly apiKeyStatus$ = new BehaviorSubject<'configuring' | 'creating'>('configuring');
   public readonly apiKeyError$ = new BehaviorSubject<Error | null>(null);
@@ -19,6 +20,10 @@ export class ConnectionDetailsService {
   public readonly apiKeyFormat$ = new BehaviorSubject<Format>('encoded');
 
   constructor (public readonly opts: ConnectionDetailsOpts) {}
+
+  public readonly toggleShowCloudId = () => {
+    this.showCloudId$.next(!this.showCloudId$.getValue());
+  };
 
   public readonly setApiKeyName = (name: string) => {
     this.apiKeyName$.next(name);

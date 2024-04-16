@@ -9,7 +9,9 @@
 import * as React from 'react';
 import { EuiFormRow, EuiSpacer, EuiSwitch } from '@elastic/eui';
 import { i18n } from '@kbn/i18n';
-import {CopyInput} from '../../../components/copy_input';
+import { CopyInput } from '../../../components/copy_input';
+import { useConnectionDetailsService } from '../../../context';
+import { useBehaviorSubject } from '../../../hooks/use_behavior_subject';
 
 export interface CloudIdRowProps {
   value: string;
@@ -18,7 +20,8 @@ export interface CloudIdRowProps {
 export const CloudIdRow: React.FC<CloudIdRowProps> = ({
   value,
 }) => {
-  const [show, setShow] = React.useState(false);
+  const service = useConnectionDetailsService();
+  const showCloudId = useBehaviorSubject(service.showCloudId$);
 
   return (
     <>
@@ -28,13 +31,13 @@ export const CloudIdRow: React.FC<CloudIdRowProps> = ({
         label={i18n.translate('cloud.connectionDetails.tab.endpoints.cloudIdField.toggle', {
           defaultMessage: 'Show Cloud ID',
         })}
-        checked={show}
-        onChange={() => setShow(x => !x)}
+        checked={showCloudId}
+        onChange={service.toggleShowCloudId}
       />
 
-      {show && <EuiSpacer size="l" />}
+      {showCloudId && <EuiSpacer size="l" />}
 
-      {show && (
+      {showCloudId && (
         <EuiFormRow
           label={i18n.translate('cloud.connectionDetails.tab.endpoints.cloudIdField.label', {
             defaultMessage: 'Cloud ID',
