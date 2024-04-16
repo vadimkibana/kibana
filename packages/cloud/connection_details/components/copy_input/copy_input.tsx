@@ -23,6 +23,8 @@ export interface EndpointUrlProps {
 export const CopyInput: React.FC<EndpointUrlProps> = ({
   value,
 }) => {
+  const textRef = React.useRef<HTMLSpanElement>(null);
+
   return (
     <EuiPanel
       borderRadius="none"
@@ -38,7 +40,24 @@ export const CopyInput: React.FC<EndpointUrlProps> = ({
             style={{wordBreak: 'break-all'}}
             data-test-subj="copyInputValue"
           >
-            {value}
+            <span
+              ref={textRef}
+              onMouseDown={(event) => {
+                const span = textRef.current;
+                if (!span) return;
+                if (window.getSelection && document.createRange) {
+                  const selection = window.getSelection();
+                  if (!selection) return;
+                  event.preventDefault();
+                  const range = document.createRange();
+                  range.selectNodeContents(span);
+                  selection.removeAllRanges();
+                  selection.addRange(range);
+                }
+              }}
+            >
+              {value}
+            </span>
           </EuiText>
         </EuiFlexItem>
         <EuiFlexItem grow={false}>
