@@ -9,7 +9,6 @@
 import * as React from 'react';
 import {
   EuiFlyoutBody,
-  EuiFlyoutFooter,
   EuiFlyoutHeader,
   EuiLink,
   EuiSpacer,
@@ -55,15 +54,10 @@ export const ConnectionDetailsFlyoutContent: React.FC = () => {
     </EuiFlyoutBody>
   );
 
-  const footer = (
-    <EuiFlyoutFooter />
-  );
-
   return (
     <>
       {header}
       {body}
-      {footer}
     </>
   );
 };
