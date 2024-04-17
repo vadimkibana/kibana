@@ -11,7 +11,8 @@ import React, { useCallback, useState } from 'react';
 import { EuiCard, EuiFlexGroup, EuiIcon, EuiTextColor, useEuiTheme } from '@elastic/eui';
 import { i18n } from '@kbn/i18n';
 import { css } from '@emotion/react';
-import { openConnectionDetails } from '@kbn/cloud/connection_details';
+// import { openConnectionDetails } from '@kbn/cloud/connection_details/kibana';
+import { openConnectionDetails } from '@kbn/cloud/connection_details/kibana2';
 import { GuideState } from '../../../types';
 import { GuideCardConstants } from './guide_cards.constants';
 import { GuideCardsProps } from './guide_cards';
@@ -57,6 +58,62 @@ export const GuideCard = ({
     guideState = guidesState.find((state) => state.guideId === card.guideId);
   }
 
+  // const onClick = useCallback(async () => {
+  //   setIsLoading(true);
+  //   if (card.guideId) {
+  //     await activateGuide(card.guideId, guideState);
+  //   } else if (card.navigateTo) {
+  //     await navigateToApp(card.navigateTo?.appId, {
+  //       path: card.navigateTo.path,
+  //     });
+  //   } else if (card.openEndpointModal) {
+  //     openConnectionDetails({
+  //       props: {
+  //         options: {
+  //           endpoints: {
+  //             id: cloud.cloudId,
+  //             url: cloud.elasticsearchUrl,
+  //           },
+  //         },
+  //         start: {
+  //           core: {
+  //             i18n: i18nStart,
+  //             theme,
+  //             docLinks,
+  //             http,
+  //             application,
+  //           },
+  //           plugins: {
+  //             share,
+  //           },
+  //         },
+  //       },
+  //       start: {
+  //         core: {
+  //           overlays,
+  //         },
+  //       },
+  //     });
+  //   }
+  //   setIsLoading(false);
+  // }, [
+  //   application,
+  //   activateGuide,
+  //   card.guideId,
+  //   card.navigateTo,
+  //   guideState,
+  //   navigateToApp,
+  //   card.openEndpointModal,
+  //   overlays,
+  //   theme,
+  //   i18nStart,
+  //   http,
+  //   cloud.cloudId,
+  //   cloud.elasticsearchUrl,
+  //   docLinks,
+  //   share,
+  // ]);
+
   const onClick = useCallback(async () => {
     setIsLoading(true);
     if (card.guideId) {
@@ -74,43 +131,19 @@ export const GuideCard = ({
               url: cloud.elasticsearchUrl,
             },
           },
-          start: {
-            core: {
-              i18n: i18nStart,
-              theme,
-              docLinks,
-              http,
-              application,
-            },
-            plugins: {
-              share,
-            },
-          },
-        },
-        start: {
-          core: {
-            overlays,
-          },
         },
       });
     }
     setIsLoading(false);
   }, [
-    application,
     activateGuide,
     card.guideId,
     card.navigateTo,
     guideState,
     navigateToApp,
     card.openEndpointModal,
-    overlays,
-    theme,
-    i18nStart,
-    http,
     cloud.cloudId,
     cloud.elasticsearchUrl,
-    docLinks,
-    share,
   ]);
 
   const isHighlighted = activeFilter === card.solution;

@@ -9,6 +9,7 @@
 import './index.scss';
 
 import type { CoreSetup, CoreStart, Plugin, PluginInitializerContext } from '@kbn/core/public';
+import { setStartDeps } from '@kbn/react-kibana-context-common';
 import { ShareMenuManager, ShareMenuManagerStart } from './services';
 import { ShareMenuRegistry, ShareMenuRegistrySetup } from './services';
 import { UrlService } from '../common/url_service';
@@ -158,10 +159,19 @@ export class SharePlugin
       this.anonymousAccessServiceProvider
     );
 
-    return {
+    const contract = {
       ...sharingContextMenuStart,
       url: this.url!,
       navigate: (options: RedirectOptions) => this.redirectManager!.navigate(options),
     };
+
+    setStartDeps({
+      core,
+      plugins: {
+        share: contract,
+      },
+    });
+
+    return contract;
   }
 }
