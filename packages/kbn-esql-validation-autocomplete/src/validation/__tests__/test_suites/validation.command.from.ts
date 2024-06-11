@@ -103,7 +103,7 @@ export const validationFromCommandTestSuite = (setup: helpers.Setup) => {
         });
 
         describe('... METADATA <indices>', () => {
-          test('no errors on correct METADATA ... usage', async () => {
+          test('no errors on correct usage', async () => {
             const { expectErrors } = await setup();
 
             await expectErrors('from index metadata _id', []);
