@@ -50,15 +50,27 @@ export const fields: Array<{ name: string; type: string; suggestedAs?: string }>
 export const indexes = (
   [] as Array<{ name: string; hidden: boolean; suggestedAs?: string }>
 ).concat(
-  ['a', 'index', 'otherIndex', '.secretIndex', 'my-index'].map((name) => ({
+  [
+    'a',
+    'index',
+    'otherIndex',
+    '.secretIndex',
+    'my-index',
+    'my-index$',
+    'my_index{}',
+    'my-index+1',
+    'synthetics-*',
+  ].map((name) => ({
     name,
     hidden: name.startsWith('.'),
   })),
-  ['my-index[quoted]', 'my-index$', 'my_index{}'].map((name) => ({
-    name,
-    hidden: false,
-    suggestedAs: `\`${name}\``,
-  }))
+  ['my-index[quoted]', 'my:index', 'my,index', 'logstash-{now/d{yyyy.MM.dd|+12:00}}'].map(
+    (name) => ({
+      name,
+      hidden: false,
+      suggestedAs: `"${name}"`,
+    })
+  )
 );
 
 export const integrations: Integration[] = ['nginx', 'k8s'].map((name) => ({
@@ -271,7 +283,7 @@ export const setup = async (caret = '/') => {
   const assertSuggestions = async (query: string, expected: string[], opts?: SuggestOptions) => {
     const result = await suggest(query, opts);
     const resultTexts = [...result.map((suggestion) => suggestion.text)].sort();
-
+    console.log('resultTexts', resultTexts);
     expect(resultTexts).toEqual([...expected].sort());
   };
 
