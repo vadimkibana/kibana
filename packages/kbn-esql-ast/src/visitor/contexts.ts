@@ -1,0 +1,383 @@
+/*
+ * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the Server Side Public License, v 1; you may not use this file except
+ * in compliance with, at your election, the Elastic License 2.0 or the Server
+ * Side Public License, v 1.
+ */
+
+/* eslint-disable max-classes-per-file */
+// Splitting classes across files runs into issues with circular dependencies
+// and makes it harder to understand the code structure.
+
+import { type GlobalVisitorContext, SharedData } from './global_visitor_context';
+import { firstItem, singleItems } from './utils';
+import type {
+  ESQLAstCommand,
+  ESQLAstItem,
+  ESQLAstNodeWithArgs,
+  ESQLColumn,
+  ESQLCommandOption,
+  ESQLFunction,
+  ESQLInlineCast,
+  ESQLList,
+  ESQLLiteral,
+  ESQLNumberLiteral,
+  ESQLSource,
+  ESQLTimeInterval,
+} from '../types';
+import type {
+  ESQLAstExpressionNode,
+  ESQLAstQueryNode,
+  ExpressionVisitorInput,
+  ExpressionVisitorOutput,
+  UndefinedToVoid,
+  VisitorAstNode,
+  VisitorMethods,
+} from './types';
+import { Builder } from '../builder/Builder';
+
+const isNodeWithArgs = (x: unknown): x is ESQLAstNodeWithArgs =>
+  !!x && typeof x === 'object' && Array.isArray((x as any).args);
+
+export class VisitorContext<
+  Methods extends VisitorMethods = VisitorMethods,
+  Data extends SharedData = SharedData,
+  Node extends VisitorAstNode = VisitorAstNode
+> {
+  constructor(
+    /**
+     * Global visitor context.
+     */
+    public readonly ctx: GlobalVisitorContext<Methods, Data>,
+
+    /**
+     * ES|QL AST node which is currently being visited.
+     */
+    public readonly node: Node,
+
+    /**
+     * Context of the parent node, from which the current node was reached
+     * during the AST traversal.
+     */
+    public readonly parent: VisitorContext | null = null
+  ) {}
+
+  public *visitArguments(
+    input: ExpressionVisitorInput<Methods>
+  ): Iterable<ExpressionVisitorOutput<Methods>> {
+    this.ctx.assertMethodExists('visitExpression');
+
+    const node = this.node;
+
+    if (!isNodeWithArgs(node)) {
+      throw new Error('Node does not have arguments');
+    }
+
+    for (const arg of singleItems(node.args)) {
+      yield this.visitExpression(arg, input as any);
+    }
+  }
+
+  public visitExpression(
+    expressionNode: ESQLAstExpressionNode,
+    input: ExpressionVisitorInput<Methods>
+  ): ExpressionVisitorOutput<Methods> {
+    if (Array.isArray(expressionNode)) {
+      throw new Error('should not happen');
+    }
+    switch (expressionNode.type) {
+      case 'column': {
+        if (!this.ctx.methods.visitColumnExpression) break;
+        return this.ctx.visitColumn(this, expressionNode, input as any);
+      }
+      case 'source': {
+        if (!this.ctx.methods.visitSourceExpression) break;
+        return this.ctx.visitSource(this, expressionNode, input as any);
+      }
+      case 'function': {
+        if (!this.ctx.methods.visitFunctionCallExpression) break;
+        return this.ctx.visitFunctionCallExpression(this, expressionNode, input as any);
+      }
+      case 'literal': {
+        if (!this.ctx.methods.visitLiteralExpression) break;
+        return this.ctx.visitLiteralExpression(this, expressionNode, input as any);
+      }
+      case 'list': {
+        if (!this.ctx.methods.visitListLiteralExpression) break;
+        return this.ctx.visitListLiteralExpression(this, expressionNode, input as any);
+      }
+      case 'timeInterval': {
+        if (!this.ctx.methods.visitTimeIntervalLiteralExpression) break;
+        return this.ctx.visitTimeIntervalLiteralExpression(this, expressionNode, input as any);
+      }
+      case 'inlineCast': {
+        if (!this.ctx.methods.visitInlineCastExpression) break;
+        return this.ctx.visitInlineCastExpression(this, expressionNode, input as any);
+      }
+    }
+    return this.ctx.visitExpression(this, expressionNode, input as any);
+  }
+}
+
+export class QueryVisitorContext<
+  Methods extends VisitorMethods = VisitorMethods,
+  Data extends SharedData = SharedData
+> extends VisitorContext<Methods, Data, ESQLAstQueryNode> {
+  public *visitCommands(
+    input: UndefinedToVoid<Parameters<NonNullable<Methods['visitCommand']>>[1]>
+  ): Iterable<
+    | ReturnType<NonNullable<Methods['visitCommand']>>
+    | ReturnType<NonNullable<Methods['visitFromCommand']>>
+  > {
+    this.ctx.assertMethodExists('visitCommand');
+
+    const methods = this.ctx.methods;
+
+    COMMANDS: for (const cmd of this.node) {
+      if (cmd.type === 'command') {
+        NAME: switch (cmd.name) {
+          case 'from': {
+            if (methods.visitFromCommand) {
+              const childContext = new FromCommandVisitorContext(this.ctx, cmd, this);
+              const result = methods.visitFromCommand!(childContext, input);
+
+              yield result;
+              continue COMMANDS;
+            }
+            break NAME;
+          }
+          case 'limit': {
+            if (methods.visitLimitCommand) {
+              const childContext = new LimitCommandVisitorContext(this.ctx, cmd, this);
+              const result = methods.visitLimitCommand!(childContext, input);
+
+              yield result;
+              continue COMMANDS;
+            }
+            break NAME;
+          }
+        }
+
+        const childContext = new CommandVisitorContext(this.ctx, cmd, this);
+        const result = methods.visitCommand!(childContext, input);
+
+        yield result as ReturnType<NonNullable<Methods['visitCommand']>>;
+      }
+    }
+  }
+}
+
+// Commands --------------------------------------------------------------------
+
+export class CommandVisitorContext<
+  Methods extends VisitorMethods = VisitorMethods,
+  Data extends SharedData = SharedData,
+  Node extends ESQLAstCommand = ESQLAstCommand
+> extends VisitorContext<Methods, Data, Node> {
+  public name(): string {
+    return this.node.name.toUpperCase();
+  }
+
+  public *options(): Iterable<ESQLCommandOption> {
+    for (const arg of this.node.args) {
+      if (Array.isArray(arg)) {
+        continue;
+      }
+      if (arg.type === 'option') {
+        yield arg;
+      }
+    }
+  }
+
+  public *visitOptions(
+    input: UndefinedToVoid<Parameters<NonNullable<Methods['visitCommandOption']>>[1]>
+  ): Iterable<ReturnType<NonNullable<Methods['visitCommandOption']>>> {
+    this.ctx.assertMethodExists('visitCommandOption');
+
+    for (const option of this.options()) {
+      const sourceContext = new CommandOptionVisitorContext(this.ctx, option, this);
+      const result = this.ctx.methods.visitCommandOption!(sourceContext, input);
+
+      yield result;
+    }
+  }
+
+  public *arguments(option: '' | string = ''): Iterable<ESQLAstItem> {
+    option = option.toLowerCase();
+
+    if (!option) {
+      for (const arg of this.node.args) {
+        if (Array.isArray(arg)) {
+          yield arg;
+          continue;
+        }
+        if (arg.type !== 'option') {
+          yield arg;
+        }
+      }
+    }
+
+    const optionNode = this.node.args.find(
+      (arg) => !Array.isArray(arg) && arg.type === 'option' && arg.name === option
+    );
+
+    if (optionNode) {
+      yield* (optionNode as ESQLCommandOption).args;
+    }
+  }
+
+  public *visitArguments(
+    input: ExpressionVisitorInput<Methods>,
+    option: '' | string = ''
+  ): Iterable<ExpressionVisitorOutput<Methods>> {
+    this.ctx.assertMethodExists('visitExpression');
+
+    const node = this.node;
+
+    if (!isNodeWithArgs(node)) {
+      throw new Error('Node does not have arguments');
+    }
+
+    for (const arg of singleItems(this.arguments(option))) {
+      yield this.visitExpression(arg, input as any);
+    }
+  }
+
+  public *visitSources(
+    input: UndefinedToVoid<Parameters<NonNullable<Methods['visitSourceExpression']>>[1]>
+  ): Iterable<ReturnType<NonNullable<Methods['visitSourceExpression']>>> {
+    this.ctx.assertMethodExists('visitSourceExpression');
+
+    for (const arg of singleItems(this.node.args)) {
+      if (arg.type === 'source') {
+        const sourceContext = new SourceExpressionVisitorContext(this.ctx, arg, this);
+        const result = this.ctx.methods.visitSourceExpression!(sourceContext, input);
+
+        yield result;
+      }
+    }
+  }
+}
+
+export class CommandOptionVisitorContext<
+  Methods extends VisitorMethods = VisitorMethods,
+  Data extends SharedData = SharedData
+> extends VisitorContext<Methods, Data, ESQLCommandOption> {}
+
+export class FromCommandVisitorContext<
+  Methods extends VisitorMethods = VisitorMethods,
+  Data extends SharedData = SharedData
+> extends CommandVisitorContext<Methods, Data, ESQLAstCommand> {
+  /**
+   * Visit the METADATA part of the FROM command.
+   *
+   *   FROM <sources> [ METADATA <columns> ]
+   *
+   * @param input Input object to pass to all "visitColumn" children methods.
+   * @returns An iterable of results of all the "visitColumn" visitor methods.
+   */
+  public *visitMetadataColumns(
+    input: UndefinedToVoid<Parameters<NonNullable<Methods['visitColumnExpression']>>[1]>
+  ): Iterable<ReturnType<NonNullable<Methods['visitColumnExpression']>>> {
+    this.ctx.assertMethodExists('visitColumnExpression');
+
+    let metadataOption: ESQLCommandOption | undefined;
+
+    for (const arg of singleItems(this.node.args)) {
+      if (arg.type === 'option' && arg.name === 'metadata') {
+        metadataOption = arg;
+        break;
+      }
+    }
+
+    if (!metadataOption) {
+      return;
+    }
+
+    for (const arg of singleItems(metadataOption.args)) {
+      if (arg.type === 'column') {
+        const columnContext = new ColumnExpressionVisitorContext(this.ctx, arg, this);
+        const result = this.ctx.methods.visitColumnExpression!(columnContext, input);
+
+        yield result;
+      }
+    }
+  }
+}
+
+export class LimitCommandVisitorContext<
+  Methods extends VisitorMethods = VisitorMethods,
+  Data extends SharedData = SharedData
+> extends CommandVisitorContext<Methods, Data> {
+  /**
+   * @returns The first numeric literal argument of the command.
+   */
+  public numericLiteral(): ESQLNumberLiteral | undefined {
+    const arg = firstItem(this.node.args);
+
+    if (arg && arg.type === 'literal' && arg.literalType === 'number') {
+      return arg;
+    }
+  }
+
+  /**
+   * @returns The value of the first numeric literal argument of the command.
+   */
+  public numeric(): number | undefined {
+    const literal = this.numericLiteral();
+
+    return literal?.value;
+  }
+
+  public setLimit(value: number): void {
+    const literalNode = Builder.numericLiteral({ value });
+
+    this.node.args = [literalNode];
+  }
+}
+
+// Expressions -----------------------------------------------------------------
+
+export class ExpressionVisitorContext<
+  Methods extends VisitorMethods = VisitorMethods,
+  Data extends SharedData = SharedData,
+  Node extends ESQLAstExpressionNode = ESQLAstExpressionNode
+> extends VisitorContext<Methods, Data, Node> {}
+
+export class ColumnExpressionVisitorContext<
+  Methods extends VisitorMethods = VisitorMethods,
+  Data extends SharedData = SharedData
+> extends VisitorContext<Methods, Data, ESQLColumn> {}
+
+export class SourceExpressionVisitorContext<
+  Methods extends VisitorMethods = VisitorMethods,
+  Data extends SharedData = SharedData
+> extends VisitorContext<Methods, Data, ESQLSource> {}
+
+export class FunctionCallExpressionVisitorContext<
+  Methods extends VisitorMethods = VisitorMethods,
+  Data extends SharedData = SharedData
+> extends VisitorContext<Methods, Data, ESQLFunction> {}
+
+export class LiteralExpressionVisitorContext<
+  Methods extends VisitorMethods = VisitorMethods,
+  Data extends SharedData = SharedData,
+  Node extends ESQLLiteral = ESQLLiteral
+> extends ExpressionVisitorContext<Methods, Data, Node> {}
+
+export class ListLiteralExpressionVisitorContext<
+  Methods extends VisitorMethods = VisitorMethods,
+  Data extends SharedData = SharedData,
+  Node extends ESQLList = ESQLList
+> extends ExpressionVisitorContext<Methods, Data, Node> {}
+
+export class TimeIntervalLiteralExpressionVisitorContext<
+  Methods extends VisitorMethods = VisitorMethods,
+  Data extends SharedData = SharedData
+> extends ExpressionVisitorContext<Methods, Data, ESQLTimeInterval> {}
+
+export class InlineCastExpressionVisitorContext<
+  Methods extends VisitorMethods = VisitorMethods,
+  Data extends SharedData = SharedData
+> extends ExpressionVisitorContext<Methods, Data, ESQLInlineCast> {}
