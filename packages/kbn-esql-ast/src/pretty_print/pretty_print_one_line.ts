@@ -17,11 +17,29 @@ export const prettyPrintOneLine = (query: ESQLAstQueryNode) => {
       return ctx.node.name;
     })
     .on('visitFunctionCallExpression', (ctx) => {
-      let args = '';
-      for (const arg of ctx.visitArguments()) {
-        args += (args ? ', ' : '') + arg;
+      const node = ctx.node;
+      const operator = node.name.toUpperCase();
+
+      switch (node.subtype) {
+        case 'unary-expression': {
+          return `${operator} ${ctx.visitArgument(0)}`;
+        }
+        case 'postfix-unary-expression': {
+          return `${ctx.visitArgument(0)} ${operator}`;
+        }
+        case 'binary-expression': {
+          return `${ctx.visitArgument(0)} ${operator} ${ctx.visitArgument(1)}`;
+        }
+        default: {
+          let args = '';
+
+          for (const arg of ctx.visitArguments()) {
+            args += (args ? ', ' : '') + arg;
+          }
+
+          return `${operator}(${args})`;
+        }
       }
-      return `${ctx.node.name.toUpperCase()}${args ? `(${args})` : ''}`;
     })
     .on('visitLiteralExpression', (ctx) => {
       return ctx.node.value;

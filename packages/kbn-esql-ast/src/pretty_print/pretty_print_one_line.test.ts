@@ -13,6 +13,8 @@ const reprint = (src: string) => {
   const { ast } = getAstAndSyntaxErrors(src);
   const text = prettyPrintOneLine(ast);
 
+  // console.log(JSON.stringify(ast, null, 2));
+
   return { text };
 };
 
@@ -106,16 +108,48 @@ describe('expressions', () => {
   });
 
   describe('"function" expressions', () => {
-    test('no argument function', () => {
-      const { text } = reprint('ROW fn()');
+    describe('function call expression', () => {
+      test('no argument function', () => {
+        const { text } = reprint('ROW fn()');
 
-      expect(text).toBe('ROW FN()');
+        expect(text).toBe('ROW FN()');
+      });
+
+      test('functions with arguments', () => {
+        const { text } = reprint('ROW gg(1), wp(1, 2, 3)');
+
+        expect(text).toBe('ROW GG(1), WP(1, 2, 3)');
+      });
+
+      test('functions with star argument', () => {
+        const { text } = reprint('ROW f(*)');
+
+        expect(text).toBe('ROW F(*)');
+      });
     });
 
-    test('functions with arguments', () => {
-      const { text } = reprint('ROW gg(1), wp(1, 2, 3)');
+    describe('unary expression', () => {
+      test('NOT expression', () => {
+        const { text } = reprint('ROW NOT a');
 
-      expect(text).toBe('ROW GG(1), WP(1, 2, 3)');
+        expect(text).toBe('ROW NOT a');
+      });
+    });
+
+    describe('postfix unary expression', () => {
+      test('NOT expression', () => {
+        const { text } = reprint('ROW a IS NOT NULL');
+
+        expect(text).toBe('ROW a IS NOT NULL');
+      });
+    });
+
+    describe('binary expression expression', () => {
+      test('NOT expression', () => {
+        const { text } = reprint('ROW 1 + 2');
+
+        expect(text).toBe('ROW 1 + 2');
+      });
     });
   });
 });

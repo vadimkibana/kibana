@@ -81,6 +81,29 @@ export class VisitorContext<
     }
   }
 
+  public visitArgument(
+    index: number,
+    input: ExpressionVisitorInput<Methods>
+  ): ExpressionVisitorOutput<Methods> {
+    this.ctx.assertMethodExists('visitExpression');
+
+    const node = this.node;
+
+    if (!isNodeWithArgs(node)) {
+      throw new Error('Node does not have arguments');
+    }
+
+    let i = 0;
+    for (const arg of singleItems(node.args)) {
+      if (i === index) {
+        return this.visitExpression(arg, input as any);
+      }
+      i++;
+    }
+
+    throw new Error(`Argument at index ${index} not found`);
+  }
+
   public visitExpression(
     expressionNode: ESQLAstExpressionNode,
     input: ExpressionVisitorInput<Methods>
