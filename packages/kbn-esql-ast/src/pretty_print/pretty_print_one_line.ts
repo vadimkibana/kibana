@@ -91,13 +91,13 @@ export const prettyPrintOneLine = (query: ESQLAstQueryNode) => {
       return `[${elements}]`;
     })
     .on('visitTimeIntervalLiteralExpression', (ctx) => {
-      return '<TIME_INTERVAL>';
+      return ctx.format();
     })
     .on('visitInlineCastExpression', (ctx) => {
       return `${ctx.visitValue()}::${ctx.node.castType}`;
     })
     .on('visitExpression', (ctx) => {
-      return '<EXPRESSION>';
+      return ctx.node.text ?? '<EXPRESSION>';
     })
     .on('visitCommandOption', (ctx) => {
       const option = ctx.node.name.toUpperCase();

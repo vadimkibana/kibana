@@ -468,7 +468,13 @@ export class ListLiteralExpressionVisitorContext<
 export class TimeIntervalLiteralExpressionVisitorContext<
   Methods extends VisitorMethods = VisitorMethods,
   Data extends SharedData = SharedData
-> extends ExpressionVisitorContext<Methods, Data, ESQLTimeInterval> {}
+> extends ExpressionVisitorContext<Methods, Data, ESQLTimeInterval> {
+  format(): string {
+    const node = this.node;
+
+    return `${node.quantity}${node.unit}`;
+  }
+}
 
 export class InlineCastExpressionVisitorContext<
   Methods extends VisitorMethods = VisitorMethods,

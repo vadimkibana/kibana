@@ -272,4 +272,18 @@ describe('expressions', () => {
       expect(reprint('ROW "asdf"::number').text).toBe('ROW "asdf"::number');
     });
   });
+
+  describe('time interval expression', () => {
+    test('days', () => {
+      const { text } = reprint('ROW 1 d');
+
+      expect(text).toBe('ROW 1d');
+    });
+
+    test('years', () => {
+      const { text } = reprint('ROW 42y');
+
+      expect(text).toBe('ROW 42y');
+    });
+  });
 });
