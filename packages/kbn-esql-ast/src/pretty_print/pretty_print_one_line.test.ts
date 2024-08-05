@@ -264,4 +264,12 @@ describe('expressions', () => {
       });
     });
   });
+
+  describe('cast expressions', () => {
+    test('various', () => {
+      expect(reprint('ROW a::string').text).toBe('ROW a::string');
+      expect(reprint('ROW 123::string').text).toBe('ROW 123::string');
+      expect(reprint('ROW "asdf"::number').text).toBe('ROW "asdf"::number');
+    });
+  });
 });

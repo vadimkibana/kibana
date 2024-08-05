@@ -94,7 +94,7 @@ export const prettyPrintOneLine = (query: ESQLAstQueryNode) => {
       return '<TIME_INTERVAL>';
     })
     .on('visitInlineCastExpression', (ctx) => {
-      return '<CAST>';
+      return `${ctx.visitValue()}::${ctx.node.castType}`;
     })
     .on('visitExpression', (ctx) => {
       return '<EXPRESSION>';

@@ -473,4 +473,12 @@ export class TimeIntervalLiteralExpressionVisitorContext<
 export class InlineCastExpressionVisitorContext<
   Methods extends VisitorMethods = VisitorMethods,
   Data extends SharedData = SharedData
-> extends ExpressionVisitorContext<Methods, Data, ESQLInlineCast> {}
+> extends ExpressionVisitorContext<Methods, Data, ESQLInlineCast> {
+  public visitValue(input: ExpressionVisitorInput<Methods>): ExpressionVisitorOutput<Methods> {
+    this.ctx.assertMethodExists('visitExpression');
+
+    const value = firstItem([this.node.value])!;
+
+    return this.visitExpression(value, input as any);
+  }
+}
