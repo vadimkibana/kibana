@@ -39,7 +39,7 @@ describe('commands', () => {
 });
 
 describe('expressions', () => {
-  describe('source expression', () => {
+  describe('source expressions', () => {
     test('simple source expression', () => {
       const { text } = reprint('from source');
 
@@ -74,6 +74,48 @@ describe('expressions', () => {
       const { text } = reprint('FROM """quoted"""');
 
       expect(text).toBe('FROM quoted');
+    });
+  });
+
+  describe('column expressions', () => {
+    test('simple columns expressions', () => {
+      const { text } = reprint('FROM a METADATA column1, _column2');
+
+      expect(text).toBe('FROM a METADATA column1, _column2');
+    });
+
+    test('nested fields', () => {
+      const { text } = reprint('FROM a | KEEP a.b');
+
+      expect(text).toBe('FROM a | KEEP a.b');
+    });
+
+    // Un-skip when "IdentifierPattern" is parsed correctly.
+    test.skip('quoted nested fields', () => {
+      const { text } = reprint('FROM index | KEEP `a`.`b`, c.`d`');
+
+      expect(text).toBe('FROM index | KEEP a.b, c.d');
+    });
+
+    // Un-skip when identifier names are escaped correctly.
+    test.skip('special character in identifier', () => {
+      const { text } = reprint('FROM a | KEEP `a 👉 b`, a.`✅`');
+
+      expect(text).toBe('FROM a | KEEP `a 👉 b`, a.`✅`');
+    });
+  });
+
+  describe('"function" expressions', () => {
+    test('no argument function', () => {
+      const { text } = reprint('ROW fn()');
+
+      expect(text).toBe('ROW FN()');
+    });
+
+    test('functions with arguments', () => {
+      const { text } = reprint('ROW gg(1), wp(1, 2, 3)');
+
+      expect(text).toBe('ROW GG(1), WP(1, 2, 3)');
     });
   });
 });
