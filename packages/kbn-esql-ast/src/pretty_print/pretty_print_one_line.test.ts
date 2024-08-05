@@ -137,7 +137,7 @@ describe('expressions', () => {
     });
 
     describe('postfix unary expression', () => {
-      test('NOT expression', () => {
+      test('IS NOT NULL expression', () => {
         const { text } = reprint('ROW a IS NOT NULL');
 
         expect(text).toBe('ROW a IS NOT NULL');
@@ -145,10 +145,87 @@ describe('expressions', () => {
     });
 
     describe('binary expression expression', () => {
-      test('NOT expression', () => {
+      test('arithmetic expression', () => {
         const { text } = reprint('ROW 1 + 2');
 
         expect(text).toBe('ROW 1 + 2');
+      });
+
+      test('assignment expression', () => {
+        const { text } = reprint('FROM a | STATS a != 1');
+
+        expect(text).toBe('FROM a | STATS a != 1');
+      });
+
+      test('regex expression - 1', () => {
+        const { text } = reprint('FROM a | WHERE a NOT RLIKE "a"');
+
+        expect(text).toBe('FROM a | WHERE a NOT RLIKE "a"');
+      });
+
+      test('regex expression - 2', () => {
+        const { text } = reprint('FROM a | WHERE a LIKE "b"');
+
+        expect(text).toBe('FROM a | WHERE a LIKE "b"');
+      });
+    });
+  });
+
+  describe('literals expressions', () => {
+    describe('numeric literal', () => {
+      test('null', () => {
+        const { text } = reprint('ROW null');
+
+        expect(text).toBe('ROW NULL');
+      });
+
+      test('boolean', () => {
+        expect(reprint('ROW true').text).toBe('ROW TRUE');
+        expect(reprint('ROW false').text).toBe('ROW FALSE');
+      });
+
+      test('integer', () => {
+        const { text } = reprint('ROW 1');
+
+        expect(text).toBe('ROW 1');
+      });
+
+      test('decimal', () => {
+        const { text } = reprint('ROW 1.2');
+
+        expect(text).toBe('ROW 1.2');
+      });
+
+      test('string', () => {
+        const { text } = reprint('ROW "abc"');
+
+        expect(text).toBe('ROW "abc"');
+      });
+
+      test('string w/ special chars', () => {
+        const { text } = reprint('ROW "as \\" 👍"');
+
+        expect(text).toBe('ROW "as \\" 👍"');
+      });
+
+      describe('params', () => {
+        test('unnamed', () => {
+          const { text } = reprint('ROW ?');
+
+          expect(text).toBe('ROW ?');
+        });
+
+        test('named', () => {
+          const { text } = reprint('ROW ?kappa');
+
+          expect(text).toBe('ROW ?kappa');
+        });
+
+        test('positional', () => {
+          const { text } = reprint('ROW ?42');
+
+          expect(text).toBe('ROW ?42');
+        });
       });
     });
   });

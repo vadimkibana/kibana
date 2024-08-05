@@ -18,7 +18,7 @@ export const prettyPrintOneLine = (query: ESQLAstQueryNode) => {
     })
     .on('visitFunctionCallExpression', (ctx) => {
       const node = ctx.node;
-      const operator = node.name.toUpperCase();
+      let operator = node.name.toUpperCase();
 
       switch (node.subtype) {
         case 'unary-expression': {
@@ -28,6 +28,16 @@ export const prettyPrintOneLine = (query: ESQLAstQueryNode) => {
           return `${ctx.visitArgument(0)} ${operator}`;
         }
         case 'binary-expression': {
+          switch (operator) {
+            case 'NOT_LIKE': {
+              operator = 'NOT LIKE';
+              break;
+            }
+            case 'NOT_RLIKE': {
+              operator = 'NOT RLIKE';
+              break;
+            }
+          }
           return `${ctx.visitArgument(0)} ${operator} ${ctx.visitArgument(1)}`;
         }
         default: {
@@ -42,7 +52,31 @@ export const prettyPrintOneLine = (query: ESQLAstQueryNode) => {
       }
     })
     .on('visitLiteralExpression', (ctx) => {
-      return ctx.node.value;
+      const node = ctx.node;
+
+      switch (node.literalType) {
+        case 'null': {
+          return 'NULL';
+        }
+        case 'boolean': {
+          return String(node.value).toUpperCase() === 'TRUE' ? 'TRUE' : 'FALSE';
+        }
+        case 'param': {
+          switch (node.paramType) {
+            case 'named':
+            case 'positional':
+              return '?' + node.value;
+            default:
+              return '?';
+          }
+        }
+        case 'string': {
+          return node.value;
+        }
+        default: {
+          return String(ctx.node.value);
+        }
+      }
     })
     .on('visitListLiteralExpression', (ctx) => {
       return '<LIST>';
