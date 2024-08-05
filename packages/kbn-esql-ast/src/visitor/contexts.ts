@@ -453,7 +453,17 @@ export class ListLiteralExpressionVisitorContext<
   Methods extends VisitorMethods = VisitorMethods,
   Data extends SharedData = SharedData,
   Node extends ESQLList = ESQLList
-> extends ExpressionVisitorContext<Methods, Data, Node> {}
+> extends ExpressionVisitorContext<Methods, Data, Node> {
+  public *visitElements(
+    input: ExpressionVisitorInput<Methods>
+  ): Iterable<ExpressionVisitorOutput<Methods>> {
+    this.ctx.assertMethodExists('visitExpression');
+
+    for (const value of this.node.values) {
+      yield this.visitExpression(value, input as any);
+    }
+  }
+}
 
 export class TimeIntervalLiteralExpressionVisitorContext<
   Methods extends VisitorMethods = VisitorMethods,

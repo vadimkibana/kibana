@@ -14,6 +14,9 @@ export const prettyPrintOneLine = (query: ESQLAstQueryNode) => {
       return ctx.node.name;
     })
     .on('visitColumnExpression', (ctx) => {
+      /**
+       * @todo: Add support for: (1) escaped characters, (2) nested fields.
+       */
       return ctx.node.name;
     })
     .on('visitFunctionCallExpression', (ctx) => {
@@ -79,7 +82,13 @@ export const prettyPrintOneLine = (query: ESQLAstQueryNode) => {
       }
     })
     .on('visitListLiteralExpression', (ctx) => {
-      return '<LIST>';
+      let elements = '';
+
+      for (const arg of ctx.visitElements()) {
+        elements += (elements ? ', ' : '') + arg;
+      }
+
+      return `[${elements}]`;
     })
     .on('visitTimeIntervalLiteralExpression', (ctx) => {
       return '<TIME_INTERVAL>';
