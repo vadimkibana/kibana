@@ -39,31 +39,44 @@ export const prettyPrintOneLine = (query: ESQLAstQueryNode) => {
       return '<EXPRESSION>';
     })
     .on('visitCommandOption', (ctx) => {
+      const option = ctx.node.name.toUpperCase();
       let args = '';
+
       for (const arg of ctx.visitArguments()) {
         args += (args ? ', ' : '') + arg;
       }
-      return ctx.node.name.toUpperCase() + (args ? ` ${args}` : '');
+
+      const argsFormatted = args ? ` ${args}` : '';
+      const optionFormatted = `${option}${argsFormatted}`;
+
+      return optionFormatted;
     })
     .on('visitCommand', (ctx) => {
       const cmd = ctx.node.name.toUpperCase();
       let args = '';
       let options = '';
+
       for (const source of ctx.visitArguments()) {
         args += (args ? ', ' : '') + source;
       }
+
       for (const option of ctx.visitOptions()) {
         options += (options ? ' ' : '') + option;
       }
+
       const argsFormatted = args ? ` ${args}` : '';
       const optionsFormatted = options ? ` ${options}` : '';
-      return `${cmd}${argsFormatted}${optionsFormatted}`;
+      const cmdFormatted = `${cmd}${argsFormatted}${optionsFormatted}`;
+
+      return cmdFormatted;
     })
     .on('visitQuery', (ctx) => {
       let text = '';
+
       for (const cmd of ctx.visitCommands()) {
         text += (text ? ' | ' : '') + cmd;
       }
+
       return text;
     });
 
