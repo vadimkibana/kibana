@@ -37,3 +37,43 @@ describe('commands', () => {
     });
   });
 });
+
+describe('expressions', () => {
+  describe('source expression', () => {
+    test('simple source expression', () => {
+      const { text } = reprint('from source');
+
+      expect(text).toBe('FROM source');
+    });
+
+    test('sources with dots', () => {
+      const { text } = reprint('FROM a.b.c');
+
+      expect(text).toBe('FROM a.b.c');
+    });
+
+    test('sources with slashes', () => {
+      const { text } = reprint('FROM a/b/c');
+
+      expect(text).toBe('FROM a/b/c');
+    });
+
+    test('cluster source', () => {
+      const { text } = reprint('FROM cluster:index');
+
+      expect(text).toBe('FROM cluster:index');
+    });
+
+    test('quoted source', () => {
+      const { text } = reprint('FROM "quoted"');
+
+      expect(text).toBe('FROM quoted');
+    });
+
+    test('triple-quoted source', () => {
+      const { text } = reprint('FROM """quoted"""');
+
+      expect(text).toBe('FROM quoted');
+    });
+  });
+});
