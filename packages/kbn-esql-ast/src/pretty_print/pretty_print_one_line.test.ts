@@ -38,6 +38,69 @@ describe('commands', () => {
       expect(text).toBe('FROM index1, index2 METADATA field1, field2');
     });
   });
+
+  describe('SORT', () => {
+    test('order expression with no modifier', () => {
+      const { text } = reprint('FROM a | SORT b');
+
+      expect(text).toBe('FROM a | SORT b');
+    });
+
+    /** @todo Enable once order expressions are supported.  */
+    test.skip('order expression with ASC modifier', () => {
+      const { text } = reprint('FROM a | SORT b ASC');
+
+      expect(text).toBe('FROM a | SORT b ASC');
+    });
+
+    /** @todo Enable once order expressions are supported.  */
+    test.skip('order expression with ASC and NULLS FIRST modifier', () => {
+      const { text } = reprint('FROM a | SORT b ASC NULLS FIRST');
+
+      expect(text).toBe('FROM a | SORT b ASC NULLS FIRST');
+    });
+  });
+
+  describe('EXPLAIN', () => {
+    /** @todo Enable once query expressions are supported.  */
+    test.skip('a nested query', () => {
+      const { text } = reprint('EXPLAIN [ FROM 1 ]');
+
+      expect(text).toBe('EXPLAIN [ FROM 1 ]');
+    });
+  });
+
+  describe('SHOW', () => {
+    /** @todo Enable once show command args are parsed as columns.  */
+    test.skip('info page', () => {
+      const { text } = reprint('SHOW info');
+
+      expect(text).toBe('SHOW info');
+    });
+  });
+
+  describe('META', () => {
+    /** @todo Enable once show command args are parsed as columns.  */
+    test.skip('functions page', () => {
+      const { text } = reprint('META functions');
+
+      expect(text).toBe('META functions');
+    });
+  });
+
+  describe('STATS', () => {
+    test('with aggregates assignment', () => {
+      const { text } = reprint('FROM a | STATS var = agg(123, fn(true))');
+
+      expect(text).toBe('FROM a | STATS var = AGG(123, FN(TRUE))');
+    });
+
+    test('with BY clause', () => {
+      const { text } = reprint('FROM a | STATS a(1), b(2) by asdf');
+
+      expect(text).toBe('FROM a | STATS A(1), B(2) BY asdf');
+    });
+  });
 });
 
 describe('expressions', () => {
