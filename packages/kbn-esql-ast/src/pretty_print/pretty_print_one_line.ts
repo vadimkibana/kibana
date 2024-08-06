@@ -31,6 +31,7 @@ export const prettyPrintOneLine = (query: ESQLAstQueryNode) => {
           return `${ctx.visitArgument(0)} ${operator}`;
         }
         case 'binary-expression': {
+          /** @todo Make `operator` printable. */
           switch (operator) {
             case 'NOT_LIKE': {
               operator = 'NOT LIKE';
@@ -91,9 +92,11 @@ export const prettyPrintOneLine = (query: ESQLAstQueryNode) => {
       return `[${elements}]`;
     })
     .on('visitTimeIntervalLiteralExpression', (ctx) => {
+      /** @todo Rename to `fmt`. */
       return ctx.format();
     })
     .on('visitInlineCastExpression', (ctx) => {
+      /** @todo Add `.fmt()` helper. */
       return `${ctx.visitValue()}::${ctx.node.castType}`;
     })
     .on('visitExpression', (ctx) => {
