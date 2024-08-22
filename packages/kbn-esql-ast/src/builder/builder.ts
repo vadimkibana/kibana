@@ -32,27 +32,6 @@ export class Builder {
     incomplete,
   });
 
-  /**
-   * Constructs an integer literal node.
-   */
-  public static readonly numericLiteral = (
-    template: Omit<
-      AstNodeTemplate<ESQLIntegerLiteral | ESQLDecimalLiteral>,
-      'literalType' | 'name'
-    >,
-    type: ESQLNumericLiteralType = 'integer'
-  ): ESQLIntegerLiteral | ESQLDecimalLiteral => {
-    const node: ESQLIntegerLiteral | ESQLDecimalLiteral = {
-      ...template,
-      ...Builder.parserFields(template),
-      type: 'literal',
-      literalType: type,
-      name: template.value.toString(),
-    };
-
-    return node;
-  };
-
   public static readonly command = (
     template: AstNodeTemplate<ESQLCommand>,
     parserFields?: Partial<AstNodeParserFields>
@@ -74,6 +53,29 @@ export class Builder {
         ...Builder.parserFields(parserFields),
         name: '',
         type: 'inlineCast',
+      };
+    };
+
+    public static readonly literal = class ExpressionLiteralBuilder {
+      /**
+       * Constructs an integer literal node.
+       */
+      public static readonly numeric = (
+        template: Omit<
+          AstNodeTemplate<ESQLIntegerLiteral | ESQLDecimalLiteral>,
+          'literalType' | 'name'
+        >,
+        type: ESQLNumericLiteralType = 'integer'
+      ): ESQLIntegerLiteral | ESQLDecimalLiteral => {
+        const node: ESQLIntegerLiteral | ESQLDecimalLiteral = {
+          ...template,
+          ...Builder.parserFields(template),
+          type: 'literal',
+          literalType: type,
+          name: template.value.toString(),
+        };
+
+        return node;
       };
     };
   };

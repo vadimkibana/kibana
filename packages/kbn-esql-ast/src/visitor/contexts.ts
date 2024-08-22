@@ -335,7 +335,7 @@ export class LimitCommandVisitorContext<
   }
 
   public setLimit(value: number): void {
-    const literalNode = Builder.numericLiteral({ value });
+    const literalNode = Builder.expression.literal.numeric({ value });
 
     this.node.args = [literalNode];
   }
