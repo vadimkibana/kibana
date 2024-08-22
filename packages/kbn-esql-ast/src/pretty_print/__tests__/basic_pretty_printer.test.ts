@@ -6,7 +6,7 @@
  * Side Public License, v 1.
  */
 
-import { getAstAndSyntaxErrors } from '../../ast_parser';
+import { getAstAndSyntaxErrors } from '../../parser';
 import { ESQLFunction } from '../../types';
 import { Walker } from '../../walker';
 import { BasicPrettyPrinter, BasicPrettyPrinterMultilineOptions } from '../basic_pretty_printer';

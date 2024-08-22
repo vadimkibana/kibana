@@ -7,7 +7,7 @@
  */
 
 import type { RecognitionException } from 'antlr4';
-import { getPosition } from './ast_position_utils';
+import { getPosition } from './helpers';
 
 export function createError(exception: RecognitionException) {
   const token = exception.offendingToken;

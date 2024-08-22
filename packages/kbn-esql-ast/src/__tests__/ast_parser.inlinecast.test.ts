@@ -6,7 +6,7 @@
  * Side Public License, v 1.
  */
 
-import { getAstAndSyntaxErrors as parse } from '../ast_parser';
+import { getAstAndSyntaxErrors as parse } from '../parser';
 import { ESQLFunction, ESQLInlineCast, ESQLSingleAstItem } from '../types';
 
 describe('Inline cast (::)', () => {

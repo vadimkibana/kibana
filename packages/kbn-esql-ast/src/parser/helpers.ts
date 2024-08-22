@@ -6,6 +6,8 @@
  * Side Public License, v 1.
  */
 
+import type { Token } from 'antlr4';
+
 export const isQuotedIdentifier = (text: string): boolean => {
   const firstChar = text[0];
   const lastChar = text[text.length - 1];
@@ -35,3 +37,18 @@ export const formatIdentifier = (text: string): string => {
 
 export const formatIdentifierParts = (parts: string[]): string =>
   parts.map(formatIdentifier).join('.');
+
+export const getPosition = (
+  token: Pick<Token, 'start' | 'stop'> | null,
+  lastToken?: Pick<Token, 'stop'> | undefined
+) => {
+  if (!token || token.start < 0) {
+    return { min: 0, max: 0 };
+  }
+  const endFirstToken = token.stop > -1 ? Math.max(token.stop + 1, token.start) : undefined;
+  const endLastToken = lastToken?.stop;
+  return {
+    min: token.start,
+    max: endLastToken ?? endFirstToken ?? Infinity,
+  };
+};

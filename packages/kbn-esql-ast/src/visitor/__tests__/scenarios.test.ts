@@ -13,7 +13,7 @@
  * visitor to traverse the AST and make changes to it, or how to extract useful
  */
 
-import { getAstAndSyntaxErrors } from '../../ast_parser';
+import { getAstAndSyntaxErrors } from '../../parser';
 import { ESQLAstQueryNode } from '../types';
 import { Visitor } from '../visitor';
 

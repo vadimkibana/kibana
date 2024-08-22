@@ -8,9 +8,9 @@
 
 import { CommonTokenStream, type CharStream, type ErrorListener } from 'antlr4';
 
-import { default as ESQLLexer } from './antlr/esql_lexer';
-import { default as ESQLParser } from './antlr/esql_parser';
-import { default as ESQLParserListener } from './antlr/esql_parser_listener';
+import { default as ESQLLexer } from '../antlr/esql_lexer';
+import { default as ESQLParser } from '../antlr/esql_parser';
+import { default as ESQLParserListener } from '../antlr/esql_parser_listener';
 
 export const ROOT_STATEMENT = 'singleStatement';
 

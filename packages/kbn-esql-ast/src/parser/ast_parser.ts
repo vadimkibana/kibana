@@ -10,7 +10,7 @@ import { CharStreams } from 'antlr4';
 import { ESQLErrorListener } from './antlr_error_listener';
 import { getParser, ROOT_STATEMENT } from './antlr_facade';
 import { AstListener } from './ast_factory';
-import type { ESQLAst, EditorError } from './types';
+import type { ESQLAst, EditorError } from '../types';
 
 // These will need to be manually updated whenever the relevant grammar changes.
 const SYNTAX_ERRORS_TO_IGNORE = [

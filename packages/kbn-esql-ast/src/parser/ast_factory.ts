@@ -31,8 +31,8 @@ import {
   type MetricsCommandContext,
   IndexPatternContext,
   InlinestatsCommandContext,
-} from './antlr/esql_parser';
-import { default as ESQLParserListener } from './antlr/esql_parser_listener';
+} from '../antlr/esql_parser';
+import { default as ESQLParserListener } from '../antlr/esql_parser_listener';
 import {
   createCommand,
   createFunction,
@@ -42,7 +42,7 @@ import {
   createSource,
   createAstBaseItem,
 } from './ast_helpers';
-import { getPosition } from './ast_position_utils';
+import { getPosition } from './helpers';
 import {
   collectAllSourceIdentifiers,
   collectAllFields,
@@ -57,7 +57,7 @@ import {
   getMatchField,
   getEnrichClauses,
 } from './ast_walker';
-import type { ESQLAst, ESQLAstMetricsCommand } from './types';
+import type { ESQLAst, ESQLAstMetricsCommand } from '../types';
 
 export class AstListener implements ESQLParserListener {
   private ast: ESQLAst = [];

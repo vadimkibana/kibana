@@ -7,20 +7,27 @@
  */
 
 import { getAstAndSyntaxErrors as parse } from '../parser';
+import { ESQLFunction, ESQLInlineCast, ESQLSingleAstItem } from '../types';
 
-describe('RENAME', () => {
-  /**
-   * Enable this test once RENAME commands are fixed:
-   * https://github.com/elastic/kibana/discussions/182393#discussioncomment-10313313
-   */
-  it.skip('example from documentation', () => {
+describe('Comments', () => {
+  it('can be a command argument', () => {
     const text = `
-FROM kibana_sample_data_logs
-| RENAME total_visits as \`Unique Visits (Total)\`,
-`;
-    const { ast } = parse(text);
+FROM /* a */ kibana_ecommerce_data /*
 
-    // eslint-disable-next-line no-console
+multi
+
+line
+
+*/ // Best source evah
+b, // b
+c //c
+| EVAL field::string
+// another comment
+// another comment
+
+`;
+    const { ast, errors } = parse(text);
+
     console.log(JSON.stringify(ast, null, 2));
   });
 });

@@ -19,8 +19,7 @@ import {
   type IntegerValueContext,
   type QualifiedIntegerLiteralContext,
   QualifiedNamePatternContext,
-} from './antlr/esql_parser';
-import { getPosition } from './ast_position_utils';
+} from '../antlr/esql_parser';
 import { DOUBLE_TICKS_REGEX, SINGLE_BACKTICK, TICKS_REGEX } from './constants';
 import type {
   ESQLAstBaseItem,
@@ -40,8 +39,8 @@ import type {
   ESQLNumericLiteralType,
   FunctionSubtype,
   ESQLNumericLiteral,
-} from './types';
-import { parseIdentifier } from './parser/helpers';
+} from '../types';
+import { parseIdentifier, getPosition } from './helpers';
 
 export function nonNullable<T>(v: T): v is NonNullable<T> {
   return v != null;

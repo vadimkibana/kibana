@@ -62,7 +62,7 @@ import {
   InputParamContext,
   IndexPatternContext,
   InlinestatsCommandContext,
-} from './antlr/esql_parser';
+} from '../antlr/esql_parser';
 import {
   createSource,
   createColumn,
@@ -84,7 +84,7 @@ import {
   createInlineCast,
   createUnknownItem,
 } from './ast_helpers';
-import { getPosition } from './ast_position_utils';
+import { getPosition } from './helpers';
 import {
   ESQLLiteral,
   ESQLColumn,
@@ -96,7 +96,7 @@ import {
   ESQLUnnamedParamLiteral,
   ESQLPositionalParamLiteral,
   ESQLNamedParamLiteral,
-} from './types';
+} from '../types';
 
 export function collectAllSourceIdentifiers(ctx: FromCommandContext): ESQLAstItem[] {
   const fromContexts = ctx.getTypedRuleContexts(IndexPatternContext);
