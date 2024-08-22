@@ -35,7 +35,7 @@ describe('Comments', () => {
     ]);
   });
 
-  it('can attach "top" comment to a expression', () => {
+  it('can attach "top" comment to an expression', () => {
     const text = `
       FROM
 

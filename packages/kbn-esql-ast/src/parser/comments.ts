@@ -86,7 +86,19 @@ const attachTop = (node: ESQLProperNode, comment: ESQLAstComment) => {
 const attachComment = (ast: ESQLAstQueryNode, comment: ParsedComment) => {
   new Visitor()
     .on('visitExpression', (ctx) => {})
-    .on('visitCommand', (ctx) => {})
+    .on('visitCommand', (ctx) => {
+      for (const expression of ctx.arguments()) {
+        const { location } = expression;
+        if (!location) continue;
+        if (location.min >= comment.node.location.max) {
+          attachTop(expression, comment.node);
+          break;
+        } else if (location.max >= comment.node.location.min) {
+          ctx.visitExpression(expression);
+          break;
+        }
+      }
+    })
     .on('visitQuery', (ctx) => {
       for (const command of ctx.commands()) {
         const { location } = command;
