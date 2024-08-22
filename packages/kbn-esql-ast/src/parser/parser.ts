@@ -16,6 +16,15 @@ import { default as ESQLLexer } from '../antlr/esql_lexer';
 import { default as ESQLParser } from '../antlr/esql_parser';
 import { default as ESQLParserListener } from '../antlr/esql_parser_listener';
 
+export const getLexer = (inputStream: CharStream, errorListener: ErrorListener<any>) => {
+  const lexer = new ESQLLexer(inputStream);
+
+  lexer.removeErrorListeners();
+  lexer.addErrorListener(errorListener);
+
+  return lexer;
+};
+
 export const getParser = (
   inputStream: CharStream,
   errorListener: ErrorListener<any>,
@@ -41,24 +50,17 @@ export const getParser = (
   };
 };
 
-export const getLexer = (inputStream: CharStream, errorListener: ErrorListener<any>) => {
-  const lexer = new ESQLLexer(inputStream);
-
-  lexer.removeErrorListeners();
-  lexer.addErrorListener(errorListener);
-
-  return lexer;
-};
-
 // These will need to be manually updated whenever the relevant grammar changes.
 const SYNTAX_ERRORS_TO_IGNORE = [
   `SyntaxError: mismatched input '<EOF>' expecting {'explain', 'from', 'meta', 'metrics', 'row', 'show'}`,
 ];
 
-export function getAstAndSyntaxErrors(text: string | undefined): {
+export const parse = (
+  text: string | undefined
+): {
   errors: EditorError[];
   ast: ESQLAst;
-} {
+} => {
   if (text == null) {
     return { ast: [], errors: [] };
   }
@@ -74,4 +76,4 @@ export function getAstAndSyntaxErrors(text: string | undefined): {
   const { ast } = parseListener.getAst();
 
   return { ast, errors };
-}
+};

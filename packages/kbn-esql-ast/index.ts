@@ -28,6 +28,6 @@ export type {
   ESQLAstNode,
 } from './src/types';
 
-export { getParser, getLexer, getAstAndSyntaxErrors, ESQLErrorListener } from './src/parser';
+export { getParser, getLexer, parse, getAstAndSyntaxErrors, ESQLErrorListener } from './src/parser';
 
 export { Walker, type WalkerOptions, walk } from './src/walker';
