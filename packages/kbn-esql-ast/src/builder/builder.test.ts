@@ -9,7 +9,7 @@
 import { Builder } from '.';
 
 test('can mint a numeric literal', () => {
-  const node = Builder.expression.literal.numeric({ value: 42 });
+  const node = Builder.expression.literal.numeric({ value: 42, literalType: 'integer' });
 
   expect(node).toMatchObject({
     type: 'literal',

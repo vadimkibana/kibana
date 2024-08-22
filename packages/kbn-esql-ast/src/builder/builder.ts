@@ -14,7 +14,6 @@ import {
   ESQLInlineCast,
   ESQLIntegerLiteral,
   ESQLList,
-  ESQLNumericLiteralType,
 } from '../types';
 import { AstNodeParserFields, AstNodeTemplate } from './types';
 
@@ -62,17 +61,13 @@ export class Builder {
        * Constructs an integer literal node.
        */
       public static readonly numeric = (
-        template: Omit<
-          AstNodeTemplate<ESQLIntegerLiteral | ESQLDecimalLiteral>,
-          'literalType' | 'name'
-        >,
-        type: ESQLNumericLiteralType = 'integer'
+        template: Omit<AstNodeTemplate<ESQLIntegerLiteral | ESQLDecimalLiteral>, 'name'>,
+        parserFields?: Partial<AstNodeParserFields>
       ): ESQLIntegerLiteral | ESQLDecimalLiteral => {
         const node: ESQLIntegerLiteral | ESQLDecimalLiteral = {
           ...template,
-          ...Builder.parserFields(template),
+          ...Builder.parserFields(parserFields),
           type: 'literal',
-          literalType: type,
           name: template.value.toString(),
         };
 
