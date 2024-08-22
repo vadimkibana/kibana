@@ -6,6 +6,11 @@
  * Side Public License, v 1.
  */
 
+/**
+ * The root ANTLR rule to start parsing from.
+ */
+export const GRAMMAR_ROOT_RULE = 'singleStatement';
+
 export const EDITOR_MARKER = 'marker_esql_editor';
 
 export const TICKS_REGEX = /^`{1}|`{1}$/g;

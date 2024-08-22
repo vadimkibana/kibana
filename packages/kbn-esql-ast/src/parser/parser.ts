@@ -7,10 +7,48 @@
  */
 
 import { CharStreams } from 'antlr4';
+import { CommonTokenStream, type CharStream, type ErrorListener } from 'antlr4';
 import { ESQLErrorListener } from './antlr_error_listener';
-import { getParser, ROOT_STATEMENT } from './antlr_facade';
 import { AstListener } from './ast_factory';
+import { GRAMMAR_ROOT_RULE } from './constants';
 import type { ESQLAst, EditorError } from '../types';
+import { default as ESQLLexer } from '../antlr/esql_lexer';
+import { default as ESQLParser } from '../antlr/esql_parser';
+import { default as ESQLParserListener } from '../antlr/esql_parser_listener';
+
+export const getParser = (
+  inputStream: CharStream,
+  errorListener: ErrorListener<any>,
+  parseListener?: ESQLParserListener
+) => {
+  const lexer = getLexer(inputStream, errorListener);
+  const tokens = new CommonTokenStream(lexer);
+  const parser = new ESQLParser(tokens);
+
+  parser.removeErrorListeners();
+  parser.addErrorListener(errorListener);
+
+  if (parseListener) {
+    // @ts-expect-error the addParseListener API does exist and is documented here
+    // https://github.com/antlr/antlr4/blob/dev/doc/listeners.md
+    parser.addParseListener(parseListener);
+  }
+
+  return {
+    lexer,
+    tokens,
+    parser,
+  };
+};
+
+export const getLexer = (inputStream: CharStream, errorListener: ErrorListener<any>) => {
+  const lexer = new ESQLLexer(inputStream);
+
+  lexer.removeErrorListeners();
+  lexer.addErrorListener(errorListener);
+
+  return lexer;
+};
 
 // These will need to be manually updated whenever the relevant grammar changes.
 const SYNTAX_ERRORS_TO_IGNORE = [
@@ -28,7 +66,7 @@ export function getAstAndSyntaxErrors(text: string | undefined): {
   const parseListener = new AstListener();
   const { parser } = getParser(CharStreams.fromString(text), errorListener, parseListener);
 
-  parser[ROOT_STATEMENT]();
+  parser[GRAMMAR_ROOT_RULE]();
 
   const errors = errorListener.getErrors().filter((error) => {
     return !SYNTAX_ERRORS_TO_IGNORE.includes(error.message);

@@ -6,14 +6,11 @@
  * Side Public License, v 1.
  */
 
-// Low level functions to parse grammar
-export { getParser, getLexer, ROOT_STATEMENT } from './antlr_facade';
-
 /**
  * ES|QL Query string -> AST data structure
  * this is the foundational building block for any advanced feature
  * a developer wants to build on top of the ESQL language
  **/
-export { getAstAndSyntaxErrors } from './ast_parser';
+export { getLexer, getParser, getAstAndSyntaxErrors } from './parser';
 
 export { ESQLErrorListener } from './antlr_error_listener';
