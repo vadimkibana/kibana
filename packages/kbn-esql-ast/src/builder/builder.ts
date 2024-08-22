@@ -6,9 +6,12 @@
  * Side Public License, v 1.
  */
 
+/* eslint-disable max-classes-per-file */
+
 import {
   ESQLCommand,
   ESQLDecimalLiteral,
+  ESQLInlineCast,
   ESQLIntegerLiteral,
   ESQLNumericLiteralType,
 } from '../types';
@@ -58,6 +61,20 @@ export class Builder {
       ...template,
       ...Builder.parserFields(parserFields),
       type: 'command',
+    };
+  };
+
+  public static readonly expression = class ExpressionBuilder {
+    public static readonly inlineCast = (
+      template: Omit<AstNodeTemplate<ESQLInlineCast>, 'name'>,
+      parserFields?: Partial<AstNodeParserFields>
+    ): ESQLInlineCast => {
+      return {
+        ...template,
+        ...Builder.parserFields(parserFields),
+        name: '',
+        type: 'inlineCast',
+      };
     };
   };
 }

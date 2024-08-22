@@ -68,16 +68,11 @@ const createParserFields = (ctx: ParserRuleContext): AstNodeParserFields => ({
 export const createCommand = (name: string, ctx: ParserRuleContext) =>
   Builder.command({ name, args: [] }, createParserFields(ctx));
 
-export function createInlineCast(ctx: InlineCastContext): Omit<ESQLInlineCast, 'value'> {
-  return {
-    type: 'inlineCast',
-    name: 'inlineCast',
-    text: ctx.getText(),
-    castType: ctx.dataType().getText(),
-    location: getPosition(ctx.start, ctx.stop),
-    incomplete: Boolean(ctx.exception),
-  };
-}
+export const createInlineCast = (ctx: InlineCastContext, value: ESQLInlineCast['value']) =>
+  Builder.expression.inlineCast(
+    { castType: ctx.dataType().getText(), value },
+    createParserFields(ctx)
+  );
 
 export function createList(ctx: ParserRuleContext, values: ESQLLiteral[]): ESQLList {
   return {

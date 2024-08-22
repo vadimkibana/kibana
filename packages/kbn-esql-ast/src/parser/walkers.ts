@@ -487,10 +487,7 @@ export function visitPrimaryExpression(ctx: PrimaryExpressionContext): ESQLAstIt
 
 function collectInlineCast(ctx: InlineCastContext): ESQLInlineCast {
   const primaryExpression = visitPrimaryExpression(ctx.primaryExpression());
-  return {
-    ...createInlineCast(ctx),
-    value: primaryExpression,
-  };
+  return createInlineCast(ctx, primaryExpression);
 }
 
 export function collectLogicalExpression(ctx: BooleanExpressionContext) {
