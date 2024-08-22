@@ -10,8 +10,9 @@ export {
   getLexer,
   getParser,
   parse,
+
   /** @deprecated Use `parse` instead. */
   parse as getAstAndSyntaxErrors,
 } from './parser';
 
-export { ESQLErrorListener } from './antlr_error_listener';
+export { ESQLErrorListener } from './esql_error_listener';

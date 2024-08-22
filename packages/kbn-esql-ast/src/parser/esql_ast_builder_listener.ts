@@ -41,7 +41,7 @@ import {
   textExistsAndIsValid,
   createSource,
   createAstBaseItem,
-} from './ast_helpers';
+} from './factories';
 import { getPosition } from './helpers';
 import {
   collectAllSourceIdentifiers,
@@ -56,10 +56,10 @@ import {
   getPolicyName,
   getMatchField,
   getEnrichClauses,
-} from './ast_walker';
+} from './walkers';
 import type { ESQLAst, ESQLAstMetricsCommand } from '../types';
 
-export class AstListener implements ESQLParserListener {
+export class ESQLAstBuilderListener implements ESQLParserListener {
   private ast: ESQLAst = [];
 
   public getAst() {

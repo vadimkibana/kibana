@@ -10,7 +10,7 @@
  * In case of changes in the grammar, this script should be updated: esql_update_ast_script.js
  */
 
-import { type Token, type ParserRuleContext, type TerminalNode } from 'antlr4';
+import type { Token, ParserRuleContext, TerminalNode, RecognitionException } from 'antlr4';
 import {
   QualifiedNameContext,
   type ArithmeticUnaryContext,
@@ -423,5 +423,15 @@ export function createUnknownItem(ctx: ParserRuleContext): ESQLUnknownItem {
     text: ctx.getText(),
     location: getPosition(ctx.start, ctx.stop),
     incomplete: Boolean(ctx.exception),
+  };
+}
+
+export function createError(exception: RecognitionException) {
+  const token = exception.offendingToken;
+
+  return {
+    type: 'error' as const,
+    text: `SyntaxError: ${exception.message}`,
+    location: getPosition(token),
   };
 }

@@ -83,7 +83,7 @@ import {
   textExistsAndIsValid,
   createInlineCast,
   createUnknownItem,
-} from './ast_helpers';
+} from './factories';
 import { getPosition } from './helpers';
 import {
   ESQLLiteral,

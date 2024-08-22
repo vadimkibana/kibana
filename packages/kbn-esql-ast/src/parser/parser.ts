@@ -8,8 +8,8 @@
 
 import { CharStreams } from 'antlr4';
 import { CommonTokenStream, type CharStream, type ErrorListener } from 'antlr4';
-import { ESQLErrorListener } from './antlr_error_listener';
-import { AstListener } from './ast_factory';
+import { ESQLErrorListener } from './esql_error_listener';
+import { ESQLAstBuilderListener } from './esql_ast_builder_listener';
 import { GRAMMAR_ROOT_RULE } from './constants';
 import type { ESQLAst, EditorError } from '../types';
 import { default as ESQLLexer } from '../antlr/esql_lexer';
@@ -65,7 +65,7 @@ export const parse = (
     return { ast: [], errors: [] };
   }
   const errorListener = new ESQLErrorListener();
-  const parseListener = new AstListener();
+  const parseListener = new ESQLAstBuilderListener();
   const { parser } = getParser(CharStreams.fromString(text), errorListener, parseListener);
 
   parser[GRAMMAR_ROOT_RULE]();
