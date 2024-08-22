@@ -10,6 +10,8 @@ export {
   getLexer,
   getParser,
   parse,
+  type ParseOptions,
+  type ParseResult,
 
   /** @deprecated Use `parse` instead. */
   parse as getAstAndSyntaxErrors,

@@ -9,11 +9,13 @@
 /* eslint-disable @typescript-eslint/no-namespace */
 
 import {
+  ESQLAstComment,
   ESQLCommand,
   ESQLDecimalLiteral,
   ESQLInlineCast,
   ESQLIntegerLiteral,
   ESQLList,
+  ESQLLocation,
 } from '../types';
 import { AstNodeParserFields, AstNodeTemplate } from './types';
 
@@ -40,6 +42,19 @@ export namespace Builder {
       ...template,
       ...Builder.parserFields(fromParser),
       type: 'command',
+    };
+  };
+
+  export const comment = (
+    subtype: ESQLAstComment['subtype'],
+    text: string,
+    location: ESQLLocation
+  ): ESQLAstComment => {
+    return {
+      type: 'comment',
+      subtype,
+      text,
+      location,
     };
   };
 

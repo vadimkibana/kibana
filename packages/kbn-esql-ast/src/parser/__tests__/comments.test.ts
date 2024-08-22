@@ -6,8 +6,7 @@
  * Side Public License, v 1.
  */
 
-import { getAstAndSyntaxErrors as parse } from '..';
-import { ESQLFunction, ESQLInlineCast, ESQLSingleAstItem } from '../../types';
+import { parse } from '..';
 
 describe('Comments', () => {
   it('can be a command argument', () => {
@@ -26,7 +25,7 @@ c //c
 // another comment
 
 `;
-    const { ast, errors } = parse(text);
+    const { ast } = parse(text, { withComments: true });
 
     console.log(JSON.stringify(ast, null, 2));
   });

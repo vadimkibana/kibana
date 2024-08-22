@@ -15,6 +15,7 @@ import type { ESQLAst, EditorError } from '../types';
 import { default as ESQLLexer } from '../antlr/esql_lexer';
 import { default as ESQLParser } from '../antlr/esql_parser';
 import { default as ESQLParserListener } from '../antlr/esql_parser_listener';
+import { collectComments } from './comments';
 
 export const getLexer = (inputStream: CharStream, errorListener: ErrorListener<any>) => {
   const lexer = new ESQLLexer(inputStream);
@@ -55,18 +56,22 @@ const SYNTAX_ERRORS_TO_IGNORE = [
   `SyntaxError: mismatched input '<EOF>' expecting {'explain', 'from', 'meta', 'metrics', 'row', 'show'}`,
 ];
 
-export const parse = (
-  text: string | undefined
-): {
+export interface ParseOptions {
+  withComments?: boolean;
+}
+
+export interface ParseResult {
   errors: EditorError[];
   ast: ESQLAst;
-} => {
+}
+
+export const parse = (text: string | undefined, options: ParseOptions = {}): ParseResult => {
   if (text == null) {
     return { ast: [], errors: [] };
   }
   const errorListener = new ESQLErrorListener();
   const parseListener = new ESQLAstBuilderListener();
-  const { parser } = getParser(CharStreams.fromString(text), errorListener, parseListener);
+  const { tokens, parser } = getParser(CharStreams.fromString(text), errorListener, parseListener);
 
   parser[GRAMMAR_ROOT_RULE]();
 
@@ -74,6 +79,11 @@ export const parse = (
     return !SYNTAX_ERRORS_TO_IGNORE.includes(error.message);
   });
   const { ast } = parseListener.getAst();
+
+  if (options.withComments) {
+    const { comments } = collectComments(tokens);
+    console.log('comments', comments);
+  }
 
   return { ast, errors };
 };
