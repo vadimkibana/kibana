@@ -6,7 +6,7 @@
  * Side Public License, v 1.
  */
 
-/* eslint-disable max-classes-per-file */
+/* eslint-disable @typescript-eslint/no-namespace */
 
 import {
   ESQLCommand,
@@ -17,12 +17,12 @@ import {
 } from '../types';
 import { AstNodeParserFields, AstNodeTemplate } from './types';
 
-export class Builder {
+export namespace Builder {
   /**
    * Constructs fields which are only available when the node is minted by
    * the parser.
    */
-  public static readonly parserFields = ({
+  export const parserFields = ({
     location = { min: 0, max: 0 },
     text = '',
     incomplete = false,
@@ -32,41 +32,41 @@ export class Builder {
     incomplete,
   });
 
-  public static readonly command = (
+  export const command = (
     template: AstNodeTemplate<ESQLCommand>,
-    parserFields?: Partial<AstNodeParserFields>
+    fromParser?: Partial<AstNodeParserFields>
   ): ESQLCommand => {
     return {
       ...template,
-      ...Builder.parserFields(parserFields),
+      ...Builder.parserFields(fromParser),
       type: 'command',
     };
   };
 
-  public static readonly expression = class ExpressionBuilder {
-    public static readonly inlineCast = (
+  export namespace expression {
+    export const inlineCast = (
       template: Omit<AstNodeTemplate<ESQLInlineCast>, 'name'>,
-      parserFields?: Partial<AstNodeParserFields>
+      fromParser?: Partial<AstNodeParserFields>
     ): ESQLInlineCast => {
       return {
         ...template,
-        ...Builder.parserFields(parserFields),
+        ...Builder.parserFields(fromParser),
         type: 'inlineCast',
         name: '',
       };
     };
 
-    public static readonly literal = class ExpressionLiteralBuilder {
+    export namespace literal {
       /**
        * Constructs an integer literal node.
        */
-      public static readonly numeric = (
+      export const numeric = (
         template: Omit<AstNodeTemplate<ESQLIntegerLiteral | ESQLDecimalLiteral>, 'name'>,
-        parserFields?: Partial<AstNodeParserFields>
+        fromParser?: Partial<AstNodeParserFields>
       ): ESQLIntegerLiteral | ESQLDecimalLiteral => {
         const node: ESQLIntegerLiteral | ESQLDecimalLiteral = {
           ...template,
-          ...Builder.parserFields(parserFields),
+          ...Builder.parserFields(fromParser),
           type: 'literal',
           name: template.value.toString(),
         };
@@ -74,17 +74,17 @@ export class Builder {
         return node;
       };
 
-      public static readonly list = (
+      export const list = (
         template: Omit<AstNodeTemplate<ESQLList>, 'name'>,
-        parserFields?: Partial<AstNodeParserFields>
+        fromParser?: Partial<AstNodeParserFields>
       ): ESQLList => {
         return {
           ...template,
-          ...Builder.parserFields(parserFields),
+          ...Builder.parserFields(fromParser),
           type: 'list',
           name: '',
         };
       };
-    };
-  };
+    }
+  }
 }
