@@ -20,8 +20,8 @@ export const getParser = (
   parseListener?: ESQLParserListener
 ) => {
   const lexer = getLexer(inputStream, errorListener);
-  const tokenStream = new CommonTokenStream(lexer);
-  const parser = new ESQLParser(tokenStream);
+  const tokens = new CommonTokenStream(lexer);
+  const parser = new ESQLParser(tokens);
 
   parser.removeErrorListeners();
   parser.addErrorListener(errorListener);
@@ -32,7 +32,11 @@ export const getParser = (
     parser.addParseListener(parseListener);
   }
 
-  return parser;
+  return {
+    lexer,
+    tokens,
+    parser,
+  };
 };
 
 export const getLexer = (inputStream: CharStream, errorListener: ErrorListener<any>) => {

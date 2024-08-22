@@ -26,13 +26,14 @@ export function getAstAndSyntaxErrors(text: string | undefined): {
   }
   const errorListener = new ESQLErrorListener();
   const parseListener = new AstListener();
-  const parser = getParser(CharStreams.fromString(text), errorListener, parseListener);
+  const { parser } = getParser(CharStreams.fromString(text), errorListener, parseListener);
 
   parser[ROOT_STATEMENT]();
 
   const errors = errorListener.getErrors().filter((error) => {
     return !SYNTAX_ERRORS_TO_IGNORE.includes(error.message);
   });
+  const { ast } = parseListener.getAst();
 
-  return { ...parseListener.getAst(), errors };
+  return { ast, errors };
 }
