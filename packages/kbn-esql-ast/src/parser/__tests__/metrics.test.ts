@@ -6,23 +6,23 @@
  * Side Public License, v 1.
  */
 
-import { getAstAndSyntaxErrors as parse } from '../parser';
+import { getAstAndSyntaxErrors as parse } from '..';
 
-describe('FROM', () => {
+describe('METRICS', () => {
   describe('correctly formatted', () => {
-    it('can parse basic FROM query', () => {
-      const text = 'FROM kibana_ecommerce_data';
+    it('can parse a basic query', () => {
+      const text = 'METRICS foo';
       const { ast, errors } = parse(text);
 
       expect(errors.length).toBe(0);
       expect(ast).toMatchObject([
         {
           type: 'command',
-          name: 'from',
-          args: [
+          name: 'metrics',
+          sources: [
             {
               type: 'source',
-              name: 'kibana_ecommerce_data',
+              name: 'foo',
               sourceType: 'index',
             },
           ],
@@ -30,16 +30,16 @@ describe('FROM', () => {
       ]);
     });
 
-    it('can parse FROM query with multiple index identifiers', () => {
-      const text = '\tFROM foo, bar \t\t, \n  baz';
+    it('can parse multiple "sources"', () => {
+      const text = 'METRICS foo ,\nbar\t,\t\nbaz \n';
       const { ast, errors } = parse(text);
 
       expect(errors.length).toBe(0);
       expect(ast).toMatchObject([
         {
           type: 'command',
-          name: 'from',
-          args: [
+          name: 'metrics',
+          sources: [
             {
               type: 'source',
               name: 'foo',
@@ -60,97 +60,66 @@ describe('FROM', () => {
       ]);
     });
 
-    it('can parse FROM query with single quote or triple quote', () => {
-      const text = '\tFROM "foo%" \t\t, """bar{{00-00}}""", \n  baz';
+    it('can parse "aggregates"', () => {
+      const text = 'metrics foo agg1, agg2';
       const { ast, errors } = parse(text);
 
       expect(errors.length).toBe(0);
       expect(ast).toMatchObject([
         {
           type: 'command',
-          name: 'from',
-          args: [
-            {
-              type: 'source',
-              name: 'foo%',
-              sourceType: 'index',
-            },
-            {
-              type: 'source',
-              name: 'bar{{00-00}}',
-              sourceType: 'index',
-            },
-            {
-              type: 'source',
-              name: 'baz',
-              sourceType: 'index',
-            },
-          ],
-        },
-      ]);
-    });
-
-    it('can parse FROM query with a single metadata column', () => {
-      const text = 'from foo METADATA bar';
-      const { ast, errors } = parse(text);
-
-      expect(errors.length).toBe(0);
-      expect(ast).toMatchObject([
-        {
-          type: 'command',
-          name: 'from',
-          args: [
+          name: 'metrics',
+          sources: [
             {
               type: 'source',
               name: 'foo',
               sourceType: 'index',
             },
+          ],
+          aggregates: [
             {
-              type: 'option',
-              name: 'metadata',
-              args: [
-                {
-                  type: 'column',
-                  name: 'bar',
-                  quoted: false,
-                },
-              ],
+              type: 'column',
+              text: 'agg1',
+            },
+            {
+              type: 'column',
+              text: 'agg2',
             },
           ],
         },
       ]);
     });
 
-    it('can parse FROM query with multiple metadata columns', () => {
-      const text = 'from kibana_sample_data_ecommerce METADATA _index, \n _id\n';
+    it('can parse "grouping"', () => {
+      const text = 'mEtRiCs foo agg BY grp1, grp2';
       const { ast, errors } = parse(text);
 
       expect(errors.length).toBe(0);
       expect(ast).toMatchObject([
         {
           type: 'command',
-          name: 'from',
-          args: [
+          name: 'metrics',
+          sources: [
             {
               type: 'source',
-              name: 'kibana_sample_data_ecommerce',
+              name: 'foo',
               sourceType: 'index',
             },
+          ],
+          aggregates: [
             {
-              type: 'option',
-              name: 'metadata',
-              args: [
-                {
-                  type: 'column',
-                  name: '_index',
-                  quoted: false,
-                },
-                {
-                  type: 'column',
-                  name: '_id',
-                  quoted: false,
-                },
-              ],
+              type: 'column',
+              text: 'agg',
+            },
+          ],
+          grouping: [
+            {
+              type: 'column',
+              text: 'grp1',
+            },
+            {
+              type: 'column',
+              text: 'grp2',
             },
           ],
         },
@@ -160,28 +129,35 @@ describe('FROM', () => {
 
   describe('when incorrectly formatted, returns errors', () => {
     it('when no index identifier specified', () => {
-      const text = 'FROM \n\t';
+      const text = 'METRICS \n\t';
       const { errors } = parse(text);
 
       expect(errors.length > 0).toBe(true);
     });
 
-    it('when comma is not followed by an index identifier', () => {
-      const text = '\tFROM foo, ';
+    it('when comma follows index identifier', () => {
+      const text = 'METRICS foo, ';
       const { errors } = parse(text);
 
       expect(errors.length > 0).toBe(true);
     });
 
-    it('when metadata has not columns', () => {
-      const text = 'from foo METADATA \t';
+    it('when comma follows "aggregates"', () => {
+      const text = 'from foo agg1, agg2';
       const { errors } = parse(text);
 
       expect(errors.length > 0).toBe(true);
     });
 
-    it('when metadata columns finish with a trailing comma', () => {
-      const text = 'from kibana_sample_data_ecommerce METADATA _index,';
+    it('when "grouping" in BY clause is empty', () => {
+      const text = 'from foo agg1, agg2 BY \t';
+      const { errors } = parse(text);
+
+      expect(errors.length > 0).toBe(true);
+    });
+
+    it('when "grouping" has trailing comma', () => {
+      const text = 'from foo agg1, agg2 BY grp1, grp2,';
       const { errors } = parse(text);
 
       expect(errors.length > 0).toBe(true);

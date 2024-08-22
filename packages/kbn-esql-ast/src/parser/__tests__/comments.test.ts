@@ -6,8 +6,8 @@
  * Side Public License, v 1.
  */
 
-import { getAstAndSyntaxErrors as parse } from '../parser';
-import { ESQLFunction, ESQLInlineCast, ESQLSingleAstItem } from '../types';
+import { getAstAndSyntaxErrors as parse } from '..';
+import { ESQLFunction, ESQLInlineCast, ESQLSingleAstItem } from '../../types';
 
 describe('Comments', () => {
   it('can be a command argument', () => {
