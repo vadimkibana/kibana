@@ -43,8 +43,6 @@ describe('Comments', () => {
       abc`;
     const { ast } = parse(text, { withComments: true });
 
-    console.log(JSON.stringify(ast, null, 2));
-
     expect(ast).toMatchObject([
       {
         type: 'command',
@@ -61,6 +59,48 @@ describe('Comments', () => {
                 },
               ],
             },
+          },
+        ],
+      },
+    ]);
+  });
+
+  it('can attach "top" comment to a nested expression', () => {
+    const text = `
+      FROM a
+        | STATS 1 +
+          // 2 is the best number
+          2`;
+    const { ast } = parse(text, { withComments: true });
+
+    expect(ast).toMatchObject([
+      {},
+      {
+        type: 'command',
+        name: 'stats',
+        args: [
+          {
+            type: 'function',
+            name: '+',
+            args: [
+              {
+                type: 'literal',
+                value: 1,
+              },
+              {
+                type: 'literal',
+                value: 2,
+                comments: {
+                  top: [
+                    {
+                      type: 'comment',
+                      subtype: 'single-line',
+                      text: ' 2 is the best number',
+                    },
+                  ],
+                },
+              },
+            ],
           },
         ],
       },
