@@ -26,6 +26,14 @@ const commentSubtype = (text: string): ESQLAstComment['subtype'] | undefined => 
   }
 };
 
+const trimRightNewline = (text: string): string => {
+  const last = text.length - 1;
+  if (text[last] === '\n') {
+    return text.slice(0, last);
+  }
+  return text;
+};
+
 export const collectComments = (tokens: CommonTokenStream): { comments: ESQLAstComment[] } => {
   const comments: ESQLAstComment[] = [];
   const list = tokens.tokens;
@@ -43,7 +51,9 @@ export const collectComments = (tokens: CommonTokenStream): { comments: ESQLAstC
     const subtype = commentSubtype(text);
     if (!subtype) continue;
 
-    const comment = Builder.comment(subtype, text, { min, max });
+    const cleanText =
+      subtype === 'single-line' ? trimRightNewline(text.slice(2)) : text.slice(2, -2);
+    const comment = Builder.comment(subtype, cleanText, { min, max });
     comments.push(comment);
   }
 

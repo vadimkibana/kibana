@@ -22,9 +22,7 @@ b, // b
 c //c
 | EVAL field::string
 // another comment
-// another comment
-
-`;
+// another comment`;
     const { ast } = parse(text, { withComments: true });
 
     console.log(JSON.stringify(ast, null, 2));
