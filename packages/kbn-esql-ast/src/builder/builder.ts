@@ -6,7 +6,12 @@
  * Side Public License, v 1.
  */
 
-import { ESQLDecimalLiteral, ESQLIntegerLiteral, ESQLNumericLiteralType } from '../types';
+import {
+  ESQLCommand,
+  ESQLDecimalLiteral,
+  ESQLIntegerLiteral,
+  ESQLNumericLiteralType,
+} from '../types';
 import { AstNodeParserFields, AstNodeTemplate } from './types';
 
 export class Builder {
@@ -18,7 +23,7 @@ export class Builder {
     location = { min: 0, max: 0 },
     text = '',
     incomplete = false,
-  }: Partial<AstNodeParserFields>): AstNodeParserFields => ({
+  }: Partial<AstNodeParserFields> = {}): AstNodeParserFields => ({
     location,
     text,
     incomplete,
@@ -43,5 +48,16 @@ export class Builder {
     };
 
     return node;
+  };
+
+  public static readonly command = (
+    template: AstNodeTemplate<ESQLCommand>,
+    parserFields?: Partial<AstNodeParserFields>
+  ): ESQLCommand => {
+    return {
+      ...template,
+      ...Builder.parserFields(parserFields),
+      type: 'command',
+    };
   };
 }

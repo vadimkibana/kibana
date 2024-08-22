@@ -6,4 +6,5 @@
  * Side Public License, v 1.
  */
 
+export type * from './types';
 export { Builder } from './builder';
