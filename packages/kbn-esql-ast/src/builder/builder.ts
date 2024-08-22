@@ -13,6 +13,7 @@ import {
   ESQLDecimalLiteral,
   ESQLInlineCast,
   ESQLIntegerLiteral,
+  ESQLList,
   ESQLNumericLiteralType,
 } from '../types';
 import { AstNodeParserFields, AstNodeTemplate } from './types';
@@ -51,8 +52,8 @@ export class Builder {
       return {
         ...template,
         ...Builder.parserFields(parserFields),
-        name: '',
         type: 'inlineCast',
+        name: '',
       };
     };
 
@@ -76,6 +77,18 @@ export class Builder {
         };
 
         return node;
+      };
+
+      public static readonly list = (
+        template: Omit<AstNodeTemplate<ESQLList>, 'name'>,
+        parserFields?: Partial<AstNodeParserFields>
+      ): ESQLList => {
+        return {
+          ...template,
+          ...Builder.parserFields(parserFields),
+          type: 'list',
+          name: '',
+        };
       };
     };
   };

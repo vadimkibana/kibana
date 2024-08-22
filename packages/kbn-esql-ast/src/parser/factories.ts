@@ -23,7 +23,6 @@ import {
 import { DOUBLE_TICKS_REGEX, SINGLE_BACKTICK, TICKS_REGEX } from './constants';
 import type {
   ESQLAstBaseItem,
-  ESQLCommand,
   ESQLLiteral,
   ESQLList,
   ESQLTimeInterval,
@@ -74,16 +73,8 @@ export const createInlineCast = (ctx: InlineCastContext, value: ESQLInlineCast['
     createParserFields(ctx)
   );
 
-export function createList(ctx: ParserRuleContext, values: ESQLLiteral[]): ESQLList {
-  return {
-    type: 'list',
-    name: ctx.getText(),
-    values,
-    text: ctx.getText(),
-    location: getPosition(ctx.start, ctx.stop),
-    incomplete: Boolean(ctx.exception),
-  };
-}
+export const createList = (ctx: ParserRuleContext, values: ESQLLiteral[]): ESQLList =>
+  Builder.expression.literal.list({ values }, createParserFields(ctx));
 
 export function createNumericLiteral(
   ctx: DecimalValueContext | IntegerValueContext,
