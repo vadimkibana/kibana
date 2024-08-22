@@ -146,6 +146,10 @@ export class QueryVisitorContext<
   Methods extends VisitorMethods = VisitorMethods,
   Data extends SharedData = SharedData
 > extends VisitorContext<Methods, Data, ESQLAstQueryNode> {
+  public *commands(): Iterable<ESQLAstCommand> {
+    yield* this.node;
+  }
+
   public *visitCommands(
     input: UndefinedToVoid<Parameters<NonNullable<Methods['visitCommand']>>[1]>
   ): Iterable<

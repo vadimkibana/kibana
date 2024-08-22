@@ -9,22 +9,61 @@
 import { parse } from '..';
 
 describe('Comments', () => {
-  it('can be a command argument', () => {
+  it('can attach "top" comment to a command', () => {
     const text = `
-FROM /* a */ kibana_ecommerce_data /*
+      FROM abc
 
-multi
+      // Good limit
+      | LIMIT 10`;
+    const { ast } = parse(text, { withComments: true });
 
-line
+    expect(ast).toMatchObject([
+      {},
+      {
+        type: 'command',
+        name: 'limit',
+        comments: {
+          top: [
+            {
+              type: 'comment',
+              subtype: 'single-line',
+              text: ' Good limit',
+            },
+          ],
+        },
+      },
+    ]);
+  });
 
-*/ // Best source evah
-b, // b
-c //c
-| EVAL field::string
-// another comment
-// another comment`;
+  it('can attach "top" comment to a expression', () => {
+    const text = `
+      FROM
+
+      // "abc" is the best source
+      abc`;
     const { ast } = parse(text, { withComments: true });
 
     console.log(JSON.stringify(ast, null, 2));
+
+    expect(ast).toMatchObject([
+      {
+        type: 'command',
+        name: 'from',
+        args: [
+          {
+            type: 'source',
+            comments: {
+              top: [
+                {
+                  type: 'comment',
+                  subtype: 'single-line',
+                  text: ' "abc" is the best source',
+                },
+              ],
+            },
+          },
+        ],
+      },
+    ]);
   });
 });

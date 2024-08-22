@@ -7,8 +7,18 @@
  */
 
 import { type CommonTokenStream, Token } from 'antlr4';
-import type { ESQLAstComment } from '../types';
+import type { ESQLAstComment, ESQLAstNodeComments, ESQLProperNode } from '../types';
 import { Builder } from '../builder';
+import { ESQLAstQueryNode, Visitor } from '../visitor';
+
+export interface ParsedComment {
+  /**
+   * Attachment is a guess of where the comment should be attached within the AST
+   * with respect to the node it is commenting.
+   */
+  attachment: 'top' | 'bottom' | 'left' | 'right';
+  node: ESQLAstComment;
+}
 
 const HIDDEN_CHANNEL: number = +(Token as any).HIDDEN_CHANNEL;
 
@@ -34,8 +44,13 @@ const trimRightNewline = (text: string): string => {
   return text;
 };
 
-export const collectComments = (tokens: CommonTokenStream): { comments: ESQLAstComment[] } => {
-  const comments: ESQLAstComment[] = [];
+/**
+ * Collects all comments from the token stream.
+ * @param tokens Lexer token stream
+ * @returns List of comments found in the token stream
+ */
+export const collectComments = (tokens: CommonTokenStream): { comments: ParsedComment[] } => {
+  const comments: ParsedComment[] = [];
   const list = tokens.tokens;
   let pos = 0;
 
@@ -53,9 +68,50 @@ export const collectComments = (tokens: CommonTokenStream): { comments: ESQLAstC
 
     const cleanText =
       subtype === 'single-line' ? trimRightNewline(text.slice(2)) : text.slice(2, -2);
-    const comment = Builder.comment(subtype, cleanText, { min, max });
+    const node = Builder.comment(subtype, cleanText, { min, max });
+    const attachment = 'top';
+    const comment: ParsedComment = { attachment, node };
     comments.push(comment);
   }
 
   return { comments };
+};
+
+const attachTop = (node: ESQLProperNode, comment: ESQLAstComment) => {
+  const comments: ESQLAstNodeComments = node.comments || (node.comments = {});
+  const list = comments.top || (comments.top = []);
+  list.push(comment);
+};
+
+const attachComment = (ast: ESQLAstQueryNode, comment: ParsedComment) => {
+  new Visitor()
+    .on('visitExpression', (ctx) => {})
+    .on('visitCommand', (ctx) => {})
+    .on('visitQuery', (ctx) => {
+      for (const command of ctx.commands()) {
+        const { location } = command;
+        if (!location) continue;
+        if (location.min >= comment.node.location.max) {
+          attachTop(command, comment.node);
+          break;
+        } else if (location.max >= comment.node.location.min) {
+          ctx.visitCommand(command);
+          break;
+        }
+      }
+    })
+    .visitQuery(ast);
+};
+
+/**
+ * Walks through the ast and for each comment attaches it to the appropriate
+ * node, which is determined by the comment's alignment.
+ *
+ * @param ast AST to attach comments to.
+ * @param comments List of comments to attach to the AST.
+ */
+export const attachComments = (ast: ESQLAstQueryNode, comments: ParsedComment[]) => {
+  for (const comment of comments) {
+    attachComment(ast, comment);
+  }
 };

@@ -11,11 +11,11 @@ import { CommonTokenStream, type CharStream, type ErrorListener } from 'antlr4';
 import { ESQLErrorListener } from './esql_error_listener';
 import { ESQLAstBuilderListener } from './esql_ast_builder_listener';
 import { GRAMMAR_ROOT_RULE } from './constants';
+import { attachComments, collectComments } from './comments';
 import type { ESQLAst, EditorError } from '../types';
 import { default as ESQLLexer } from '../antlr/esql_lexer';
 import { default as ESQLParser } from '../antlr/esql_parser';
 import { default as ESQLParserListener } from '../antlr/esql_parser_listener';
-import { collectComments } from './comments';
 
 export const getLexer = (inputStream: CharStream, errorListener: ErrorListener<any>) => {
   const lexer = new ESQLLexer(inputStream);
@@ -82,7 +82,7 @@ export const parse = (text: string | undefined, options: ParseOptions = {}): Par
 
   if (options.withComments) {
     const { comments } = collectComments(tokens);
-    console.log('comments', comments);
+    attachComments(ast, comments);
   }
 
   return { ast, errors };
