@@ -35,6 +35,8 @@ export const getParser = (
   const tokens = new CommonTokenStream(lexer);
   const parser = new ESQLParser(tokens);
 
+  // lexer.symbolicNames
+
   parser.removeErrorListeners();
   parser.addErrorListener(errorListener);
 
@@ -76,11 +78,7 @@ export const parse = (text: string | undefined, options: ParseOptions = {}): Par
   }
   const errorListener = new ESQLErrorListener();
   const parseListener = new ESQLAstBuilderListener();
-  const { tokens, parser, lexer } = getParser(
-    CharStreams.fromString(text),
-    errorListener,
-    parseListener
-  );
+  const { tokens, parser } = getParser(CharStreams.fromString(text), errorListener, parseListener);
 
   parser[GRAMMAR_ROOT_RULE]();
 
@@ -88,15 +86,6 @@ export const parse = (text: string | undefined, options: ParseOptions = {}): Par
     return !SYNTAX_ERRORS_TO_IGNORE.includes(error.message);
   });
   const { ast } = parseListener.getAst();
-
-  // for (const token of tokens.tokens) {
-  //   console.log(
-  //     token.channel,
-  //     token.type,
-  //     lexer.symbolicNames[token.type],
-  //     JSON.stringify(token.text)
-  //   );
-  // }
 
   if (options.withFormatting) {
     const decorations = collectDecorations(tokens);
