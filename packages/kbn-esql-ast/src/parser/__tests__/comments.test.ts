@@ -214,6 +214,113 @@ describe('Comments', () => {
     });
   });
 
+  describe('can attach "left" comment(s)', () => {
+    it('to a command', () => {
+      const text = `/* hello */ FROM abc`;
+      const { ast } = parse(text, { withFormatting: true });
+
+      expect(ast).toMatchObject([
+        {
+          type: 'command',
+          name: 'from',
+          formatting: {
+            left: [
+              {
+                type: 'comment',
+                subtype: 'multi-line',
+                text: ' hello ',
+              },
+            ],
+          },
+        },
+      ]);
+    });
+
+    it('to an expression, multiple comments', () => {
+      const text = `FROM /* aha */ source, /* 1 */ /*2*/ /* 3 */ abc`;
+      const { ast } = parse(text, { withFormatting: true });
+
+      expect(ast).toMatchObject([
+        {
+          type: 'command',
+          name: 'from',
+          args: [
+            {
+              type: 'source',
+              name: 'source',
+              formatting: {
+                left: [
+                  {
+                    type: 'comment',
+                    subtype: 'multi-line',
+                    text: ' aha ',
+                  },
+                ],
+              },
+            },
+            {
+              type: 'source',
+              name: 'abc',
+              formatting: {
+                left: [
+                  {
+                    type: 'comment',
+                    subtype: 'multi-line',
+                    text: ' 1 ',
+                  },
+                  {
+                    type: 'comment',
+                    subtype: 'multi-line',
+                    text: '2',
+                  },
+                  {
+                    type: 'comment',
+                    subtype: 'multi-line',
+                    text: ' 3 ',
+                  },
+                ],
+              },
+            },
+          ],
+        },
+      ]);
+    });
+
+    it('to sub-expression', () => {
+      const text = `FROM index | STATS 1 + /* aha */ 2`;
+      const { ast } = parse(text, { withFormatting: true });
+
+      expect(ast).toMatchObject([
+        {},
+        {
+          type: 'command',
+          name: 'stats',
+          args: [
+            {
+              name: '+',
+              args: [
+                {},
+                {
+                  type: 'literal',
+                  value: 2,
+                  formatting: {
+                    left: [
+                      {
+                        type: 'comment',
+                        subtype: 'multi-line',
+                        text: ' aha ',
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          ],
+        },
+      ]);
+    });
+  });
+
   describe('can attach "bottom" comment(s)', () => {
     it('attaches comment at the end of the program to the last command node from the "bottom"', () => {
       const text = `

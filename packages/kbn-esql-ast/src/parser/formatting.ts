@@ -119,6 +119,10 @@ export const collectDecorations = (
     }
   }
 
+  if (line.length > 0) {
+    lines.push(line);
+  }
+
   return { comments, lines };
 };
 
@@ -170,12 +174,16 @@ const attachCommentDecoration = (
       return;
     }
 
-    const isBefore = node.location.min > comment.node.location.min;
+    attachTopComment(node, comment.node);
+    return;
+  }
 
-    if (isBefore) attachTopComment(node, comment.node);
-    else {
-      // Comment is inside the node.
-    }
+  if (comment.hasContentToRight && comment.node.subtype === 'multi-line') {
+    const node = Visitor.findNodeAtOrAfter(ast, comment.node.location.max);
+
+    if (!node) return;
+
+    attachLeftComment(node, comment.node);
   }
 };
 
