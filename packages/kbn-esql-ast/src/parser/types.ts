@@ -12,7 +12,10 @@ import { ESQLAstComment } from '../types';
  * Lines of decorations per *whitespace line*. A *whitespace line* is a line
  * which tracks line breaks only from the HIDDEN channel. It does not take into
  * account line breaks from the DEFAULT channel, i.e. content lines. For example,
- * it will ignore line breaks from triple-quoted strings.
+ * it will ignore line breaks from triple-quoted strings, but will track line
+ * breaks from comments and whitespace.
+ *
+ * Each list entry represents a line of decorations.
  */
 export type ParsedFormattingDecorationLines = ParsedFormattingDecoration[][];
 

@@ -92,7 +92,7 @@ export class VisitorContext<
     const node = this.node;
 
     if (!isNodeWithArgs(node)) {
-      throw new Error('Node does not have arguments');
+      return [];
     }
 
     const args: ESQLAstExpressionNode[] = [];

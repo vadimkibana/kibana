@@ -47,7 +47,9 @@ const trimRightNewline = (text: string): string => {
 };
 
 /**
- * Collects all comments from the token stream.
+ * Collects *decorations* (all comments and whitespace of interest) from the
+ * token stream.
+ *
  * @param tokens Lexer token stream
  * @returns List of comments found in the token stream
  */
@@ -56,13 +58,16 @@ export const collectDecorations = (
 ): { comments: ESQLAstComment[]; lines: ParsedFormattingDecorationLines } => {
   const comments: ESQLAstComment[] = [];
   const list = tokens.tokens;
+  const length = list.length;
   const lines: ParsedFormattingDecorationLines = [];
 
   let line: ParsedFormattingDecoration[] = [];
   let pos = 0;
   let hasContentToLeft = false;
 
-  for (const token of list) {
+  // The last token in <EOF> token, which we don't need to process.
+  for (let i = 0; i < length - 1; i++) {
+    const token = list[i];
     const { channel, text } = token;
     const min = pos;
     const max = min + text.length;
@@ -184,6 +189,21 @@ const attachCommentDecoration = (
     if (!node) return;
 
     attachLeftComment(node, comment.node);
+    return;
+  }
+
+  if (comment.hasContentToLeft) {
+    const node = Visitor.findNodeAtOrBefore(ast, comment.node.location.min);
+
+    if (!node) return;
+
+    if (comment.node.subtype === 'multi-line') {
+      attachRightComment(node, comment.node);
+    } else if (comment.node.subtype === 'single-line') {
+      attachRightEndComment(node, comment.node);
+    }
+
+    return;
   }
 };
 

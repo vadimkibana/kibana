@@ -321,6 +321,35 @@ describe('Comments', () => {
     });
   });
 
+  describe('can attach "right" comment(s)', () => {
+    it('to an expression', () => {
+      const text = `FROM abc /* hello */`;
+      const { ast } = parse(text, { withFormatting: true });
+
+      expect(ast).toMatchObject([
+        {
+          type: 'command',
+          name: 'from',
+          args: [
+            {
+              type: 'source',
+              name: 'abc',
+              formatting: {
+                right: [
+                  {
+                    type: 'comment',
+                    subtype: 'multi-line',
+                    text: ' hello ',
+                  },
+                ],
+              },
+            },
+          ],
+        },
+      ]);
+    });
+  });
+
   describe('can attach "bottom" comment(s)', () => {
     it('attaches comment at the end of the program to the last command node from the "bottom"', () => {
       const text = `
