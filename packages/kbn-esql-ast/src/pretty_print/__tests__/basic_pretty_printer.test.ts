@@ -455,3 +455,5 @@ describe('single line expression', () => {
     expect(text2).toBe('AVG(1, 2, 3)');
   });
 });
+
+it.todo('test for NOT unary expression');

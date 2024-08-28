@@ -13,7 +13,7 @@ import type {
   ESQLAstComment,
   ESQLAstCommentMultiLine,
   ESQLAstCommentSingleLine,
-  ESQLAstNodeComments,
+  ESQLAstNodeFormatting,
   ESQLProperNode,
 } from '../types';
 import type {
@@ -123,32 +123,32 @@ export const collectDecorations = (
 };
 
 const attachTopComment = (node: ESQLProperNode, comment: ESQLAstComment) => {
-  const comments: ESQLAstNodeComments = node.comments || (node.comments = {});
-  const list = comments.top || (comments.top = []);
+  const formatting: ESQLAstNodeFormatting = node.formatting || (node.formatting = {});
+  const list = formatting.top || (formatting.top = []);
   list.push(comment);
 };
 
 const attachBottomComment = (node: ESQLProperNode, comment: ESQLAstComment) => {
-  const comments: ESQLAstNodeComments = node.comments || (node.comments = {});
-  const list = comments.bottom || (comments.bottom = []);
+  const formatting: ESQLAstNodeFormatting = node.formatting || (node.formatting = {});
+  const list = formatting.bottom || (formatting.bottom = []);
   list.push(comment);
 };
 
 const attachLeftComment = (node: ESQLProperNode, comment: ESQLAstCommentMultiLine) => {
-  const comments: ESQLAstNodeComments = node.comments || (node.comments = {});
-  const list = comments.left || (comments.left = []);
+  const formatting: ESQLAstNodeFormatting = node.formatting || (node.formatting = {});
+  const list = formatting.left || (formatting.left = []);
   list.push(comment);
 };
 
 const attachRightComment = (node: ESQLProperNode, comment: ESQLAstCommentMultiLine) => {
-  const comments: ESQLAstNodeComments = node.comments || (node.comments = {});
-  const list = comments.right || (comments.right = []);
+  const formatting: ESQLAstNodeFormatting = node.formatting || (node.formatting = {});
+  const list = formatting.right || (formatting.right = []);
   list.push(comment);
 };
 
 const attachRightEndComment = (node: ESQLProperNode, comment: ESQLAstCommentSingleLine) => {
-  const comments: ESQLAstNodeComments = node.comments || (node.comments = {});
-  comments.rightSingleLine = comment;
+  const formatting: ESQLAstNodeFormatting = node.formatting || (node.formatting = {});
+  formatting.rightSingleLine = comment;
 };
 
 const attachCommentDecoration = (

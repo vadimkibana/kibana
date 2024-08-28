@@ -22,7 +22,7 @@ describe('Comments', () => {
       {
         type: 'command',
         name: 'limit',
-        comments: {
+        formatting: {
           top: [
             {
               type: 'comment',
@@ -50,7 +50,7 @@ describe('Comments', () => {
         args: [
           {
             type: 'source',
-            comments: {
+            formatting: {
               top: [
                 {
                   type: 'comment',
@@ -90,7 +90,7 @@ describe('Comments', () => {
               {
                 type: 'literal',
                 value: 2,
-                comments: {
+                formatting: {
                   top: [
                     {
                       type: 'comment',
@@ -120,7 +120,7 @@ FROM a
       {
         type: 'command',
         name: 'limit',
-        comments: {
+        formatting: {
           bottom: [
             {
               type: 'comment',

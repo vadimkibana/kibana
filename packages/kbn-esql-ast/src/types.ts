@@ -54,10 +54,13 @@ export interface ESQLAstBaseItem<Name = string> {
   text: string;
   location: ESQLLocation;
   incomplete: boolean;
-  comments?: ESQLAstNodeComments;
+  formatting?: ESQLAstNodeFormatting;
 }
 
-export interface ESQLAstNodeComments {
+/**
+ * Contains optional formatting information used by the pretty printer.
+ */
+export interface ESQLAstNodeFormatting {
   top?: ESQLAstComment[];
   left?: ESQLAstCommentMultiLine[];
   right?: ESQLAstCommentMultiLine[];
