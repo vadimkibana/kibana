@@ -17,6 +17,8 @@ export interface ParsedComment {
    * with respect to the node it is commenting.
    */
   attachment: 'top' | 'bottom' | 'left' | 'right';
+  hasContentToLeft: boolean;
+  hasContentToRight: boolean;
   node: ESQLAstComment;
 }
 
@@ -52,7 +54,11 @@ const trimRightNewline = (text: string): string => {
 export const collectComments = (tokens: CommonTokenStream): { comments: ParsedComment[] } => {
   const comments: ParsedComment[] = [];
   const list = tokens.tokens;
+
   let pos = 0;
+  const lines: ParsedComment[][] = [];
+  let line: ParsedComment[] = [];
+  let hasContentToLeft = false;
 
   for (const token of list) {
     const { channel, text } = token;
@@ -61,18 +67,57 @@ export const collectComments = (tokens: CommonTokenStream): { comments: ParsedCo
 
     pos = max;
 
-    if (channel !== HIDDEN_CHANNEL) continue;
+    const isContentToken = channel !== HIDDEN_CHANNEL;
+
+    if (isContentToken) {
+      hasContentToLeft = true;
+      for (const comment of line) {
+        comment.hasContentToRight = true;
+      }
+      continue;
+    }
 
     const subtype = commentSubtype(text);
-    if (!subtype) continue;
+    const isComment = !!subtype;
+
+    if (!isComment) {
+      const hasLineBreak = text.lastIndexOf('\n') !== -1;
+
+      if (hasLineBreak) {
+        lines.push(line);
+        line = [];
+        hasContentToLeft = false;
+      }
+      continue;
+    }
 
     const cleanText =
       subtype === 'single-line' ? trimRightNewline(text.slice(2)) : text.slice(2, -2);
     const node = Builder.comment(subtype, cleanText, { min, max });
     const attachment = 'top';
-    const comment: ParsedComment = { attachment, node };
+    const comment: ParsedComment = {
+      attachment,
+      hasContentToLeft,
+      hasContentToRight: false,
+      node,
+    };
+
     comments.push(comment);
+    line.push(comment);
+
+    if (subtype === 'single-line') {
+      const hasLineBreak = text[text.length - 1] === '\n';
+
+      if (hasLineBreak) {
+        lines.push(line);
+        line = [];
+        hasContentToLeft = false;
+      }
+    }
   }
+
+  console.log(lines);
+  console.log(comments);
 
   return { comments };
 };
