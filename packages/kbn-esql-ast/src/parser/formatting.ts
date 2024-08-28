@@ -9,7 +9,13 @@
 import { type CommonTokenStream, Token } from 'antlr4';
 import { Builder } from '../builder';
 import { ESQLAstQueryNode, Visitor } from '../visitor';
-import type { ESQLAstComment, ESQLAstNodeComments, ESQLProperNode } from '../types';
+import type {
+  ESQLAstComment,
+  ESQLAstCommentMultiLine,
+  ESQLAstCommentSingleLine,
+  ESQLAstNodeComments,
+  ESQLProperNode,
+} from '../types';
 import type {
   ParsedFormattingCommentDecoration,
   ParsedFormattingDecoration,
@@ -116,27 +122,66 @@ export const collectDecorations = (
   return { comments, lines };
 };
 
-const attachTop = (node: ESQLProperNode, comment: ESQLAstComment) => {
+const attachTopComment = (node: ESQLProperNode, comment: ESQLAstComment) => {
   const comments: ESQLAstNodeComments = node.comments || (node.comments = {});
   const list = comments.top || (comments.top = []);
   list.push(comment);
+};
+
+const attachBottomComment = (node: ESQLProperNode, comment: ESQLAstComment) => {
+  const comments: ESQLAstNodeComments = node.comments || (node.comments = {});
+  const list = comments.bottom || (comments.bottom = []);
+  list.push(comment);
+};
+
+const attachLeftComment = (node: ESQLProperNode, comment: ESQLAstCommentMultiLine) => {
+  const comments: ESQLAstNodeComments = node.comments || (node.comments = {});
+  const list = comments.left || (comments.left = []);
+  list.push(comment);
+};
+
+const attachRightComment = (node: ESQLProperNode, comment: ESQLAstCommentMultiLine) => {
+  const comments: ESQLAstNodeComments = node.comments || (node.comments = {});
+  const list = comments.right || (comments.right = []);
+  list.push(comment);
+};
+
+const attachRightEndComment = (node: ESQLProperNode, comment: ESQLAstCommentSingleLine) => {
+  const comments: ESQLAstNodeComments = node.comments || (node.comments = {});
+  comments.rightSingleLine = comment;
 };
 
 const attachCommentDecoration = (
   ast: ESQLAstQueryNode,
   comment: ParsedFormattingCommentDecoration
 ) => {
-  const node = Visitor.findNodeAtOrAfter(ast, comment.node.location.max);
+  const commentConsumesWholeLine = !comment.hasContentToLeft && !comment.hasContentToRight;
 
-  if (!node) return;
+  if (commentConsumesWholeLine) {
+    const node = Visitor.findNodeAtOrAfter(ast, comment.node.location.max);
 
-  const isBefore = node.location.min > comment.node.location.min;
-  if (isBefore) attachTop(node, comment.node);
+    if (!node) {
+      // No node after the comment found, it is probably at the end of the file.
+      // So we attach it to the last command from the "bottom".
+      const lastCommand = ast[ast.length - 1];
+      if (lastCommand) {
+        attachBottomComment(lastCommand, comment.node);
+      }
+      return;
+    }
+
+    const isBefore = node.location.min > comment.node.location.min;
+
+    if (isBefore) attachTopComment(node, comment.node);
+    else {
+      // Comment is inside the node.
+    }
+  }
 };
 
 /**
- * Walks through the ast and for each comment attaches it to the appropriate
- * node, which is determined by the comment's alignment.
+ * Walks through the AST and - for each decoration - attaches it to the
+ * appropriate AST node, which is determined by the layout of the source text.
  *
  * @param ast AST to attach comments to.
  * @param comments List of comments to attach to the AST.

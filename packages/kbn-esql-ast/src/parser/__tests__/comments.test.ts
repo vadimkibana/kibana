@@ -15,7 +15,7 @@ describe('Comments', () => {
 
       // Good limit
       | LIMIT 10`;
-    const { ast } = parse(text, { withComments: true });
+    const { ast } = parse(text, { withFormatting: true });
 
     expect(ast).toMatchObject([
       {},
@@ -41,7 +41,7 @@ describe('Comments', () => {
 
       // "abc" is the best source
       abc`;
-    const { ast } = parse(text, { withComments: true });
+    const { ast } = parse(text, { withFormatting: true });
 
     expect(ast).toMatchObject([
       {
@@ -71,7 +71,7 @@ describe('Comments', () => {
         | STATS 1 +
           // 2 is the best number
           2`;
-    const { ast } = parse(text, { withComments: true });
+    const { ast } = parse(text, { withFormatting: true });
 
     expect(ast).toMatchObject([
       {},
@@ -103,6 +103,32 @@ describe('Comments', () => {
             ],
           },
         ],
+      },
+    ]);
+  });
+
+  it('attaches comment at the end of the program to the last command node from the "bottom"', () => {
+    const text = `
+FROM a
+| LIMIT 1
+// the end
+`;
+    const { ast } = parse(text, { withFormatting: true });
+
+    expect(ast).toMatchObject([
+      {},
+      {
+        type: 'command',
+        name: 'limit',
+        comments: {
+          bottom: [
+            {
+              type: 'comment',
+              subtype: 'single-line',
+              text: ' the end',
+            },
+          ],
+        },
       },
     ]);
   });
