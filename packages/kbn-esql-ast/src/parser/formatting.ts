@@ -116,44 +116,6 @@ export const collectDecorations = (
   return { comments, lines };
 };
 
-const findNodeAtOrAfter = (ast: ESQLAstQueryNode, pos: number): ESQLProperNode | null => {
-  return new Visitor()
-    .on('visitExpression', (ctx): ESQLProperNode | null => {
-      for (const node of ctx.arguments()) {
-        const { location } = node;
-        if (!location) continue;
-        const isBefore = location.min > pos;
-        if (isBefore) return node;
-        const isInside = location.min <= pos && location.max >= pos;
-        if (isInside) return ctx.visitExpression(node, undefined);
-      }
-      return null;
-    })
-    .on('visitCommand', (ctx): ESQLProperNode | null => {
-      for (const node of ctx.arguments()) {
-        const { location } = node;
-        if (!location) continue;
-        const isBefore = location.min > pos;
-        if (isBefore) return node;
-        const isInside = location.min <= pos && location.max >= pos;
-        if (isInside) return ctx.visitExpression(node);
-      }
-      return null;
-    })
-    .on('visitQuery', (ctx): ESQLProperNode | null => {
-      for (const node of ctx.commands()) {
-        const { location } = node;
-        if (!location) continue;
-        const isBefore = location.min > pos;
-        if (isBefore) return node;
-        const isInside = location.min <= pos && location.max >= pos;
-        if (isInside) return ctx.visitCommand(node);
-      }
-      return null;
-    })
-    .visitQuery(ast);
-};
-
 const attachTop = (node: ESQLProperNode, comment: ESQLAstComment) => {
   const comments: ESQLAstNodeComments = node.comments || (node.comments = {});
   const list = comments.top || (comments.top = []);
@@ -164,7 +126,7 @@ const attachCommentDecoration = (
   ast: ESQLAstQueryNode,
   comment: ParsedFormattingCommentDecoration
 ) => {
-  const node = findNodeAtOrAfter(ast, comment.node.location.max);
+  const node = Visitor.findNodeAtOrAfter(ast, comment.node.location.max);
 
   if (!node) return;
 
