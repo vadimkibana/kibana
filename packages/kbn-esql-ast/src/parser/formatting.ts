@@ -7,20 +7,14 @@
  */
 
 import { type CommonTokenStream, Token } from 'antlr4';
-import type { ESQLAstComment, ESQLAstNodeComments, ESQLProperNode } from '../types';
 import { Builder } from '../builder';
 import { ESQLAstQueryNode, Visitor } from '../visitor';
-
-export interface ParsedComment {
-  /**
-   * Attachment is a guess of where the comment should be attached within the AST
-   * with respect to the node it is commenting.
-   */
-  attachment: 'top' | 'bottom' | 'left' | 'right';
-  hasContentToLeft: boolean;
-  hasContentToRight: boolean;
-  node: ESQLAstComment;
-}
+import type { ESQLAstComment, ESQLAstNodeComments, ESQLProperNode } from '../types';
+import type {
+  ParsedFormattingCommentDecoration,
+  ParsedFormattingDecoration,
+  ParsedFormattingDecorationLines,
+} from './types';
 
 const HIDDEN_CHANNEL: number = +(Token as any).HIDDEN_CHANNEL;
 
@@ -51,13 +45,15 @@ const trimRightNewline = (text: string): string => {
  * @param tokens Lexer token stream
  * @returns List of comments found in the token stream
  */
-export const collectComments = (tokens: CommonTokenStream): { comments: ParsedComment[] } => {
-  const comments: ParsedComment[] = [];
+export const collectDecorations = (
+  tokens: CommonTokenStream
+): { comments: ESQLAstComment[]; lines: ParsedFormattingDecorationLines } => {
+  const comments: ESQLAstComment[] = [];
   const list = tokens.tokens;
+  const lines: ParsedFormattingDecorationLines = [];
 
+  let line: ParsedFormattingDecoration[] = [];
   let pos = 0;
-  const lines: ParsedComment[][] = [];
-  let line: ParsedComment[] = [];
   let hasContentToLeft = false;
 
   for (const token of list) {
@@ -71,8 +67,10 @@ export const collectComments = (tokens: CommonTokenStream): { comments: ParsedCo
 
     if (isContentToken) {
       hasContentToLeft = true;
-      for (const comment of line) {
-        comment.hasContentToRight = true;
+      for (const decoration of line) {
+        if (decoration.type === 'comment') {
+          decoration.hasContentToRight = true;
+        }
       }
       continue;
     }
@@ -94,15 +92,14 @@ export const collectComments = (tokens: CommonTokenStream): { comments: ParsedCo
     const cleanText =
       subtype === 'single-line' ? trimRightNewline(text.slice(2)) : text.slice(2, -2);
     const node = Builder.comment(subtype, cleanText, { min, max });
-    const attachment = 'top';
-    const comment: ParsedComment = {
-      attachment,
+    const comment: ParsedFormattingCommentDecoration = {
+      type: 'comment',
       hasContentToLeft,
       hasContentToRight: false,
       node,
     };
 
-    comments.push(comment);
+    comments.push(comment.node);
     line.push(comment);
 
     if (subtype === 'single-line') {
@@ -116,10 +113,7 @@ export const collectComments = (tokens: CommonTokenStream): { comments: ParsedCo
     }
   }
 
-  console.log(lines);
-  console.log(comments);
-
-  return { comments };
+  return { comments, lines };
 };
 
 const attachTop = (node: ESQLProperNode, comment: ESQLAstComment) => {
@@ -128,7 +122,10 @@ const attachTop = (node: ESQLProperNode, comment: ESQLAstComment) => {
   list.push(comment);
 };
 
-const attachComment = (ast: ESQLAstQueryNode, comment: ParsedComment) => {
+const attachCommentDecoration = (
+  ast: ESQLAstQueryNode,
+  comment: ParsedFormattingCommentDecoration
+) => {
   new Visitor()
     .on('visitExpression', (ctx) => {
       for (const expression of ctx.arguments()) {
@@ -179,8 +176,18 @@ const attachComment = (ast: ESQLAstQueryNode, comment: ParsedComment) => {
  * @param ast AST to attach comments to.
  * @param comments List of comments to attach to the AST.
  */
-export const attachComments = (ast: ESQLAstQueryNode, comments: ParsedComment[]) => {
-  for (const comment of comments) {
-    attachComment(ast, comment);
+export const attachDecorations = (
+  ast: ESQLAstQueryNode,
+  lines: ParsedFormattingDecorationLines
+) => {
+  for (const line of lines) {
+    for (const decoration of line) {
+      switch (decoration.type) {
+        case 'comment': {
+          attachCommentDecoration(ast, decoration);
+          break;
+        }
+      }
+    }
   }
 };

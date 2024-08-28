@@ -6,12 +6,12 @@
  * Side Public License, v 1.
  */
 
-import { CharStreams } from 'antlr4';
+import { CharStreams, type Token } from 'antlr4';
 import { CommonTokenStream, type CharStream, type ErrorListener } from 'antlr4';
 import { ESQLErrorListener } from './esql_error_listener';
 import { ESQLAstBuilderListener } from './esql_ast_builder_listener';
 import { GRAMMAR_ROOT_RULE } from './constants';
-import { attachComments, collectComments } from './comments';
+import { attachDecorations, collectDecorations } from './formatting';
 import type { ESQLAst, EditorError } from '../types';
 import { default as ESQLLexer } from '../antlr/esql_lexer';
 import { default as ESQLParser } from '../antlr/esql_parser';
@@ -57,21 +57,30 @@ const SYNTAX_ERRORS_TO_IGNORE = [
 ];
 
 export interface ParseOptions {
-  withComments?: boolean;
+  /**
+   * Whether to collect and attach to AST nodes user's custom formatting:
+   * comments and whitespace.
+   */
+  withFormatting?: boolean;
 }
 
 export interface ParseResult {
   errors: EditorError[];
   ast: ESQLAst;
+  tokens: Token[];
 }
 
 export const parse = (text: string | undefined, options: ParseOptions = {}): ParseResult => {
   if (text == null) {
-    return { ast: [], errors: [] };
+    return { ast: [], errors: [], tokens: [] };
   }
   const errorListener = new ESQLErrorListener();
   const parseListener = new ESQLAstBuilderListener();
-  const { tokens, parser } = getParser(CharStreams.fromString(text), errorListener, parseListener);
+  const { tokens, parser, lexer } = getParser(
+    CharStreams.fromString(text),
+    errorListener,
+    parseListener
+  );
 
   parser[GRAMMAR_ROOT_RULE]();
 
@@ -80,10 +89,19 @@ export const parse = (text: string | undefined, options: ParseOptions = {}): Par
   });
   const { ast } = parseListener.getAst();
 
-  if (options.withComments) {
-    const { comments } = collectComments(tokens);
-    attachComments(ast, comments);
+  // for (const token of tokens.tokens) {
+  //   console.log(
+  //     token.channel,
+  //     token.type,
+  //     lexer.symbolicNames[token.type],
+  //     JSON.stringify(token.text)
+  //   );
+  // }
+
+  if (options.withFormatting) {
+    const decorations = collectDecorations(tokens);
+    attachDecorations(ast, decorations.lines);
   }
 
-  return { ast, errors };
+  return { ast, errors, tokens: tokens.tokens };
 };
