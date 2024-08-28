@@ -9,127 +9,236 @@
 import { parse } from '..';
 
 describe('Comments', () => {
-  it('can attach "top" comment to a command', () => {
-    const text = `
+  describe('can attach "top" comment(s)', () => {
+    it('to a command', () => {
+      const text = `
       FROM abc
 
       // Good limit
       | LIMIT 10`;
-    const { ast } = parse(text, { withFormatting: true });
+      const { ast } = parse(text, { withFormatting: true });
 
-    expect(ast).toMatchObject([
-      {},
-      {
-        type: 'command',
-        name: 'limit',
-        formatting: {
-          top: [
-            {
-              type: 'comment',
-              subtype: 'single-line',
-              text: ' Good limit',
-            },
-          ],
-        },
-      },
-    ]);
-  });
-
-  it('can attach "top" comment to an expression', () => {
-    const text = `
-      FROM
-
-      // "abc" is the best source
-      abc`;
-    const { ast } = parse(text, { withFormatting: true });
-
-    expect(ast).toMatchObject([
-      {
-        type: 'command',
-        name: 'from',
-        args: [
-          {
-            type: 'source',
-            formatting: {
-              top: [
-                {
-                  type: 'comment',
-                  subtype: 'single-line',
-                  text: ' "abc" is the best source',
-                },
-              ],
-            },
-          },
-        ],
-      },
-    ]);
-  });
-
-  it('can attach "top" comment to a nested expression', () => {
-    const text = `
-      FROM a
-        | STATS 1 +
-          // 2 is the best number
-          2`;
-    const { ast } = parse(text, { withFormatting: true });
-
-    expect(ast).toMatchObject([
-      {},
-      {
-        type: 'command',
-        name: 'stats',
-        args: [
-          {
-            type: 'function',
-            name: '+',
-            args: [
+      expect(ast).toMatchObject([
+        {},
+        {
+          type: 'command',
+          name: 'limit',
+          formatting: {
+            top: [
               {
-                type: 'literal',
-                value: 1,
-              },
-              {
-                type: 'literal',
-                value: 2,
-                formatting: {
-                  top: [
-                    {
-                      type: 'comment',
-                      subtype: 'single-line',
-                      text: ' 2 is the best number',
-                    },
-                  ],
-                },
+                type: 'comment',
+                subtype: 'single-line',
+                text: ' Good limit',
               },
             ],
           },
-        ],
-      },
-    ]);
+        },
+      ]);
+    });
+
+    it('to a command (multiline)', () => {
+      const text = `
+      FROM abc
+
+      /* Good limit */
+      | LIMIT 10`;
+      const { ast } = parse(text, { withFormatting: true });
+
+      expect(ast).toMatchObject([
+        {},
+        {
+          type: 'command',
+          name: 'limit',
+          formatting: {
+            top: [
+              {
+                type: 'comment',
+                subtype: 'multi-line',
+                text: ' Good limit ',
+              },
+            ],
+          },
+        },
+      ]);
+    });
+
+    it('to a command (multiple comments)', () => {
+      const text = `
+      FROM abc
+
+      /* 1 */
+       // 2
+        /* 3 */
+
+      | LIMIT 10`;
+      const { ast } = parse(text, { withFormatting: true });
+
+      expect(ast).toMatchObject([
+        {},
+        {
+          type: 'command',
+          name: 'limit',
+          formatting: {
+            top: [
+              {
+                type: 'comment',
+                subtype: 'multi-line',
+                text: ' 1 ',
+              },
+              {
+                type: 'comment',
+                subtype: 'single-line',
+                text: ' 2',
+              },
+              {
+                type: 'comment',
+                subtype: 'multi-line',
+                text: ' 3 ',
+              },
+            ],
+          },
+        },
+      ]);
+    });
+
+    it('to an expression', () => {
+      const text = `
+        FROM
+  
+        // "abc" is the best source
+        abc`;
+      const { ast } = parse(text, { withFormatting: true });
+
+      expect(ast).toMatchObject([
+        {
+          type: 'command',
+          name: 'from',
+          args: [
+            {
+              type: 'source',
+              formatting: {
+                top: [
+                  {
+                    type: 'comment',
+                    subtype: 'single-line',
+                    text: ' "abc" is the best source',
+                  },
+                ],
+              },
+            },
+          ],
+        },
+      ]);
+    });
+
+    it('to an expression (multiple comments)', () => {
+      const text = `
+        FROM
+        // "abc" is the best source
+        /* another comment */ /* one more */
+        abc`;
+      const { ast } = parse(text, { withFormatting: true });
+
+      expect(ast).toMatchObject([
+        {
+          type: 'command',
+          name: 'from',
+          args: [
+            {
+              type: 'source',
+              formatting: {
+                top: [
+                  {
+                    type: 'comment',
+                    subtype: 'single-line',
+                    text: ' "abc" is the best source',
+                  },
+                  {
+                    type: 'comment',
+                    subtype: 'multi-line',
+                    text: ' another comment ',
+                  },
+                  {
+                    type: 'comment',
+                    subtype: 'multi-line',
+                    text: ' one more ',
+                  },
+                ],
+              },
+            },
+          ],
+        },
+      ]);
+    });
+
+    it('to a nested expression', () => {
+      const text = `
+        FROM a
+          | STATS 1 +
+            // 2 is the best number
+            2`;
+      const { ast } = parse(text, { withFormatting: true });
+
+      expect(ast).toMatchObject([
+        {},
+        {
+          type: 'command',
+          name: 'stats',
+          args: [
+            {
+              type: 'function',
+              name: '+',
+              args: [
+                {
+                  type: 'literal',
+                  value: 1,
+                },
+                {
+                  type: 'literal',
+                  value: 2,
+                  formatting: {
+                    top: [
+                      {
+                        type: 'comment',
+                        subtype: 'single-line',
+                        text: ' 2 is the best number',
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          ],
+        },
+      ]);
+    });
   });
 
-  it('attaches comment at the end of the program to the last command node from the "bottom"', () => {
-    const text = `
+  describe('can attach "bottom" comment(s)', () => {
+    it('attaches comment at the end of the program to the last command node from the "bottom"', () => {
+      const text = `
 FROM a
 | LIMIT 1
 // the end
 `;
-    const { ast } = parse(text, { withFormatting: true });
+      const { ast } = parse(text, { withFormatting: true });
 
-    expect(ast).toMatchObject([
-      {},
-      {
-        type: 'command',
-        name: 'limit',
-        formatting: {
-          bottom: [
-            {
-              type: 'comment',
-              subtype: 'single-line',
-              text: ' the end',
-            },
-          ],
+      expect(ast).toMatchObject([
+        {},
+        {
+          type: 'command',
+          name: 'limit',
+          formatting: {
+            bottom: [
+              {
+                type: 'comment',
+                subtype: 'single-line',
+                text: ' the end',
+              },
+            ],
+          },
         },
-      },
-    ]);
+      ]);
+    });
   });
 });
