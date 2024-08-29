@@ -89,7 +89,7 @@ export const parse = (text: string | undefined, options: ParseOptions = {}): Par
 
   if (options.withFormatting) {
     const decorations = collectDecorations(tokens);
-    attachDecorations(ast, decorations.lines);
+    attachDecorations(ast, tokens.tokens, decorations.lines);
   }
 
   return { ast, errors, tokens: tokens.tokens };

@@ -348,6 +348,51 @@ describe('Comments', () => {
         },
       ]);
     });
+
+    it('to an expression, multiple comments', () => {
+      const text = `FROM abc /* a */ /* b */, def /* c */`;
+      const { ast } = parse(text, { withFormatting: true });
+
+      expect(ast).toMatchObject([
+        {
+          type: 'command',
+          name: 'from',
+          args: [
+            {
+              type: 'source',
+              name: 'abc',
+              formatting: {
+                right: [
+                  {
+                    type: 'comment',
+                    subtype: 'multi-line',
+                    text: ' a ',
+                  },
+                  {
+                    type: 'comment',
+                    subtype: 'multi-line',
+                    text: ' b ',
+                  },
+                ],
+              },
+            },
+            {
+              type: 'source',
+              name: 'def',
+              formatting: {
+                right: [
+                  {
+                    type: 'comment',
+                    subtype: 'multi-line',
+                    text: ' c ',
+                  },
+                ],
+              },
+            },
+          ],
+        },
+      ]);
+    });
   });
 
   describe('can attach "bottom" comment(s)', () => {

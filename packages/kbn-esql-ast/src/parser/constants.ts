@@ -6,6 +6,8 @@
  * Side Public License, v 1.
  */
 
+import { Token } from 'antlr4';
+
 /**
  * The root ANTLR rule to start parsing from.
  */
@@ -18,3 +20,6 @@ export const DOUBLE_TICKS_REGEX = /``/g;
 export const SINGLE_TICK_REGEX = /`/g;
 export const SINGLE_BACKTICK = '`';
 export const DOUBLE_BACKTICK = '``';
+
+export const DEFAULT_CHANNEL: number = +(Token as any).DEFAULT_CHANNEL;
+export const HIDDEN_CHANNEL: number = +(Token as any).HIDDEN_CHANNEL;

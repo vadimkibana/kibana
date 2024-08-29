@@ -21,8 +21,8 @@ import type {
   ParsedFormattingDecoration,
   ParsedFormattingDecorationLines,
 } from './types';
-
-const HIDDEN_CHANNEL: number = +(Token as any).HIDDEN_CHANNEL;
+import { HIDDEN_CHANNEL } from './constants';
+import { findPunctuationToken } from './helpers';
 
 const commentSubtype = (text: string): ESQLAstComment['subtype'] | undefined => {
   if (text[0] === '/') {
@@ -162,6 +162,7 @@ const attachRightEndComment = (node: ESQLProperNode, comment: ESQLAstCommentSing
 
 const attachCommentDecoration = (
   ast: ESQLAstQueryNode,
+  tokens: Token[],
   comment: ParsedFormattingCommentDecoration
 ) => {
   const commentConsumesWholeLine = !comment.hasContentToLeft && !comment.hasContentToRight;
@@ -184,11 +185,33 @@ const attachCommentDecoration = (
   }
 
   if (comment.hasContentToRight && comment.node.subtype === 'multi-line') {
-    const node = Visitor.findNodeAtOrAfter(ast, comment.node.location.max);
+    const nodeToRight = Visitor.findNodeAtOrAfter(ast, comment.node.location.max);
 
-    if (!node) return;
+    if (!nodeToRight) return;
 
-    attachLeftComment(node, comment.node);
+    const isInsideNode = nodeToRight.location.min <= comment.node.location.min;
+
+    if (isInsideNode) {
+      attachLeftComment(nodeToRight, comment.node);
+      return;
+    }
+
+    const punctuationBetweenCommentAndNodeToRight = findPunctuationToken(
+      tokens,
+      comment.node.location.max,
+      nodeToRight.location.min
+    );
+
+    if (punctuationBetweenCommentAndNodeToRight) {
+      const nodeToLeft = Visitor.findNodeAtOrBefore(ast, comment.node.location.min);
+
+      if (nodeToLeft) {
+        attachRightComment(nodeToLeft, comment.node);
+        return;
+      }
+    }
+
+    attachLeftComment(nodeToRight, comment.node);
     return;
   }
 
@@ -216,13 +239,14 @@ const attachCommentDecoration = (
  */
 export const attachDecorations = (
   ast: ESQLAstQueryNode,
+  tokens: Token[],
   lines: ParsedFormattingDecorationLines
 ) => {
   for (const line of lines) {
     for (const decoration of line) {
       switch (decoration.type) {
         case 'comment': {
-          attachCommentDecoration(ast, decoration);
+          attachCommentDecoration(ast, tokens, decoration);
           break;
         }
       }
