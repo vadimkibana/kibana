@@ -49,10 +49,10 @@ export class Visitor<
         for (const node of ctx.arguments()) {
           const { location } = node;
           if (!location) continue;
-          const isBefore = location.min > pos;
-          if (isBefore) return node;
           const isInside = location.min <= pos && location.max >= pos;
           if (isInside) return ctx.visitExpression(node, undefined);
+          const isBefore = location.min > pos;
+          if (isBefore) return ctx.visitExpression(node, undefined) || node;
         }
         return null;
       })
@@ -60,10 +60,10 @@ export class Visitor<
         for (const node of ctx.arguments()) {
           const { location } = node;
           if (!location) continue;
-          const isBefore = location.min > pos;
-          if (isBefore) return node;
           const isInside = location.min <= pos && location.max >= pos;
           if (isInside) return ctx.visitExpression(node);
+          const isBefore = location.min > pos;
+          if (isBefore) return ctx.visitExpression(node) || node;
         }
         return null;
       })
@@ -71,10 +71,10 @@ export class Visitor<
         for (const node of ctx.commands()) {
           const { location } = node;
           if (!location) continue;
-          const isBefore = location.min > pos;
-          if (isBefore) return node;
           const isInside = location.min <= pos && location.max >= pos;
           if (isInside) return ctx.visitCommand(node);
+          const isBefore = location.min > pos;
+          if (isBefore) return node;
         }
         return null;
       })
