@@ -511,6 +511,138 @@ describe('Comments', () => {
     });
   });
 
+  describe('can attach "right end" comments', () => {
+    it('to an expression', () => {
+      const text = `FROM abc // hello`;
+      const { ast } = parse(text, { withFormatting: true });
+
+      expect(ast).toMatchObject([
+        {
+          type: 'command',
+          name: 'from',
+          args: [
+            {
+              type: 'source',
+              name: 'abc',
+              formatting: {
+                rightSingleLine: {
+                  type: 'comment',
+                  subtype: 'single-line',
+                  text: ' hello',
+                },
+              },
+            },
+          ],
+        },
+      ]);
+    });
+
+    it('to the second expression', () => {
+      const text = `FROM a1, a2        // hello world
+      | LIMIT 1`;
+      const { ast } = parse(text, { withFormatting: true });
+
+      expect(ast).toMatchObject([
+        {
+          type: 'command',
+          name: 'from',
+          args: [
+            {},
+            {
+              type: 'source',
+              name: 'a2',
+              formatting: {
+                rightSingleLine: {
+                  type: 'comment',
+                  subtype: 'single-line',
+                  text: ' hello world',
+                },
+              },
+            },
+          ],
+        },
+        {},
+      ]);
+    });
+
+    it('to nested expression', () => {
+      const text = `
+        FROM a
+          | STATS 1 + 2 // hello world
+`;
+      const { ast } = parse(text, { withFormatting: true });
+
+      expect(ast).toMatchObject([
+        {},
+        {
+          type: 'command',
+          name: 'stats',
+          args: [
+            {
+              name: '+',
+              args: [
+                {
+                  type: 'literal',
+                  value: 1,
+                },
+                {
+                  type: 'literal',
+                  value: 2,
+                  formatting: {
+                    rightSingleLine: {
+                      type: 'comment',
+                      subtype: 'single-line',
+                      text: ' hello world',
+                    },
+                  },
+                },
+              ],
+            },
+          ],
+        },
+      ]);
+    });
+
+    it('to nested expression - 2', () => {
+      const text = `
+        FROM a
+          | STATS 1   // The 1 is important
+             + 2
+`;
+      const { ast } = parse(text, { withFormatting: true });
+
+      expect(ast).toMatchObject([
+        {},
+        {
+          type: 'command',
+          name: 'stats',
+          args: [
+            {
+              name: '+',
+              args: [
+                {
+                  type: 'literal',
+                  value: 1,
+                  formatting: {
+                    rightSingleLine: {
+                      type: 'comment',
+                      subtype: 'single-line',
+                      text: ' The 1 is important',
+                    },
+                  },
+                },
+                {
+                  type: 'literal',
+                  value: 2,
+                },
+              ],
+            },
+          ],
+        },
+      ]);
+    });
+  });
+
   describe('can attach "bottom" comment(s)', () => {
     it('attaches comment at the end of the program to the last command node from the "bottom"', () => {
       const text = `
