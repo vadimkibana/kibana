@@ -393,6 +393,122 @@ describe('Comments', () => {
         },
       ]);
     });
+
+    it('to a nested expression', () => {
+      const text = `FROM a | STATS 1 + 2 /* hello */`;
+      const { ast } = parse(text, { withFormatting: true });
+
+      expect(ast).toMatchObject([
+        {},
+        {
+          type: 'command',
+          name: 'stats',
+          args: [
+            {
+              name: '+',
+              args: [
+                {
+                  type: 'literal',
+                  value: 1,
+                },
+                {
+                  type: 'literal',
+                  value: 2,
+                  formatting: {
+                    right: [
+                      {
+                        type: 'comment',
+                        subtype: 'multi-line',
+                        text: ' hello ',
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          ],
+        },
+      ]);
+    });
+
+    it('to a nested expression - 2', () => {
+      const text = `FROM a | STATS 1 /* 1 */ + 2 /* 2.1 */ /* 2.2 */ /* 2.3 */ + 3 /* 3.1 */ /* 3.2 */`;
+      const { ast } = parse(text, { withFormatting: true });
+
+      expect(ast).toMatchObject([
+        {},
+        {
+          type: 'command',
+          name: 'stats',
+          args: [
+            {
+              name: '+',
+              args: [
+                {
+                  name: '+',
+                  args: [
+                    {
+                      type: 'literal',
+                      value: 1,
+                      formatting: {
+                        right: [
+                          {
+                            type: 'comment',
+                            subtype: 'multi-line',
+                            text: ' 1 ',
+                          },
+                        ],
+                      },
+                    },
+                    {
+                      type: 'literal',
+                      value: 2,
+                      formatting: {
+                        right: [
+                          {
+                            type: 'comment',
+                            subtype: 'multi-line',
+                            text: ' 2.1 ',
+                          },
+                          {
+                            type: 'comment',
+                            subtype: 'multi-line',
+                            text: ' 2.2 ',
+                          },
+                          {
+                            type: 'comment',
+                            subtype: 'multi-line',
+                            text: ' 2.3 ',
+                          },
+                        ],
+                      },
+                    },
+                  ],
+                },
+                {
+                  type: 'literal',
+                  value: 3,
+                  formatting: {
+                    right: [
+                      {
+                        type: 'comment',
+                        subtype: 'multi-line',
+                        text: ' 3.1 ',
+                      },
+                      {
+                        type: 'comment',
+                        subtype: 'multi-line',
+                        text: ' 3.2 ',
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          ],
+        },
+      ]);
+    });
   });
 
   describe('can attach "bottom" comment(s)', () => {
