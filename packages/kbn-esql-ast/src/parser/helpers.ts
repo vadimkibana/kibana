@@ -114,6 +114,27 @@ export const findFirstToken = (
 };
 
 /**
+ * Finds the first visible token in the given token range using binary search.
+ *
+ * @param tokens List of ANTLR tokens.
+ * @param min Text position to start searching from.
+ * @param max Text position to stop searching at.
+ * @returns The first punctuation token or `null` if no token is found.
+ */
+export const findVisibleToken = (
+  tokens: Token[],
+  min: number = 0,
+  max: number = tokens.length ? tokens[tokens.length - 1].stop : 0
+): Token | null => {
+  return findFirstToken(
+    tokens,
+    min,
+    max,
+    ({ channel, text }) => channel === DEFAULT_CHANNEL && text.length > 0
+  );
+};
+
+/**
  * A heuristic set of punctuation characters.
  */
 const punctuationChars = new Set(['.', ',', ';', ':', '(', ')', '[', ']', '{', '}']);

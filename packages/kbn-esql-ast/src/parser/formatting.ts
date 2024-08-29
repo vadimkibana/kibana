@@ -22,7 +22,7 @@ import type {
   ParsedFormattingDecorationLines,
 } from './types';
 import { HIDDEN_CHANNEL } from './constants';
-import { findPunctuationToken } from './helpers';
+import { findVisibleToken } from './helpers';
 
 const commentSubtype = (text: string): ESQLAstComment['subtype'] | undefined => {
   if (text[0] === '/') {
@@ -187,7 +187,15 @@ const attachCommentDecoration = (
   if (comment.hasContentToRight && comment.node.subtype === 'multi-line') {
     const nodeToRight = Visitor.findNodeAtOrAfter(ast, comment.node.location.max);
 
-    if (!nodeToRight) return;
+    if (!nodeToRight) {
+      const nodeToLeft = Visitor.findNodeAtOrBefore(ast, comment.node.location.min);
+
+      if (nodeToLeft) {
+        attachRightComment(nodeToLeft, comment.node);
+      }
+
+      return;
+    }
 
     const isInsideNode = nodeToRight.location.min <= comment.node.location.min;
 
@@ -196,13 +204,13 @@ const attachCommentDecoration = (
       return;
     }
 
-    const punctuationBetweenCommentAndNodeToRight = findPunctuationToken(
+    const visibleTokenBetweenCommentAndNodeToRight = findVisibleToken(
       tokens,
       comment.node.location.max,
-      nodeToRight.location.min
+      nodeToRight.location.min - 1
     );
 
-    if (punctuationBetweenCommentAndNodeToRight) {
+    if (visibleTokenBetweenCommentAndNodeToRight) {
       const nodeToLeft = Visitor.findNodeAtOrBefore(ast, comment.node.location.min);
 
       if (nodeToLeft) {
