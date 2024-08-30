@@ -245,7 +245,7 @@ export class BasicPrettyPrinter {
 
           const formatted = `${leftFormatted} ${operator} ${rightFormatted}`;
 
-          return formatted;
+          return this.decorateWithComments(ctx.node, formatted);
         }
         default: {
           if (opts.lowercaseFunctions) {

@@ -133,3 +133,19 @@ describe('function call expressions', () => {
     assertPrint('FROM a | STATS /*1*/ FN(/*2*/ 1 /*3*/, /*4*/ /*5*/ 2 /*6*/ /*7*/) /*8*/');
   });
 });
+
+describe('binary expressions', () => {
+  test('around binary expression operands', () => {
+    assertPrint('FROM a | STATS /* a */ 1 /* b */ + /* c */ 2 /* d */');
+  });
+
+  test('around binary expression operands, twice', () => {
+    assertPrint('FROM a | STATS /* a */ 1 /* b */ + /* c */ 2 /* d */ + /* e */ 3 /* f */');
+  });
+
+  test('around binary expression operands, trice', () => {
+    assertPrint(
+      'FROM a | STATS /* a */ /* a.2 */ 1 /* b */ + /* c */ 2 /* d */ + /* e */ 3 /* f */ + /* g */ 4 /* h */ /* h.2 */'
+    );
+  });
+});
