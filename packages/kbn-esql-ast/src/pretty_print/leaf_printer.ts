@@ -9,7 +9,6 @@
 import {
   ESQLAstComment,
   ESQLAstCommentMultiLine,
-  ESQLAstCommentSingleLine,
   ESQLColumn,
   ESQLLiteral,
   ESQLSource,

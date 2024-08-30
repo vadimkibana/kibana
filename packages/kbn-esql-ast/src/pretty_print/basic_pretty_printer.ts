@@ -171,7 +171,10 @@ export class BasicPrettyPrinter {
       return this.decorateWithComments(ctx.node, formatted);
     })
 
-    .on('visitTimeIntervalLiteralExpression', (ctx) => LeafPrinter.timeInterval(ctx.node))
+    .on('visitTimeIntervalLiteralExpression', (ctx) => {
+      const formatted = LeafPrinter.timeInterval(ctx.node);
+      return this.decorateWithComments(ctx.node, formatted);
+    })
 
     .on('visitInlineCastExpression', (ctx) => {
       const value = ctx.value();

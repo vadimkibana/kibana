@@ -75,3 +75,19 @@ describe('literal expression', () => {
     );
   });
 });
+
+describe('time interval expression', () => {
+  test('can print source left comment', () => {
+    assertPrint('FROM a | STATS /* cmt */ 1d');
+  });
+
+  test('can print column right comment', () => {
+    assertPrint('FROM a | STATS 2 years /* cmt */');
+  });
+
+  test('can print column left and right comments', () => {
+    assertPrint(
+      'FROM a | STATS /*a*/ /* b */ 2 years /* c */ /* d */, /* e */ 3d /* f */, 1 week /* comment3 */, 1 weeks'
+    );
+  });
+});
