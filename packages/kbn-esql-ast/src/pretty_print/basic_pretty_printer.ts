@@ -217,12 +217,16 @@ export class BasicPrettyPrinter {
         case 'unary-expression': {
           operator = this.keyword(operator);
 
-          return `${operator} ${ctx.visitArgument(0, undefined)}`;
+          const formatted = `${operator} ${ctx.visitArgument(0, undefined)}`;
+
+          return this.decorateWithComments(ctx.node, formatted);
         }
         case 'postfix-unary-expression': {
           operator = this.keyword(operator);
 
-          return `${ctx.visitArgument(0)} ${operator}`;
+          const formatted = `${ctx.visitArgument(0)} ${operator}`;
+
+          return this.decorateWithComments(ctx.node, formatted);
         }
         case 'binary-expression': {
           operator = this.keyword(operator);

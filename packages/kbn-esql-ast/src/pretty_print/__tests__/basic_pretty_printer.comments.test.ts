@@ -149,3 +149,23 @@ describe('binary expressions', () => {
     );
   });
 });
+
+describe('unary expressions', () => {
+  test('around binary expression operands', () => {
+    assertPrint('FROM a | STATS /* a */ NOT /* b */ 1 /* c */');
+  });
+
+  test('around binary expression operands, with trailing argument', () => {
+    assertPrint('FROM a | STATS /* a */ NOT /* b */ 1 /* c */, 2');
+  });
+});
+
+describe('post-fix unary expressions', () => {
+  test('around binary expression operands', () => {
+    assertPrint('FROM a | STATS /*I*/ 0 /*II*/ IS NULL /*III*/');
+  });
+
+  test('around binary expression operands, with surrounding args', () => {
+    assertPrint('FROM a | STATS FN(1, /*I*/ 0 /*II*/ IS NULL /*III*/, 2)');
+  });
+});
