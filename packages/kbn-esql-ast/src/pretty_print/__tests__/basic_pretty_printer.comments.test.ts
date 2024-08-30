@@ -91,3 +91,9 @@ describe('time interval expression', () => {
     );
   });
 });
+
+describe('inline cast expression', () => {
+  test('can print source left comment', () => {
+    assertPrint('FROM a | STATS /* 1 */ /* 2 */ 123::INTEGER /* 3 */');
+  });
+});

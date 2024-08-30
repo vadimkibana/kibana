@@ -189,7 +189,10 @@ export class BasicPrettyPrinter {
         valueFormatted = `(${valueFormatted})`;
       }
 
-      return `${valueFormatted}::${ctx.node.castType}`;
+      const typeName = this.keyword(ctx.node.castType);
+      const formatted = `${valueFormatted}::${typeName}`;
+
+      return this.decorateWithComments(ctx.node, formatted);
     })
 
     .on('visitListLiteralExpression', (ctx) => {
