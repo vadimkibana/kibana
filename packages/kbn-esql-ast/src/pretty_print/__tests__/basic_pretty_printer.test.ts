@@ -370,17 +370,17 @@ describe('single line query', () => {
 
     describe('cast expressions', () => {
       test('various', () => {
-        expect(reprint('ROW a::string').text).toBe('ROW a::string');
-        expect(reprint('ROW 123::string').text).toBe('ROW 123::string');
-        expect(reprint('ROW "asdf"::number').text).toBe('ROW "asdf"::number');
+        expect(reprint('ROW a::string').text).toBe('ROW a::STRING');
+        expect(reprint('ROW 123::string').text).toBe('ROW 123::STRING');
+        expect(reprint('ROW "asdf"::number').text).toBe('ROW "asdf"::NUMBER');
       });
 
       test('wraps into rackets complex cast expressions', () => {
-        expect(reprint('ROW (1 + 2)::string').text).toBe('ROW (1 + 2)::string');
+        expect(reprint('ROW (1 + 2)::string').text).toBe('ROW (1 + 2)::STRING');
       });
 
       test('does not wrap function call', () => {
-        expect(reprint('ROW fn()::string').text).toBe('ROW FN()::string');
+        expect(reprint('ROW fn()::string').text).toBe('ROW FN()::STRING');
       });
     });
 
