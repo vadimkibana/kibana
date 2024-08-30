@@ -166,7 +166,11 @@ export class BasicPrettyPrinter {
       return this.decorateWithComments(ctx.node, formatted);
     })
 
-    .on('visitLiteralExpression', (ctx) => LeafPrinter.literal(ctx.node))
+    .on('visitLiteralExpression', (ctx) => {
+      const formatted = LeafPrinter.literal(ctx.node);
+      return this.decorateWithComments(ctx.node, formatted);
+    })
+
     .on('visitTimeIntervalLiteralExpression', (ctx) => LeafPrinter.timeInterval(ctx.node))
 
     .on('visitInlineCastExpression', (ctx) => {

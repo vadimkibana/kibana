@@ -59,3 +59,19 @@ describe('source column expression', () => {
     );
   });
 });
+
+describe('literal expression', () => {
+  test('can print source left comment', () => {
+    assertPrint('FROM a | STATS /* cmt */ 1');
+  });
+
+  test('can print column right comment', () => {
+    assertPrint('FROM a | STATS "str" /* cmt */');
+  });
+
+  test('can print column left and right comments', () => {
+    assertPrint(
+      'FROM a | STATS /*a*/ /* b */ TRUE /* c */ /* d */, /* e */ 1.1 /* f */, FALSE /* comment3 */, NULL'
+    );
+  });
+});
