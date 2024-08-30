@@ -202,7 +202,9 @@ export class BasicPrettyPrinter {
         elements += (elements ? ', ' : '') + arg;
       }
 
-      return `[${elements}]`;
+      const formatted = `[${elements}]`;
+
+      return this.decorateWithComments(ctx.node, formatted);
     })
 
     .on('visitFunctionCallExpression', (ctx) => {

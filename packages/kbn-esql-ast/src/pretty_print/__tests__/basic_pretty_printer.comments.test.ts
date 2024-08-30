@@ -97,3 +97,9 @@ describe('inline cast expression', () => {
     assertPrint('FROM a | STATS /* 1 */ /* 2 */ 123::INTEGER /* 3 */');
   });
 });
+
+describe('list literal expression', () => {
+  test('can print source left comment', () => {
+    assertPrint('FROM a | STATS /* 1 */ /* 2 */ [1, 2, 3] /* 3 */');
+  });
+});
