@@ -18,30 +18,44 @@ const reprint = (src: string) => {
   return { text };
 };
 
-test('can print source left comment', () => {
-  const { text } = reprint('FROM /* cmt */ expr');
+const assertPrint = (src: string, expected: string = src) => {
+  const { text } = reprint(src);
 
-  expect(text).toBe('FROM /* cmt */ expr');
+  expect(text).toBe(expected);
+};
+
+describe('source expression', () => {
+  test('can print source left comment', () => {
+    assertPrint('FROM /* cmt */ expr');
+  });
+
+  test('can print source right comment', () => {
+    assertPrint('FROM expr /* cmt */');
+  });
+
+  test('can print source right comment with comma separating from next source', () => {
+    assertPrint('FROM expr /* cmt */, expr2');
+  });
+
+  test('can print source left and right comments', () => {
+    assertPrint(
+      'FROM /*a*/ /* b */ index1 /* c */, /* d */ index2 /* e */ /* f */, /* g */ index3'
+    );
+  });
 });
 
-test('can print source right comment', () => {
-  const { text } = reprint('FROM expr /* cmt */');
+describe('source column expression', () => {
+  test('can print source left comment', () => {
+    assertPrint('FROM a | STATS /* cmt */ col');
+  });
 
-  expect(text).toBe('FROM expr /* cmt */');
-});
+  test('can print column right comment', () => {
+    assertPrint('FROM a | STATS col /* cmt */');
+  });
 
-test('can print source right comment with comma separating from next source', () => {
-  const { text } = reprint('FROM expr /* cmt */, expr2');
-
-  expect(text).toBe('FROM expr /* cmt */, expr2');
-});
-
-test('can print source left and right comments', () => {
-  const { text } = reprint(
-    'FROM /*a*/ /* b */ index1 /* c */, /* d */ index2 /* e */ /* f */, /* g */ index3'
-  );
-
-  expect(text).toBe(
-    'FROM /*a*/ /* b */ index1 /* c */, /* d */ index2 /* e */ /* f */, /* g */ index3'
-  );
+  test('can print column left and right comments', () => {
+    assertPrint(
+      'FROM a | STATS /*a*/ /* b */ col /* c */ /* d */, /* e */ col2 /* f */, col3 /* comment3 */, col4'
+    );
+  });
 });
