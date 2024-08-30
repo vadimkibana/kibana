@@ -69,23 +69,34 @@ export const findTokens = function* (
   max: number = tokens.length ? tokens[tokens.length - 1].stop : 0,
   predicate: (token: Token) => boolean = () => true
 ): Iterable<Token> {
+  let index = 0;
   let left = 0;
   let right = tokens.length - 1;
 
+  // Find the first token index.
   while (left <= right) {
     const mid = left + Math.floor((right - left) / 2);
     const token = tokens[mid];
 
     if (token.start < min) {
       left = mid + 1;
-    } else if (token.stop > max) {
+    } else if (token.stop > min) {
       right = mid - 1;
     } else {
-      if (predicate(token)) {
-        yield token;
-      }
+      index = mid;
+      break;
+    }
+  }
 
-      left = mid + 1;
+  // Return all tokens in the range, which satisfy the predicate.
+  for (; index < tokens.length; index++) {
+    const token = tokens[index];
+
+    if (token.start > max) {
+      break;
+    }
+    if (predicate(token)) {
+      yield token;
     }
   }
 };

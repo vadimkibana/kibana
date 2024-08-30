@@ -7,16 +7,9 @@
  */
 
 import { binaryExpressionGroup } from '../ast/helpers';
-import { ESQLAstCommand } from '../types';
+import { ESQLAstBaseItem, ESQLAstCommand } from '../types';
 import { ESQLAstExpressionNode, ESQLAstQueryNode, Visitor } from '../visitor';
 import { LeafPrinter } from './leaf_printer';
-
-/**
- * @todo
- *
- * 1. Add support for binary expression wrapping into brackets, due to operator
- *    precedence.
- */
 
 export interface BasicPrettyPrinterOptions {
   /**
@@ -132,13 +125,47 @@ export class BasicPrettyPrinter {
       : word.toUpperCase();
   }
 
+  protected decorateWithComments(node: ESQLAstBaseItem, formatted: string): string {
+    const formatting = node.formatting;
+
+    if (!formatting) {
+      return formatted;
+    }
+
+    if (formatting.left) {
+      const comments = LeafPrinter.commentList(formatting.left);
+
+      if (comments) {
+        formatted = `${comments} ${formatted}`;
+      }
+    }
+
+    if (formatting.right) {
+      const comments = LeafPrinter.commentList(formatting.right);
+
+      if (comments) {
+        formatted = `${formatted} ${comments}`;
+      }
+    }
+
+    return formatted;
+  }
+
   protected readonly visitor = new Visitor()
     .on('visitExpression', (ctx) => {
       return '<EXPRESSION>';
     })
 
-    .on('visitSourceExpression', (ctx) => LeafPrinter.source(ctx.node))
-    .on('visitColumnExpression', (ctx) => LeafPrinter.column(ctx.node))
+    .on('visitSourceExpression', (ctx) => {
+      const formatted = LeafPrinter.source(ctx.node);
+      return this.decorateWithComments(ctx.node, formatted);
+    })
+
+    .on('visitColumnExpression', (ctx) => {
+      const formatted = LeafPrinter.column(ctx.node);
+      return this.decorateWithComments(ctx.node, formatted);
+    })
+
     .on('visitLiteralExpression', (ctx) => LeafPrinter.literal(ctx.node))
     .on('visitTimeIntervalLiteralExpression', (ctx) => LeafPrinter.timeInterval(ctx.node))
 
