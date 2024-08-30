@@ -270,7 +270,9 @@ export class BasicPrettyPrinter {
     })
 
     .on('visitRenameExpression', (ctx) => {
-      return `${ctx.visitArgument(0)} ${this.keyword('AS')} ${ctx.visitArgument(1)}`;
+      const formatted = `${ctx.visitArgument(0)} ${this.keyword('AS')} ${ctx.visitArgument(1)}`;
+
+      return this.decorateWithComments(ctx.node, formatted);
     })
 
     .on('visitCommandOption', (ctx) => {

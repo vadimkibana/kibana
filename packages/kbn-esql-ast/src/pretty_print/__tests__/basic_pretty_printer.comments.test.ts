@@ -169,3 +169,17 @@ describe('post-fix unary expressions', () => {
     assertPrint('FROM a | STATS FN(1, /*I*/ 0 /*II*/ IS NULL /*III*/, 2)');
   });
 });
+
+describe('rename expressions', () => {
+  test('around the rename expression', () => {
+    assertPrint('FROM a | RENAME /*I*/ a AS b /*II*/');
+  });
+
+  test('around two rename expressions', () => {
+    assertPrint('FROM a | RENAME /*I*/ a AS b /*II*/, /*III*/ c AS d /*IV*/');
+  });
+
+  test('inside rename expression', () => {
+    assertPrint('FROM a | RENAME /*I*/ a /*II*/ AS /*III*/ b /*IV*/, c AS d');
+  });
+});
