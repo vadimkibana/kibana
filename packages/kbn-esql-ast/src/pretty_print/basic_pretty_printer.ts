@@ -258,7 +258,9 @@ export class BasicPrettyPrinter {
             args += (args ? ', ' : '') + arg;
           }
 
-          return `${operator}(${args})`;
+          const formatted = `${operator}(${args})`;
+
+          return this.decorateWithComments(ctx.node, formatted);
         }
       }
     })

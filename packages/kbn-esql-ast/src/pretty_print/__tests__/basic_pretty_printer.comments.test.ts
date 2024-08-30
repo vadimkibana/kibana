@@ -103,3 +103,33 @@ describe('list literal expression', () => {
     assertPrint('FROM a | STATS /* 1 */ /* 2 */ [1, 2, 3] /* 3 */');
   });
 });
+
+describe('function call expressions', () => {
+  test('left of function call', () => {
+    assertPrint('FROM a | STATS /* 1 */ FN()');
+  });
+
+  test('right of function call', () => {
+    assertPrint('FROM a | STATS FN() /* asdf */');
+  });
+
+  test('various sides from function calls', () => {
+    assertPrint('FROM a | STATS FN() /* asdf */, /*1*/ FN2() /*2*/, FN3() /*3*/');
+  });
+
+  test('left of function call, when function as an argument', () => {
+    assertPrint('FROM a | STATS /* 1 */ FN(1)');
+  });
+
+  test('right comments respect function bracket', () => {
+    assertPrint('FROM a | STATS FN(1 /* 1 */) /* 2 */');
+  });
+
+  test('around function argument', () => {
+    assertPrint('FROM a | STATS /*1*/ FN(/*2*/ 1 /*3*/) /*4*/');
+  });
+
+  test('around function arguments', () => {
+    assertPrint('FROM a | STATS /*1*/ FN(/*2*/ 1 /*3*/, /*4*/ /*5*/ 2 /*6*/ /*7*/) /*8*/');
+  });
+});

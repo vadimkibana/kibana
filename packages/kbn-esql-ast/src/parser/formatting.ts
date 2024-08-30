@@ -22,7 +22,7 @@ import type {
   ParsedFormattingDecorationLines,
 } from './types';
 import { HIDDEN_CHANNEL } from './constants';
-import { findVisibleToken } from './helpers';
+import { findVisibleToken, isLikelyPunctuation } from './helpers';
 
 const commentSubtype = (text: string): ESQLAstComment['subtype'] | undefined => {
   if (text[0] === '/') {
@@ -77,13 +77,17 @@ export const collectDecorations = (
     const isContentToken = channel !== HIDDEN_CHANNEL;
 
     if (isContentToken) {
-      hasContentToLeft = true;
-      for (const decoration of line) {
-        if (decoration.type === 'comment') {
-          decoration.hasContentToRight = true;
+      const isPunctuation = isLikelyPunctuation(text);
+
+      if (!isPunctuation) {
+        hasContentToLeft = true;
+        for (const decoration of line) {
+          if (decoration.type === 'comment') {
+            decoration.hasContentToRight = true;
+          }
         }
+        continue;
       }
-      continue;
     }
 
     const subtype = commentSubtype(text);

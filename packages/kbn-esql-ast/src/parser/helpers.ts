@@ -150,6 +150,9 @@ export const findVisibleToken = (
  */
 const punctuationChars = new Set(['.', ',', ';', ':', '(', ')', '[', ']', '{', '}']);
 
+export const isLikelyPunctuation = (text: string): boolean =>
+  text.length === 1 && punctuationChars.has(text);
+
 /**
  * Finds the first punctuation token in the given token range using binary
  * search.

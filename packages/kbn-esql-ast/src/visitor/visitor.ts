@@ -63,7 +63,7 @@ export class Visitor<
           const isInside = location.min <= pos && location.max >= pos;
           if (isInside) return ctx.visitExpression(node);
           const isBefore = location.min > pos;
-          if (isBefore) return ctx.visitExpression(node) || node;
+          if (isBefore) return node;
         }
         return null;
       })
@@ -96,6 +96,12 @@ export class Visitor<
   ): ESQLProperNode | null => {
     return new Visitor()
       .on('visitExpression', (ctx): ESQLProperNode | null => {
+        const nodeLocation = ctx.node.location;
+
+        if (nodeLocation && nodeLocation.max < pos) {
+          return ctx.node;
+        }
+
         const nodes = [...ctx.arguments()];
         for (let i = nodes.length - 1; i >= 0; i--) {
           const node = nodes[i];
@@ -104,7 +110,12 @@ export class Visitor<
           const isInside = location.min <= pos && location.max >= pos;
           if (isInside) return ctx.visitExpression(node, undefined);
           const isAfter = location.max < pos;
-          if (isAfter) return ctx.visitExpression(node, undefined) || node;
+          if (isAfter) {
+            if (ctx.node.location && ctx.node.location.max === location.max) {
+              return ctx.visitExpression(node, undefined) || node;
+            }
+            return node;
+          }
         }
         return null;
       })
@@ -117,7 +128,12 @@ export class Visitor<
           const isInside = location.min <= pos && location.max >= pos;
           if (isInside) return ctx.visitExpression(node);
           const isAfter = location.max < pos;
-          if (isAfter) return ctx.visitExpression(node) || node;
+          if (isAfter) {
+            if (ctx.node.location && ctx.node.location.max === location.max) {
+              return ctx.visitExpression(node) || node;
+            }
+            return node;
+          }
         }
         return null;
       })
