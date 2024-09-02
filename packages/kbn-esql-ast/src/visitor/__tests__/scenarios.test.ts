@@ -14,11 +14,11 @@
  */
 
 import { parse } from '../../parser';
-import { ESQLAstQueryNode } from '../types';
+import { ESQLAstQueryExpression } from '../../types';
 import { Visitor } from '../visitor';
 
 test('change LIMIT from 24 to 42', () => {
-  const { ast } = parse(`
+  const { root } = parse(`
     FROM index
       | STATS 1, "str", [true], a = b BY field
       | LIMIT 24
@@ -30,7 +30,7 @@ test('change LIMIT from 24 to 42', () => {
       .on('visitLimitCommand', (ctx) => ctx.numeric())
       .on('visitCommand', () => null)
       .on('visitQuery', (ctx) => [...ctx.visitCommands()])
-      .visitQuery(ast)
+      .visitQuery(root)
       .filter(Boolean)[0];
 
   expect(limit()).toBe(24);
@@ -42,7 +42,7 @@ test('change LIMIT from 24 to 42', () => {
     })
     .on('visitCommand', () => {})
     .on('visitQuery', (ctx) => [...ctx.visitCommands()])
-    .visitQuery(ast);
+    .visitQuery(root);
 
   expect(limit()).toBe(42);
 });
@@ -114,7 +114,7 @@ test('can remove a specific WHERE command', () => {
   expect(print()).toBe('');
 });
 
-export const prettyPrint = (ast: ESQLAstQueryNode) =>
+export const prettyPrint = (ast: ESQLAstQueryExpression | ESQLAstQueryExpression['commands']) =>
   new Visitor()
     .on('visitExpression', (ctx) => {
       return '<EXPRESSION>';

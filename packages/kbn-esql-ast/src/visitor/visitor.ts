@@ -13,11 +13,11 @@ import type {
   AstNodeToVisitorName,
   EnsureFunction,
   ESQLAstExpressionNode,
-  ESQLAstQueryNode,
   UndefinedToVoid,
   VisitorMethods,
 } from './types';
-import type { ESQLCommand, ESQLProperNode } from '../types';
+import type { ESQLAstQueryExpression, ESQLCommand, ESQLProperNode } from '../types';
+import { Builder } from '../builder';
 
 export interface VisitorOptions<
   Methods extends VisitorMethods = VisitorMethods,
@@ -41,7 +41,7 @@ export class Visitor<
    * @returns The node at or after the given position
    */
   public static readonly findNodeAtOrAfter = (
-    ast: ESQLAstQueryNode,
+    ast: ESQLAstQueryExpression,
     pos: number
   ): ESQLProperNode | null => {
     return new Visitor()
@@ -91,7 +91,7 @@ export class Visitor<
    * @returns The node at or before the given position
    */
   public static readonly findNodeAtOrBefore = (
-    ast: ESQLAstQueryNode,
+    ast: ESQLAstQueryExpression,
     pos: number
   ): ESQLProperNode | null => {
     return new Visitor()
@@ -190,17 +190,21 @@ export class Visitor<
   ): ReturnType<EnsureFunction<Methods[AstNodeToVisitorName<Ctx['node']>]>> {
     const node = ctx.node;
     if (node instanceof Array) {
-      this.ctx.assertMethodExists('visitQuery');
-      return this.ctx.methods.visitQuery!(ctx as any, input) as ReturnType<
-        NonNullable<Methods['visitQuery']>
-      >;
+      throw new Error(`Unsupported node type: ${typeof node}`);
     } else if (node && typeof node === 'object') {
       switch (node.type) {
-        case 'command':
+        case 'query': {
+          this.ctx.assertMethodExists('visitQuery');
+          return this.ctx.methods.visitQuery!(ctx as any, input) as ReturnType<
+            NonNullable<Methods['visitQuery']>
+          >;
+        }
+        case 'command': {
           this.ctx.assertMethodExists('visitCommand');
           return this.ctx.methods.visitCommand!(ctx as any, input) as ReturnType<
             NonNullable<Methods['visitCommand']>
           >;
+        }
       }
     }
     throw new Error(`Unsupported node type: ${typeof node}`);
@@ -214,9 +218,12 @@ export class Visitor<
    * @returns The result of the query visitor.
    */
   public visitQuery(
-    node: ESQLAstQueryNode,
+    nodeOrCommands: ESQLAstQueryExpression | ESQLAstQueryExpression['commands'],
     input: UndefinedToVoid<Parameters<NonNullable<Methods['visitQuery']>>[1]>
   ) {
+    const node = Array.isArray(nodeOrCommands)
+      ? Builder.expression.query(nodeOrCommands)
+      : nodeOrCommands;
     const queryContext = new QueryVisitorContext(this.ctx, node, null);
     return this.visit(queryContext, input);
   }

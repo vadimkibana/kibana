@@ -8,12 +8,13 @@
 
 import { type CommonTokenStream, Token } from 'antlr4';
 import { Builder } from '../builder';
-import { ESQLAstQueryNode, Visitor } from '../visitor';
+import { Visitor } from '../visitor';
 import type {
   ESQLAstComment,
   ESQLAstCommentMultiLine,
   ESQLAstCommentSingleLine,
   ESQLAstNodeFormatting,
+  ESQLAstQueryExpression,
   ESQLProperNode,
 } from '../types';
 import type {
@@ -165,7 +166,7 @@ const attachRightEndComment = (node: ESQLProperNode, comment: ESQLAstCommentSing
 };
 
 const attachCommentDecoration = (
-  ast: ESQLAstQueryNode,
+  ast: ESQLAstQueryExpression,
   tokens: Token[],
   comment: ParsedFormattingCommentDecoration
 ) => {
@@ -177,7 +178,8 @@ const attachCommentDecoration = (
     if (!node) {
       // No node after the comment found, it is probably at the end of the file.
       // So we attach it to the last command from the "bottom".
-      const lastCommand = ast[ast.length - 1];
+      const commands = ast.commands;
+      const lastCommand = commands[commands.length - 1];
       if (lastCommand) {
         attachBottomComment(lastCommand, comment.node);
       }
@@ -250,7 +252,7 @@ const attachCommentDecoration = (
  * @param comments List of comments to attach to the AST.
  */
 export const attachDecorations = (
-  ast: ESQLAstQueryNode,
+  ast: ESQLAstQueryExpression,
   tokens: Token[],
   lines: ParsedFormattingDecorationLines
 ) => {

@@ -147,7 +147,7 @@ export class QueryVisitorContext<
   Data extends SharedData = SharedData
 > extends VisitorContext<Methods, Data, ESQLAstQueryNode> {
   public *commands(): Iterable<ESQLAstCommand> {
-    yield* this.node;
+    yield* this.node.commands;
   }
 
   public *visitCommands(
@@ -158,7 +158,7 @@ export class QueryVisitorContext<
   > {
     this.ctx.assertMethodExists('visitCommand');
 
-    for (const cmd of this.node) {
+    for (const cmd of this.node.commands) {
       yield this.visitCommand(cmd, input as any);
     }
   }
