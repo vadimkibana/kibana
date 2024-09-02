@@ -10,6 +10,7 @@
 
 import {
   ESQLAstComment,
+  ESQLAstQueryExpression,
   ESQLCommand,
   ESQLDecimalLiteral,
   ESQLInlineCast,
@@ -59,6 +60,18 @@ export namespace Builder {
   };
 
   export namespace expression {
+    export const query = (
+      commands: ESQLAstQueryExpression['commands'] = [],
+      fromParser?: Partial<AstNodeParserFields>
+    ): ESQLAstQueryExpression => {
+      return {
+        ...Builder.parserFields(fromParser),
+        commands,
+        type: 'query',
+        name: '',
+      };
+    };
+
     export const inlineCast = (
       template: Omit<AstNodeTemplate<ESQLInlineCast>, 'name'>,
       fromParser?: Partial<AstNodeParserFields>
