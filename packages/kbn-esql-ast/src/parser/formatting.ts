@@ -173,7 +173,7 @@ const attachCommentDecoration = (
   const commentConsumesWholeLine = !comment.hasContentToLeft && !comment.hasContentToRight;
 
   if (commentConsumesWholeLine) {
-    const node = Visitor.findNodeAtOrAfter(ast, comment.node.location.max);
+    const node = Visitor.findNodeAtOrAfter(ast, comment.node.location.max - 1);
 
     if (!node) {
       // No node after the comment found, it is probably at the end of the file.
@@ -191,7 +191,7 @@ const attachCommentDecoration = (
   }
 
   if (comment.hasContentToRight && comment.node.subtype === 'multi-line') {
-    const nodeToRight = Visitor.findNodeAtOrAfter(ast, comment.node.location.max);
+    const nodeToRight = Visitor.findNodeAtOrAfter(ast, comment.node.location.max - 1);
 
     if (!nodeToRight) {
       const nodeToLeft = Visitor.findNodeAtOrBefore(ast, comment.node.location.min);

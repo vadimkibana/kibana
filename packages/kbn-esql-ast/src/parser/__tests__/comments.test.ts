@@ -10,7 +10,28 @@ import { parse } from '..';
 
 describe('Comments', () => {
   describe('can attach "top" comment(s)', () => {
-    it('to a command', () => {
+    it('to a single command', () => {
+      const text = `
+//comment
+FROM index`;
+      const { root } = parse(text, { withFormatting: true });
+
+      expect(root.commands[0]).toMatchObject({
+        type: 'command',
+        name: 'from',
+        formatting: {
+          top: [
+            {
+              type: 'comment',
+              subtype: 'single-line',
+              text: 'comment',
+            },
+          ],
+        },
+      });
+    });
+
+    it('to the second command', () => {
       const text = `
       FROM abc
 
