@@ -39,3 +39,5 @@ export {
 } from './src/parser';
 
 export { Walker, type WalkerOptions, walk } from './src/walker';
+
+export { EsqlQuery } from './src/query';
