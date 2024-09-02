@@ -41,8 +41,8 @@ export class EsqlQuery {
     public readonly tokens: Token[] = []
   ) {}
 
-  public print(opts: WrappingPrettyPrinterOptions): string {
-    const printer = new WrappingPrettyPrinter();
+  public print(opts?: WrappingPrettyPrinterOptions): string {
+    const printer = new WrappingPrettyPrinter(opts);
     return printer.print(this.ast);
   }
 }
