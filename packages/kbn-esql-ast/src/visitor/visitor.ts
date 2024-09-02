@@ -97,12 +97,17 @@ export class Visitor<
     return new Visitor()
       .on('visitExpression', (ctx): ESQLProperNode | null => {
         const nodeLocation = ctx.node.location;
+        const nodes = [...ctx.arguments()];
 
         if (nodeLocation && nodeLocation.max < pos) {
-          return ctx.node;
+          const last = nodes[nodes.length - 1];
+          if (last && last.location && last.location.max === nodeLocation.max) {
+            return ctx.visitExpression(last, undefined) || last;
+          } else {
+            return ctx.node;
+          }
         }
 
-        const nodes = [...ctx.arguments()];
         for (let i = nodes.length - 1; i >= 0; i--) {
           const node = nodes[i];
           const { location } = node;
@@ -111,12 +116,10 @@ export class Visitor<
           if (isInside) return ctx.visitExpression(node, undefined);
           const isAfter = location.max < pos;
           if (isAfter) {
-            if (ctx.node.location && ctx.node.location.max === location.max) {
-              return ctx.visitExpression(node, undefined) || node;
-            }
-            return node;
+            return ctx.visitExpression(node, undefined) || node;
           }
         }
+
         return null;
       })
       .on('visitCommand', (ctx): ESQLProperNode | null => {
