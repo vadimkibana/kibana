@@ -7,8 +7,8 @@
  */
 
 import { binaryExpressionGroup } from '../ast/helpers';
-import { ESQLAstBaseItem, ESQLAstCommand } from '../types';
-import { ESQLAstExpressionNode, ESQLAstQueryNode, Visitor } from '../visitor';
+import { ESQLAstBaseItem, ESQLAstCommand, ESQLAstQueryExpression } from '../types';
+import { ESQLAstExpressionNode, Visitor } from '../visitor';
 import { LeafPrinter } from './leaf_printer';
 
 export interface BasicPrettyPrinterOptions {
@@ -58,7 +58,7 @@ export class BasicPrettyPrinter {
    * @returns A single-line string representation of the query.
    */
   public static readonly print = (
-    query: ESQLAstQueryNode,
+    query: ESQLAstQueryExpression,
     opts?: BasicPrettyPrinterOptions
   ): string => {
     const printer = new BasicPrettyPrinter(opts);
@@ -74,7 +74,7 @@ export class BasicPrettyPrinter {
    * @returns A multi-line string representation of the query.
    */
   public static readonly multiline = (
-    query: ESQLAstQueryNode,
+    query: ESQLAstQueryExpression,
     opts?: BasicPrettyPrinterMultilineOptions
   ): string => {
     const printer = new BasicPrettyPrinter({ ...opts, multiline: true });
@@ -326,7 +326,7 @@ export class BasicPrettyPrinter {
       return text;
     });
 
-  public print(query: ESQLAstQueryNode) {
+  public print(query: ESQLAstQueryExpression) {
     return this.visitor.visitQuery(query);
   }
 

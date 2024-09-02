@@ -10,21 +10,23 @@ export type ESQLAst = ESQLAstCommand[];
 
 export type ESQLAstCommand = ESQLCommand | ESQLAstMetricsCommand;
 
-export type ESQLAstNode = ESQLAstCommand | ESQLAstItem;
+export type ESQLAstNode = ESQLAstCommand | ESQLAstExpression | ESQLAstItem;
 
 /**
  * Represents an *expression* in the AST.
  */
+export type ESQLAstExpression = ESQLSingleAstItem | ESQLAstQueryExpression;
+
 export type ESQLSingleAstItem =
-  | ESQLFunction // "function call expression"
+  | ESQLFunction
   | ESQLCommandOption
-  | ESQLSource // "source identifier expression"
-  | ESQLColumn // "field identifier expression"
+  | ESQLSource
+  | ESQLColumn
   | ESQLTimeInterval
-  | ESQLList // "list expression"
-  | ESQLLiteral // "literal expression"
+  | ESQLList
+  | ESQLLiteral
   | ESQLCommandMode
-  | ESQLInlineCast // "inline cast expression"
+  | ESQLInlineCast
   | ESQLUnknownItem;
 
 export type ESQLAstField = ESQLFunction | ESQLColumn;
@@ -42,7 +44,7 @@ export type ESQLAstNodeWithArgs = ESQLCommand | ESQLCommandOption | ESQLFunction
  * of the nodes which are plain arrays, all nodes will be *proper* and we can
  * remove this type.
  */
-export type ESQLProperNode = ESQLSingleAstItem | ESQLAstCommand;
+export type ESQLProperNode = ESQLAstExpression | ESQLAstCommand;
 
 export interface ESQLLocation {
   min: number;
@@ -94,6 +96,11 @@ export interface ESQLAstRenameExpression extends ESQLCommandOption {
 
 export interface ESQLCommandMode extends ESQLAstBaseItem {
   type: 'mode';
+}
+
+export interface ESQLAstQueryExpression extends ESQLAstBaseItem<''> {
+  type: 'query';
+  commands: ESQLAstCommand[];
 }
 
 /**

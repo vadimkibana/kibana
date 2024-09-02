@@ -10,8 +10,8 @@ import { parse } from '../../parser';
 import { BasicPrettyPrinter } from '../basic_pretty_printer';
 
 const reprint = (src: string) => {
-  const { ast } = parse(src, { withFormatting: true });
-  const text = BasicPrettyPrinter.print(ast);
+  const { root } = parse(src, { withFormatting: true });
+  const text = BasicPrettyPrinter.print(root);
 
   // console.log(JSON.stringify(ast, null, 2));
 

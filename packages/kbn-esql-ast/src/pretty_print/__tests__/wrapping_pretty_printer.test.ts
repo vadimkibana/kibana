@@ -6,12 +6,12 @@
  * Side Public License, v 1.
  */
 
-import { getAstAndSyntaxErrors } from '../../parser';
+import { parse } from '../../parser';
 import { WrappingPrettyPrinter, WrappingPrettyPrinterOptions } from '../wrapping_pretty_printer';
 
 const reprint = (src: string, opts?: WrappingPrettyPrinterOptions) => {
-  const { ast } = getAstAndSyntaxErrors(src);
-  const text = WrappingPrettyPrinter.print(ast, opts);
+  const { root } = parse(src);
+  const text = WrappingPrettyPrinter.print(root, opts);
 
   // console.log(JSON.stringify(ast, null, 2));
 

@@ -8,10 +8,10 @@
 
 import { BinaryExpressionGroup } from '../ast/constants';
 import { binaryExpressionGroup, isBinaryExpression } from '../ast/helpers';
+import type { ESQLAstQueryExpression } from '../types';
 import {
   CommandOptionVisitorContext,
   CommandVisitorContext,
-  ESQLAstQueryNode,
   ExpressionVisitorContext,
   FunctionCallExpressionVisitorContext,
   Visitor,
@@ -95,7 +95,7 @@ export interface WrappingPrettyPrinterOptions extends BasicPrettyPrinterOptions 
 
 export class WrappingPrettyPrinter {
   public static readonly print = (
-    query: ESQLAstQueryNode,
+    query: ESQLAstQueryExpression,
     opts?: WrappingPrettyPrinterOptions
   ): string => {
     const printer = new WrappingPrettyPrinter(opts);
@@ -257,7 +257,8 @@ export class WrappingPrettyPrinter {
     let indent = inp.indent + this.opts.tab;
 
     if (ctx instanceof CommandVisitorContext) {
-      const isFirstCommand = (ctx.parent?.node as ESQLAstQueryNode)?.[0] === ctx.node;
+      const isFirstCommand =
+        (ctx.parent?.node as ESQLAstQueryExpression)?.commands?.[0] === ctx.node;
       if (!isFirstCommand) {
         indent += this.opts.commandTab;
       }
@@ -440,7 +441,7 @@ export class WrappingPrettyPrinter {
     .on('visitQuery', (ctx) => {
       const opts = this.opts;
       const indent = opts.indent ?? '';
-      const commandCount = ctx.node.length;
+      const commandCount = ctx.node.commands.length;
       let multiline = opts.multiline ?? commandCount > 3;
 
       if (!multiline) {
@@ -473,7 +474,7 @@ export class WrappingPrettyPrinter {
       return text;
     });
 
-  public print(query: ESQLAstQueryNode) {
+  public print(query: ESQLAstQueryExpression) {
     return this.visitor.visitQuery(query);
   }
 }
