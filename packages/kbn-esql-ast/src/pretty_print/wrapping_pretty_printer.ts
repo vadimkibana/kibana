@@ -18,6 +18,7 @@ import {
 } from '../visitor';
 import { singleItems } from '../visitor/utils';
 import { BasicPrettyPrinter, BasicPrettyPrinterOptions } from './basic_pretty_printer';
+import { hasLineBreakingDecorations } from './helpers';
 import { LeafPrinter } from './leaf_printer';
 
 /**
@@ -433,7 +434,22 @@ export class WrappingPrettyPrinter {
       const optionsWithWhitespace = options
         ? `${breakOptions ? '\n' + optionIndent : ' '}${options}`
         : '';
-      const txt = `${cmd}${argsWithWhitespace}${optionsWithWhitespace}`;
+
+      let txt = `${cmd}${argsWithWhitespace}${optionsWithWhitespace}`;
+
+      const formatting = ctx.node.formatting;
+
+      console.log('formatting', formatting);
+
+      if (formatting) {
+        if (formatting.top) {
+          for (const decoration of formatting.top) {
+            if (decoration.type === 'comment') {
+              txt = LeafPrinter.comment(decoration) + '\n' + txt;
+            }
+          }
+        }
+      }
 
       return { txt, lines: args.lines /* add options lines count */ };
     })
@@ -442,7 +458,14 @@ export class WrappingPrettyPrinter {
       const opts = this.opts;
       const indent = opts.indent ?? '';
       const commandCount = ctx.node.commands.length;
+
       let multiline = opts.multiline ?? commandCount > 3;
+
+      if (!multiline) {
+        if (hasLineBreakingDecorations(ctx.node)) {
+          multiline = true;
+        }
+      }
 
       if (!multiline) {
         const oneLine = indent + BasicPrettyPrinter.print(ctx.node, opts);
