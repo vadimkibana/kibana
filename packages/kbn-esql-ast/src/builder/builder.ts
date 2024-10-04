@@ -12,6 +12,7 @@
 import {
   ESQLAstComment,
   ESQLAstQueryExpression,
+  ESQLColumn,
   ESQLCommand,
   ESQLDecimalLiteral,
   ESQLInlineCast,
@@ -82,6 +83,19 @@ export namespace Builder {
         ...template,
         ...Builder.parserFields(fromParser),
         type: 'source',
+      };
+    };
+
+    export const column = (
+      template: Omit<AstNodeTemplate<ESQLColumn>, 'name' | 'quoted'>,
+      fromParser?: Partial<AstNodeParserFields>
+    ): ESQLColumn => {
+      return {
+        ...template,
+        ...Builder.parserFields(fromParser),
+        quoted: false,
+        name: template.parts.join('.'),
+        type: 'column',
       };
     };
 
