@@ -10,13 +10,9 @@
 import { Builder } from '../builder';
 import { Walker, WalkerAstNode } from '../walker/walker';
 import type { ESQLProperNode } from '../types';
-import type {
-  SynthGenerator,
-  SynthMethod,
-  SynthSerializer,
-  SynthTaggedTemplateWithOpts,
-} from './types';
+import type { SynthGenerator, SynthMethod, SynthTaggedTemplateWithOpts } from './types';
 import type { ParseOptions } from '../parser';
+import { BasicPrettyPrinter } from '../pretty_print';
 
 export const clearParserFields = (ast: WalkerAstNode) => {
   Walker.walk(ast, {
@@ -26,9 +22,14 @@ export const clearParserFields = (ast: WalkerAstNode) => {
   });
 };
 
+const serializer = (node: ESQLProperNode): string => {
+  return node.type === 'command'
+    ? BasicPrettyPrinter.command(node)
+    : BasicPrettyPrinter.expression(node);
+};
+
 export const createSynthMethod = <N extends ESQLProperNode>(
-  generator: SynthGenerator<N>,
-  serializer: SynthSerializer<N>
+  generator: SynthGenerator<N>
 ): SynthMethod<N> => {
   const templateStringTag: SynthTaggedTemplateWithOpts<N> = ((opts?: ParseOptions) => {
     return (template: TemplateStringsArray, ...params: Array<N | string>) => {

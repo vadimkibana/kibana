@@ -11,8 +11,7 @@ import { ParseOptions } from '../parser';
 import { EsqlQuery } from '../query';
 import { firstItem } from '../visitor/utils';
 import { clearParserFields, createSynthMethod } from './helpers';
-import { BasicPrettyPrinter } from '../pretty_print';
-import type { SynthGenerator, SynthSerializer } from './types';
+import type { SynthGenerator } from './types';
 import type { ESQLAstExpression } from '../types';
 
 const generator: SynthGenerator<ESQLAstExpression> = (
@@ -29,8 +28,4 @@ const generator: SynthGenerator<ESQLAstExpression> = (
   return expression;
 };
 
-const serializer: SynthSerializer<ESQLAstExpression> = (node: ESQLAstExpression) => {
-  return BasicPrettyPrinter.expression(node);
-};
-
-export const expr = createSynthMethod<ESQLAstExpression>(generator, serializer);
+export const expr = createSynthMethod<ESQLAstExpression>(generator);

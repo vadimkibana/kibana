@@ -11,7 +11,6 @@ import type { ParseOptions } from '../parser';
 import type { ESQLAstExpression, ESQLProperNode } from '../types';
 
 export type SynthGenerator<N extends ESQLProperNode> = (src: string, opts?: ParseOptions) => N;
-export type SynthSerializer<N extends ESQLProperNode> = (node: N) => string;
 
 export type SynthTaggedTemplate<N extends ESQLProperNode> = (
   template: TemplateStringsArray,

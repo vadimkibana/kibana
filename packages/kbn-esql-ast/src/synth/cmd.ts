@@ -10,8 +10,7 @@
 import { ParseOptions } from '../parser';
 import { EsqlQuery } from '../query';
 import { clearParserFields, createSynthMethod } from './helpers';
-import { BasicPrettyPrinter } from '../pretty_print';
-import type { SynthGenerator, SynthSerializer } from './types';
+import type { SynthGenerator } from './types';
 import type { ESQLCommand } from '../types';
 
 const generator: SynthGenerator<ESQLCommand> = (
@@ -34,8 +33,4 @@ const generator: SynthGenerator<ESQLCommand> = (
   return command;
 };
 
-const serializer: SynthSerializer<ESQLCommand> = (node: ESQLCommand) => {
-  return BasicPrettyPrinter.command(node);
-};
-
-export const cmd = createSynthMethod<ESQLCommand>(generator, serializer);
+export const cmd = createSynthMethod<ESQLCommand>(generator);
