@@ -7,8 +7,8 @@
  * License v3.0 only", or the "Server Side Public License, v 1".
  */
 
-import { BasicPrettyPrinter } from '../pretty_print';
-import { cmd } from './cmd';
+import { BasicPrettyPrinter } from '../../pretty_print';
+import { cmd } from '../cmd';
 
 test('can create a WHERE command', () => {
   const node = cmd`WHERE coordinates.lat >= 12.123123`;
