@@ -7,7 +7,7 @@
  * License v3.0 only", or the "Server Side Public License, v 1".
  */
 
-import { synth } from '../../..';
+import { BasicPrettyPrinter, Builder, synth } from '../../..';
 import { SynthNode } from '../helpers';
 
 test('synthesized nodes have SynthNodePrototype prototype', () => {
@@ -28,4 +28,23 @@ test('can cast expression to string', () => {
     value: 'my_param',
   });
   expect(String(expression)).toBe('?my_param');
+});
+
+test('can build the same expression with Builder', () => {
+  const expression1 = synth.expr`my.field = max(10, ?my_param)`;
+  const expression2 = Builder.expression.func.binary('=', [
+    Builder.expression.column({
+      args: [Builder.identifier({ name: 'my' }), Builder.identifier({ name: 'field' })],
+    }),
+    Builder.expression.func.call('max', [
+      Builder.expression.literal.integer(10),
+      Builder.param.named({ value: 'my_param' }),
+    ]),
+  ]);
+
+  const expected = 'my.field = MAX(10, ?my_param)';
+
+  expect(expression1 + '').toBe(expected);
+  expect(BasicPrettyPrinter.expression(expression1)).toBe(expected);
+  expect(BasicPrettyPrinter.expression(expression2)).toBe(expected);
 });
