@@ -8,3 +8,4 @@
  */
 
 export { expr } from './expr';
+export { cmd } from './cmd';
