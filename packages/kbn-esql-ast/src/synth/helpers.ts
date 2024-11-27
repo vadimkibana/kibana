@@ -9,23 +9,44 @@
 
 import { Builder } from '../builder';
 import { Walker, WalkerAstNode } from '../walker/walker';
+import { BasicPrettyPrinter } from '../pretty_print';
 import type { ESQLProperNode } from '../types';
 import type { SynthGenerator, SynthMethod, SynthTaggedTemplateWithOpts } from './types';
 import type { ParseOptions } from '../parser';
-import { BasicPrettyPrinter } from '../pretty_print';
 
-export const clearParserFields = (ast: WalkerAstNode) => {
+const serialize = (node: ESQLProperNode): string => {
+  return node.type === 'command'
+    ? BasicPrettyPrinter.command(node)
+    : BasicPrettyPrinter.expression(node);
+};
+
+/**
+ * This is used as a prototype of AST nodes created by the synth methods.
+ * It implements the `toString` method, which is invoked when the node is
+ * coerced to a string. So you can easily convert the node to a string by
+ * calling `String(node)` or `${node}`:
+ *
+ * ```js
+ * const node = expr`a.b`;  // { type: 'column', name: 'a.b' }
+ * String(node)             // 'a.b'
+ * ```
+ */
+export class SynthNode {
+  toString(this: ESQLProperNode) {
+    return serialize(this);
+  }
+}
+
+export const makeSynthNode = (ast: WalkerAstNode) => {
+  // Add SynthNode prototype to the AST node.
+  Object.setPrototypeOf(ast, new SynthNode());
+
+  // Remove parser generated fields.
   Walker.walk(ast, {
     visitAny: (node) => {
       Object.assign(node, Builder.parserFields({}));
     },
   });
-};
-
-const serializer = (node: ESQLProperNode): string => {
-  return node.type === 'command'
-    ? BasicPrettyPrinter.command(node)
-    : BasicPrettyPrinter.expression(node);
 };
 
 export const createSynthMethod = <N extends ESQLProperNode>(
@@ -40,7 +61,7 @@ export const createSynthMethod = <N extends ESQLProperNode>(
         if (i < params.length) {
           const param = params[i];
           if (typeof param === 'string') src += param;
-          else src += serializer(param);
+          else src += serialize(param);
         }
       }
       return generator(src, opts);

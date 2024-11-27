@@ -10,7 +10,7 @@
 import { ParseOptions } from '../parser';
 import { EsqlQuery } from '../query';
 import { firstItem } from '../visitor/utils';
-import { clearParserFields, createSynthMethod } from './helpers';
+import { makeSynthNode, createSynthMethod } from './helpers';
 import type { SynthGenerator } from './types';
 import type { ESQLAstExpression } from '../types';
 
@@ -23,7 +23,7 @@ const generator: SynthGenerator<ESQLAstExpression> = (
   const where = query.ast.commands[1];
   const expression = firstItem(where.args)!;
 
-  clearParserFields(expression);
+  makeSynthNode(expression);
 
   return expression;
 };

@@ -9,7 +9,7 @@
 
 import { ParseOptions } from '../parser';
 import { EsqlQuery } from '../query';
-import { clearParserFields, createSynthMethod } from './helpers';
+import { makeSynthNode, createSynthMethod } from './helpers';
 import type { SynthGenerator } from './types';
 import type { ESQLCommand } from '../types';
 
@@ -28,7 +28,7 @@ const generator: SynthGenerator<ESQLCommand> = (
     throw new Error('Expected a command node');
   }
 
-  clearParserFields(command);
+  makeSynthNode(command);
 
   return command;
 };
