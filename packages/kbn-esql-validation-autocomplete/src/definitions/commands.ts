@@ -491,4 +491,21 @@ export const commandDefinitions: Array<CommandDefinition<any>> = [
       multipleParams: false,
     },
   },
+  {
+    name: 'join',
+    description: i18n.translate('kbn-esql-validation-autocomplete.esql.definitions.joinDoc', {
+      defaultMessage: 'Join table with another table.',
+    }),
+    examples: [
+      '… | <LEFT | RIGHT | LOOKUP> JOIN index ON index.field = index2.field',
+      '… | <LEFT | RIGHT | LOOKUP> JOIN index AS alias ON index.field = index2.field',
+      '… | <LEFT | RIGHT | LOOKUP> JOIN index AS alias ON index.field = index2.field, index.field2 = index2.field2',
+    ],
+    options: [],
+    modes: [],
+    signature: {
+      multipleParams: false,
+      params: [{ name: 'index', type: 'source', wildcards: true }],
+    },
+  },
 ];
