@@ -490,18 +490,21 @@ function visitRegexExpression(ctx: BooleanExpressionContext): ESQLFunction | und
   return fn;
 }
 
-function collectIsNullExpression(ctx: BooleanExpressionContext) {
+function visitIsNullExpression(ctx: BooleanExpressionContext): ESQLFunction | undefined {
   if (!(ctx instanceof IsNullContext)) {
-    return [];
+    return;
   }
+
   const negate = ctx.NOT();
   const fnName = `is${negate ? ' not ' : ' '}null`;
   const fn = createFunction(fnName, ctx, undefined, 'postfix-unary-expression');
   const arg = visitValueExpression(ctx.valueExpression());
+
   if (arg) {
     fn.args.push(arg);
   }
-  return [fn];
+
+  return fn;
 }
 
 function collectDefaultExpression(ctx: BooleanExpressionContext) {
@@ -514,9 +517,11 @@ function collectDefaultExpression(ctx: BooleanExpressionContext) {
 
 export function collectBooleanExpression(ctx: BooleanExpressionContext | undefined): ESQLAstItem[] {
   const ast: ESQLAstItem[] = [];
+
   if (!ctx) {
     return ast;
   }
+
   const logicalExpression = visitLogicalExpression(ctx);
 
   if (logicalExpression) {
@@ -529,7 +534,13 @@ export function collectBooleanExpression(ctx: BooleanExpressionContext | undefin
     return [regexExperssion];
   }
 
-  return ast.concat(collectIsNullExpression(ctx), collectDefaultExpression(ctx)).flat();
+  const nullExpression = visitIsNullExpression(ctx);
+
+  if (nullExpression) {
+    return [nullExpression];
+  }
+
+  return ast.concat(collectDefaultExpression(ctx)).flat();
 }
 
 export function visitField(ctx: FieldContext) {
