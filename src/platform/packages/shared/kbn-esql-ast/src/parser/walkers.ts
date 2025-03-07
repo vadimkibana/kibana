@@ -218,7 +218,12 @@ export function getEnrichClauses(ctx: EnrichCommandContext) {
 
 function visitLogicalNot(ctx: LogicalNotContext): ESQLSingleAstItem {
   const fn = createFunction('not', ctx, undefined, 'unary-expression');
-  fn.args.push(...collectBooleanExpression(ctx.booleanExpression()));
+  const expression = collectBooleanExpression(ctx.booleanExpression())[0];
+
+  if (expression) {
+    fn.args.push(expression);
+  }
+
   // update the location of the assign based on arguments
   const argsLocationExtends = computeLocationExtends(fn);
   fn.location = argsLocationExtends;
@@ -227,7 +232,7 @@ function visitLogicalNot(ctx: LogicalNotContext): ESQLSingleAstItem {
 
 function visitLogicalAndsOrs(ctx: LogicalBinaryContext): ESQLSingleAstItem {
   const fn = createFunction(ctx.AND() ? 'and' : 'or', ctx, undefined, 'binary-expression');
-  fn.args.push(...collectBooleanExpression(ctx._left), ...collectBooleanExpression(ctx._right));
+  fn.args.push(collectBooleanExpression(ctx._left)[0], collectBooleanExpression(ctx._right)[0]);
   // update the location of the assign based on arguments
   const argsLocationExtends = computeLocationExtends(fn);
   fn.location = argsLocationExtends;
@@ -425,7 +430,7 @@ export function visitPrimaryExpression(ctx: PrimaryExpressionContext): ESQLAstIt
     return createColumn(ctx.qualifiedName());
   }
   if (ctx instanceof ParenthesizedExpressionContext) {
-    return collectBooleanExpression(ctx.booleanExpression());
+    return [collectBooleanExpression(ctx.booleanExpression())[0]];
   }
   if (ctx instanceof FunctionContext) {
     const functionExpressionCtx = ctx.functionExpression();
@@ -438,7 +443,10 @@ export function visitPrimaryExpression(ctx: PrimaryExpressionContext): ESQLAstIt
     }
     const functionArgs = functionExpressionCtx
       .booleanExpression_list()
-      .flatMap(collectBooleanExpression)
+      .flatMap((context) => {
+        const expression = collectBooleanExpression(context)[0];
+        return expression ? [expression] : [];
+      })
       .filter(nonNullable);
     if (functionArgs.length) {
       fn.args.push(...functionArgs);
@@ -519,7 +527,9 @@ function visitDefaultExpression(ctx: BooleanExpressionContext): ESQLSingleAstIte
   return Array.isArray(arg) ? (firstItem(arg) as ESQLSingleAstItem | undefined) : arg;
 }
 
-export function collectBooleanExpression(ctx: BooleanExpressionContext | undefined): ESQLAstItem[] {
+export function collectBooleanExpression(
+  ctx: BooleanExpressionContext | undefined
+): ESQLSingleAstItem[] {
   if (!ctx) {
     return [];
   }
@@ -554,16 +564,15 @@ export function collectBooleanExpression(ctx: BooleanExpressionContext | undefin
 export function visitField(ctx: FieldContext) {
   if (ctx.qualifiedName() && ctx.ASSIGN()) {
     const fn = createFunction(ctx.ASSIGN()!.getText(), ctx, undefined, 'binary-expression');
-    fn.args.push(
-      createColumn(ctx.qualifiedName()!),
-      collectBooleanExpression(ctx.booleanExpression())
-    );
+    fn.args.push(createColumn(ctx.qualifiedName()!), [
+      collectBooleanExpression(ctx.booleanExpression())[0],
+    ]);
     // update the location of the assign based on arguments
     const argsLocationExtends = computeLocationExtends(fn);
     fn.location = argsLocationExtends;
     return [fn];
   }
-  return collectBooleanExpression(ctx.booleanExpression());
+  return [collectBooleanExpression(ctx.booleanExpression())[0]];
 }
 
 export function collectAllAggFields(ctx: AggFieldsContext | undefined): ESQLAstField[] {
