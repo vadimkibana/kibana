@@ -265,7 +265,9 @@ function getComparisonName(ctx: ComparisonOperatorContext) {
   return (ctx.EQ() || ctx.NEQ() || ctx.LT() || ctx.LTE() || ctx.GT() || ctx.GTE()).getText() || '';
 }
 
-export function visitValueExpression(ctx: ValueExpressionContext) {
+export function visitValueExpression(
+  ctx: ValueExpressionContext
+): ESQLAstItem | ESQLAstItem[] | undefined {
   if (!textExistsAndIsValid(ctx.getText())) {
     return [];
   }
@@ -507,19 +509,19 @@ function visitIsNullExpression(ctx: BooleanExpressionContext): ESQLFunction | un
   return fn;
 }
 
-function collectDefaultExpression(ctx: BooleanExpressionContext) {
+function visitDefaultExpression(ctx: BooleanExpressionContext): ESQLSingleAstItem | undefined {
   if (!(ctx instanceof BooleanDefaultContext)) {
-    return [];
+    return;
   }
+
   const arg = visitValueExpression(ctx.valueExpression());
-  return arg ? [arg] : [];
+
+  return Array.isArray(arg) ? (firstItem(arg) as ESQLSingleAstItem | undefined) : arg;
 }
 
 export function collectBooleanExpression(ctx: BooleanExpressionContext | undefined): ESQLAstItem[] {
-  const ast: ESQLAstItem[] = [];
-
   if (!ctx) {
-    return ast;
+    return [];
   }
 
   const logicalExpression = visitLogicalExpression(ctx);
@@ -540,7 +542,13 @@ export function collectBooleanExpression(ctx: BooleanExpressionContext | undefin
     return [nullExpression];
   }
 
-  return ast.concat(collectDefaultExpression(ctx)).flat();
+  const defaultExpression = visitDefaultExpression(ctx);
+
+  if (defaultExpression) {
+    return [defaultExpression];
+  }
+
+  return [];
 }
 
 export function visitField(ctx: FieldContext) {
