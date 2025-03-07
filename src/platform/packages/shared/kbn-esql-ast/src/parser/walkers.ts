@@ -94,6 +94,7 @@ import {
   ESQLAstField,
   ESQLInlineCast,
   ESQLOrderExpression,
+  ESQLSingleAstItem,
 } from '../types';
 import { firstItem, lastItem } from '../visitor/utils';
 
@@ -215,7 +216,7 @@ export function getEnrichClauses(ctx: EnrichCommandContext) {
   return ast;
 }
 
-function visitLogicalNot(ctx: LogicalNotContext) {
+function visitLogicalNot(ctx: LogicalNotContext): ESQLSingleAstItem {
   const fn = createFunction('not', ctx, undefined, 'unary-expression');
   fn.args.push(...collectBooleanExpression(ctx.booleanExpression()));
   // update the location of the assign based on arguments
@@ -224,7 +225,7 @@ function visitLogicalNot(ctx: LogicalNotContext) {
   return fn;
 }
 
-function visitLogicalAndsOrs(ctx: LogicalBinaryContext) {
+function visitLogicalAndsOrs(ctx: LogicalBinaryContext): ESQLSingleAstItem {
   const fn = createFunction(ctx.AND() ? 'and' : 'or', ctx, undefined, 'binary-expression');
   fn.args.push(...collectBooleanExpression(ctx._left), ...collectBooleanExpression(ctx._right));
   // update the location of the assign based on arguments
@@ -233,7 +234,7 @@ function visitLogicalAndsOrs(ctx: LogicalBinaryContext) {
   return fn;
 }
 
-function visitLogicalIns(ctx: LogicalInContext) {
+function visitLogicalIns(ctx: LogicalInContext): ESQLSingleAstItem {
   const fn = createFunction(ctx.NOT() ? 'not_in' : 'in', ctx, undefined, 'binary-expression');
   const [left, ...list] = ctx.valueExpression_list();
   const leftArg = visitValueExpression(left);
@@ -453,17 +454,16 @@ function collectInlineCast(ctx: InlineCastContext): ESQLInlineCast {
   return createInlineCast(ctx, primaryExpression);
 }
 
-export function collectLogicalExpression(ctx: BooleanExpressionContext) {
+export function visitLogicalExpression(
+  ctx: BooleanExpressionContext
+): ESQLSingleAstItem | undefined {
   if (ctx instanceof LogicalNotContext) {
-    return [visitLogicalNot(ctx)];
+    return visitLogicalNot(ctx);
+  } else if (ctx instanceof LogicalBinaryContext) {
+    return visitLogicalAndsOrs(ctx);
+  } else if (ctx instanceof LogicalInContext) {
+    return visitLogicalIns(ctx);
   }
-  if (ctx instanceof LogicalBinaryContext) {
-    return [visitLogicalAndsOrs(ctx)];
-  }
-  if (ctx instanceof LogicalInContext) {
-    return [visitLogicalIns(ctx)];
-  }
-  return [];
 }
 
 function collectRegexExpression(ctx: BooleanExpressionContext): ESQLFunction[] {
@@ -515,9 +515,14 @@ export function collectBooleanExpression(ctx: BooleanExpressionContext | undefin
   if (!ctx) {
     return ast;
   }
+  const logicalExpression = visitLogicalExpression(ctx);
+
+  if (logicalExpression) {
+    return [logicalExpression];
+  }
+
   return ast
     .concat(
-      collectLogicalExpression(ctx),
       collectRegexExpression(ctx),
       collectIsNullExpression(ctx),
       collectDefaultExpression(ctx)
