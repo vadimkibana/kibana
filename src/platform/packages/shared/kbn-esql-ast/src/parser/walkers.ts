@@ -466,26 +466,28 @@ export function visitLogicalExpression(
   }
 }
 
-function collectRegexExpression(ctx: BooleanExpressionContext): ESQLFunction[] {
-  const regexes = ctx.getTypedRuleContexts(RegexBooleanExpressionContext);
-  const ret: ESQLFunction[] = [];
-  return ret.concat(
-    regexes.map((regex) => {
-      const negate = regex.NOT();
-      const likeType = regex._kind.text?.toLowerCase() || '';
-      const fnName = `${negate ? 'not_' : ''}${likeType}`;
-      const fn = createFunction(fnName, regex, undefined, 'binary-expression');
-      const arg = visitValueExpression(regex.valueExpression());
-      if (arg) {
-        fn.args.push(arg);
+function visitRegexExpression(ctx: BooleanExpressionContext): ESQLFunction | undefined {
+  const regex = ctx.getTypedRuleContext(RegexBooleanExpressionContext, 0);
 
-        const literal = createLiteralString(regex._pattern);
+  if (!regex) {
+    return;
+  }
 
-        fn.args.push(literal);
-      }
-      return fn;
-    })
-  );
+  const negate = regex.NOT();
+  const likeType = regex._kind.text?.toLowerCase() || '';
+  const fnName = `${negate ? 'not_' : ''}${likeType}`;
+  const fn = createFunction(fnName, regex, undefined, 'binary-expression');
+  const arg = visitValueExpression(regex.valueExpression());
+
+  if (arg) {
+    fn.args.push(arg);
+
+    const literal = createLiteralString(regex._pattern);
+
+    fn.args.push(literal);
+  }
+
+  return fn;
 }
 
 function collectIsNullExpression(ctx: BooleanExpressionContext) {
@@ -521,13 +523,13 @@ export function collectBooleanExpression(ctx: BooleanExpressionContext | undefin
     return [logicalExpression];
   }
 
-  return ast
-    .concat(
-      collectRegexExpression(ctx),
-      collectIsNullExpression(ctx),
-      collectDefaultExpression(ctx)
-    )
-    .flat();
+  const regexExperssion = visitRegexExpression(ctx);
+
+  if (regexExperssion) {
+    return [regexExperssion];
+  }
+
+  return ast.concat(collectIsNullExpression(ctx), collectDefaultExpression(ctx)).flat();
 }
 
 export function visitField(ctx: FieldContext) {
