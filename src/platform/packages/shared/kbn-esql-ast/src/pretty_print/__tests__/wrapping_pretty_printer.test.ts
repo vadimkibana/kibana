@@ -8,6 +8,8 @@
  */
 
 import { parse } from '../../parser';
+import {ESQLMap} from '../../types';
+import {Walker} from '../../walker';
 import { WrappingPrettyPrinter, WrappingPrettyPrinterOptions } from '../wrapping_pretty_printer';
 
 const reprint = (src: string, opts?: WrappingPrettyPrinterOptions) => {
@@ -630,6 +632,54 @@ FROM index
           123 +
           999)
   | LIMIT 10`);
+    });
+  });
+
+  describe('map expression', () => {
+    test('empty map', () => {
+      const src = `ROW F(0, {"a": 0})`;
+      const { root } = parse(src);
+      const map = Walker.match(root, {type:'map'}) as ESQLMap;
+
+      map.entries = [];
+
+      const text = WrappingPrettyPrinter.print(root);
+
+      expect(text).toBe(`ROW F(0, {})`);
+    });
+
+    test('empty map (multiline)', () => {
+      const src = `ROW F(0, {"a": 0}) | LIMIT 1`;
+      const { root } = parse(src);
+      const map = Walker.match(root, {type:'map'}) as ESQLMap;
+
+      map.entries = [];
+
+      const text = WrappingPrettyPrinter.print(root, {multiline: true});
+
+      expect(text).toBe(`ROW F(0, {})
+  | LIMIT 1`);
+    });
+
+    test('single entry map', () => {
+      const src = `ROW F(0, {"a": 0})`;
+      const text = reprint(src).text;
+
+      expect(text).toBe(`ROW F(0, {"a": 0})`);
+    });
+
+    test('single entry map (multiline)', () => {
+      const src = `ROW F(0, {"a": 0}) | LIMIT 1`;
+      const text = reprint(src, {multiline: true}).text;
+
+      expect(text).toBe(`ROW F(0, {"a": 0})\n  | LIMIT 1`);
+    });
+
+    test('two entry map', () => {
+      const src = `ROW F(0, {"a": 0, "b": 1})`;
+      const text = reprint(src).text;
+
+      expect(text).toBe(`ROW F(0, {"a": 0, "b": 1})`);
     });
   });
 

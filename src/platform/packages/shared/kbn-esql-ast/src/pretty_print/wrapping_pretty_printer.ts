@@ -523,6 +523,26 @@ export class WrappingPrettyPrinter {
       return { txt, indented };
     })
 
+    .on('visitMapEntryExpression', (ctx, inp: Input) => {
+      const key = ctx.visitKey(inp);
+      const value = ctx.visitValue(inp);
+      const formatted = key + ': ' + value;
+
+      return this.decorateWithComments(inp.indent, ctx.node, formatted);
+    })
+
+    .on('visitMapExpression', (ctx, inp: Input) => {
+      let entriesFormatted = '';
+
+      for (const entry of ctx.visitEntries(inp)) {
+        entriesFormatted += (entriesFormatted ? ', ' : '') + entry;
+      }
+
+      const formatted = '{' + entriesFormatted + '}';
+
+      return this.decorateWithComments(inp.indent, ctx.node, formatted);
+    })
+
     .on('visitFunctionCallExpression', (ctx, inp: Input): Output => {
       const node = ctx.node;
       let operator = ctx.operator();
