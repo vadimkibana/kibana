@@ -57,8 +57,15 @@ interface Input {
   flattenBinExpOfType?: BinaryExpressionGroup;
 
   /**
-   * Suffix text to append to the formatted output, before any comment
-   * decorations.
+   * Suffix text to append to the formatted output, before single-line
+   * line-breaking comments. Essentially, this is trailing punctuation, which
+   * has to be printed at the very end of the line, but before any
+   * line-terminating single line comment, e.g consider the comma below:
+   *
+   *     [
+   *       1 + 1 /** comment 1 *\ /** comment 2 *\ , // comment 3
+   *       3
+   *     ]
    */
   suffix?: string;
 }
@@ -148,7 +155,7 @@ export class WrappingPrettyPrinter {
     ctx: ExpressionVisitorContext,
     operator: string,
     inp: Input,
-    operatorTrailingWhitespace = ' '
+    operatorLeadingWhitespace = ' '
   ): Output {
     const node = ctx.node;
     const group = binaryExpressionGroup(node);
@@ -168,6 +175,7 @@ export class WrappingPrettyPrinter {
         indent: inp.indent,
         remaining: inp.remaining,
         flattenBinExpOfType: group,
+        suffix: operatorLeadingWhitespace + operator,
       };
       const rightTab = isLeftChild ? this.opts.tab : '';
       const rightIndent = inp.indent + rightTab + (oneArgumentPerLine ? this.opts.tab : '');
@@ -175,17 +183,18 @@ export class WrappingPrettyPrinter {
         indent: rightIndent,
         remaining: inp.remaining - this.opts.tab.length,
         flattenBinExpOfType: group,
+        suffix,
       };
       const leftOut = ctx.visitArgument(0, leftInput);
       const rightOut = ctx.visitArgument(1, rightInput);
 
-      let txt = `${leftOut.txt}${operatorTrailingWhitespace}${operator}\n`;
+      let txt = leftOut.txt + '\n';
 
       if (!rightOut.indented) {
         txt += rightIndent;
       }
 
-      txt += rightOut.txt + suffix;
+      txt += rightOut.txt;
 
       return { txt, indented: leftOut.indented };
     }
@@ -205,7 +214,7 @@ export class WrappingPrettyPrinter {
     const length =
       leftFormatted.length +
       rightFormatted.length +
-      operatorTrailingWhitespace.length +
+      operatorLeadingWhitespace.length +
       operator.length +
       2;
     const fitsOnOneLine = length <= inp.remaining;
@@ -213,7 +222,7 @@ export class WrappingPrettyPrinter {
     let indented = false;
 
     if (fitsOnOneLine) {
-      txt = `${leftFormatted}${operatorTrailingWhitespace}${operator} ${rightFormatted}${suffix}`;
+      txt = `${leftFormatted}${operatorLeadingWhitespace}${operator} ${rightFormatted}${suffix}`;
     } else {
       const flattenVertically = group === groupLeft || group === groupRight;
       const flattenBinExpOfType = flattenVertically ? group : undefined;
@@ -230,7 +239,7 @@ export class WrappingPrettyPrinter {
       const leftOut = ctx.visitArgument(0, leftInput);
       const rightOut = ctx.visitArgument(1, rightInput);
 
-      txt = `${leftOut.txt}${operatorTrailingWhitespace}${operator}\n`;
+      txt = `${leftOut.txt}${operatorLeadingWhitespace}${operator}\n`;
 
       if (!rightOut.indented) {
         txt += `${inp.indent}${this.opts.tab}`;
@@ -399,7 +408,7 @@ export class WrappingPrettyPrinter {
   }
 
   protected decorateWithComments(
-    indent: string,
+    { indent, suffix }: Input,
     node: ESQLAstBaseItem,
     txt: string,
     indented: boolean = false
@@ -407,7 +416,7 @@ export class WrappingPrettyPrinter {
     const formatting = node.formatting;
 
     if (!formatting) {
-      return { txt, indented };
+      return { txt: txt + (suffix ?? ''), indented };
     }
 
     if (formatting.left) {
@@ -445,6 +454,10 @@ export class WrappingPrettyPrinter {
       }
     }
 
+    if (suffix) {
+      txt += suffix;
+    }
+
     if (formatting.rightSingleLine) {
       const comment = LeafPrinter.comment(formatting.rightSingleLine);
 
@@ -471,35 +484,35 @@ export class WrappingPrettyPrinter {
 
     .on('visitIdentifierExpression', (ctx, inp: Input) => {
       const formatted = LeafPrinter.identifier(ctx.node);
-      const { txt, indented } = this.decorateWithComments(inp.indent, ctx.node, formatted);
+      const { txt, indented } = this.decorateWithComments(inp, ctx.node, formatted);
 
       return { txt, indented };
     })
 
     .on('visitSourceExpression', (ctx, inp: Input): Output => {
-      const formatted = LeafPrinter.source(ctx.node) + (inp.suffix ?? '');
-      const { txt, indented } = this.decorateWithComments(inp.indent, ctx.node, formatted);
+      const formatted = LeafPrinter.source(ctx.node);
+      const { txt, indented } = this.decorateWithComments(inp, ctx.node, formatted);
 
       return { txt, indented };
     })
 
     .on('visitColumnExpression', (ctx, inp: Input): Output => {
-      const formatted = LeafPrinter.column(ctx.node) + (inp.suffix ?? '');
-      const { txt, indented } = this.decorateWithComments(inp.indent, ctx.node, formatted);
+      const formatted = LeafPrinter.column(ctx.node);
+      const { txt, indented } = this.decorateWithComments(inp, ctx.node, formatted);
 
       return { txt, indented };
     })
 
     .on('visitLiteralExpression', (ctx, inp: Input): Output => {
-      const formatted = LeafPrinter.literal(ctx.node) + (inp.suffix ?? '');
-      const { txt, indented } = this.decorateWithComments(inp.indent, ctx.node, formatted);
+      const formatted = LeafPrinter.literal(ctx.node);
+      const { txt, indented } = this.decorateWithComments(inp, ctx.node, formatted);
 
       return { txt, indented };
     })
 
     .on('visitTimeIntervalLiteralExpression', (ctx, inp: Input): Output => {
-      const formatted = LeafPrinter.timeInterval(ctx.node) + (inp.suffix ?? '');
-      const { txt, indented } = this.decorateWithComments(inp.indent, ctx.node, formatted);
+      const formatted = LeafPrinter.timeInterval(ctx.node);
+      const { txt, indented } = this.decorateWithComments(inp, ctx.node, formatted);
 
       return { txt, indented };
     })
@@ -522,9 +535,9 @@ export class WrappingPrettyPrinter {
         valueFormatted = `(${valueFormatted})`;
       }
 
-      const formatted = `${valueFormatted}::${ctx.node.castType}${inp.suffix ?? ''}`;
+      const formatted = `${valueFormatted}::${ctx.node.castType}`;
       const { txt, indented } = this.decorateWithComments(
-        inp.indent,
+        inp,
         ctx.node,
         formatted,
         valueResult.indented
@@ -537,7 +550,7 @@ export class WrappingPrettyPrinter {
       const operator = this.keyword('AS');
       const expression = this.printBinaryOperatorExpression(ctx, operator, inp);
       const { txt, indented } = this.decorateWithComments(
-        inp.indent,
+        { ...inp, suffix: '' },
         ctx.node,
         expression.txt,
         expression.indented
@@ -551,8 +564,8 @@ export class WrappingPrettyPrinter {
         indent: inp.indent,
         remaining: inp.remaining - 1,
       });
-      const formatted = `[${args.txt}]${inp.suffix ?? ''}`;
-      const { txt, indented } = this.decorateWithComments(inp.indent, ctx.node, formatted);
+      const formatted = `[${args.txt}]`;
+      const { txt, indented } = this.decorateWithComments(inp, ctx.node, formatted);
 
       return { txt, indented };
     })
@@ -561,14 +574,21 @@ export class WrappingPrettyPrinter {
       const operator = this.keyword(':');
       const expression = this.printBinaryOperatorExpression(ctx, operator, inp, '');
 
-      return this.decorateWithComments(inp.indent, ctx.node, expression.txt, expression.indented);
+      return this.decorateWithComments(inp, ctx.node, expression.txt, expression.indented);
     })
 
     .on('visitMapExpression', (ctx, inp: Input) => {
-      const entriesFormatted = this.printChildrenList(ctx, inp);
-      const formatted = '{' + entriesFormatted.txt + '}';
+      const { txt, oneArgumentPerLine } = this.printChildrenList(ctx, inp);
 
-      return this.decorateWithComments(inp.indent, ctx.node, formatted);
+      let formatted = txt;
+
+      if (oneArgumentPerLine) {
+        formatted = '{' + txt + '\n' + inp.indent + '}';
+      } else {
+        formatted = '{' + txt + '}';
+      }
+
+      return this.decorateWithComments(inp, ctx.node, formatted);
     })
 
     .on('visitFunctionCallExpression', (ctx, inp: Input): Output => {

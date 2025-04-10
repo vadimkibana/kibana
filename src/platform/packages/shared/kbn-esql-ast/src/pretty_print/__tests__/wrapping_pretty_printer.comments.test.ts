@@ -255,7 +255,7 @@ FROM
   // 2
   /* 3 */
   // 4
-  /* 5 */ /* 6 */ index1, /* 7 */ /* 8 */ // 9
+  /* 5 */ /* 6 */ index1 /* 7 */ /* 8 */, // 9
   index2`);
     });
   });
@@ -538,7 +538,7 @@ FROM index
       a
         ON
           // c.1
-          /* c.2 */ c, /* c.3 */
+          /* c.2 */ c /* c.3 */,
           // d.1
           /* d.2 */ d /* d.3 */`);
     });
@@ -672,7 +672,8 @@ ROW
     {
       // this is key:
       "a":
-        1})`;
+        1
+    })`;
         assertReprint(src);
       });
 
@@ -682,7 +683,9 @@ ROW
     123456,
     {
       "a": // "a" keys is very important
-        1})`;
+        1
+    }
+  )`;
         assertReprint(src);
       });
 
@@ -693,7 +696,8 @@ ROW
     {
       "a":
         // this is value:
-        1})`;
+        1
+    })`;
         assertReprint(src);
       });
 
@@ -704,7 +708,8 @@ ROW
     {
       "a":
         1 // This is a very important value
-    })`;
+    }
+  )`;
         assertReprint(src);
       });
     });
