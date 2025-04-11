@@ -717,7 +717,8 @@ FROM index
     123456789,
     {
       "abcdefghijklmnopqrstuvwxyz-1": "abcdefghijklmnopqrstuvwxyz",
-      "abcdefghijklmnopqrstuvwxyz-2": "abcdefghijklmnopqrstuvwxyz"})`);
+      "abcdefghijklmnopqrstuvwxyz-2": "abcdefghijklmnopqrstuvwxyz"
+    })`);
     });
 
     test('few long map entries', () => {
@@ -725,8 +726,7 @@ FROM index
         "abcdefghijklmnopqrstuvwxyz-1": "abcdefghijklmnopqrstuvwxyz",
         "abcdefghijklmnopqrstuvwxyz-2": "abcdefghijklmnopqrstuvwxyz",
         "abcdefghijklmnopqrstuvwxyz-3": "abcdefghijklmnopqrstuvwxyz",
-        "abcdefghijklmnopqrstuvwxyz-4": ["abcdefghijklmnopqrstuvwxyz", "abcdefghijklmnopqrstuvwxyz", "abcdefghijklmnopqrstuvwxyz"]
-      })`;
+        "abcdefghijklmnopqrstuvwxyz-4": ["abcdefghijklmnopqrstuvwxyz", "abcdefghijklmnopqrstuvwxyz", "abcdefghijklmnopqrstuvwxyz"]})`;
       const text = reprint(src).text;
 
       expect(text).toBe(`ROW
@@ -738,7 +738,8 @@ FROM index
       "abcdefghijklmnopqrstuvwxyz-3": "abcdefghijklmnopqrstuvwxyz",
       "abcdefghijklmnopqrstuvwxyz-4":
         ["abcdefghijklmnopqrstuvwxyz", "abcdefghijklmnopqrstuvwxyz",
-          "abcdefghijklmnopqrstuvwxyz"]})`);
+          "abcdefghijklmnopqrstuvwxyz"]
+    })`);
     });
 
     test('can break up large map entries into two lines', () => {
@@ -754,7 +755,8 @@ FROM index
     {
       "abcdefghijklmnopqrstuvwxyz-1": "abcdefghijklmnopqrstuvwxyz",
       "abcdefghijklmnopqrstuvwxyz-abcdefghijklmnopqrstuvwxyz-2":
-        "abcdefghijklmnopqrstuvwxyz"})`);
+        "abcdefghijklmnopqrstuvwxyz"
+    })`);
     });
 
     test('can break up large map entries into two lines when key is long', () => {
@@ -770,7 +772,8 @@ FROM index
     {
       "abcdefghijklmnopqrstuvwxyz-1": "abcdefghijklmnopqrstuvwxyz",
       "abc":
-        "abcdefghijklmnopqrstuvwxyz-abcdefghijklmnopqrstuvwxyz-abcdefghijklmnopqrstuvwxyz"})`);
+        "abcdefghijklmnopqrstuvwxyz-abcdefghijklmnopqrstuvwxyz-abcdefghijklmnopqrstuvwxyz"
+    })`);
     });
   });
 

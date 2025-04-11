@@ -235,6 +235,7 @@ export class WrappingPrettyPrinter {
         indent: inp.indent + this.opts.tab,
         remaining: inp.remaining - this.opts.tab.length,
         flattenBinExpOfType,
+        suffix,
       };
       const leftOut = ctx.visitArgument(0, leftInput);
       const rightOut = ctx.visitArgument(1, rightInput);
@@ -245,7 +246,7 @@ export class WrappingPrettyPrinter {
         txt += `${inp.indent}${this.opts.tab}`;
       }
 
-      txt += `${rightOut.txt}${suffix}`;
+      txt += rightOut.txt;
       indented = leftOut.indented;
     }
 
@@ -574,7 +575,12 @@ export class WrappingPrettyPrinter {
       const operator = this.keyword(':');
       const expression = this.printBinaryOperatorExpression(ctx, operator, inp, '');
 
-      return this.decorateWithComments(inp, ctx.node, expression.txt, expression.indented);
+      return this.decorateWithComments(
+        { ...inp, suffix: '' },
+        ctx.node,
+        expression.txt,
+        expression.indented
+      );
     })
 
     .on('visitMapExpression', (ctx, inp: Input) => {
