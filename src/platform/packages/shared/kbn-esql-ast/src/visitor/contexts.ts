@@ -602,7 +602,7 @@ export class MapExpressionVisitorContext<
       | VisitorInput<Methods, 'visitExpression'>
       | (() => VisitorInput<Methods, 'visitExpression'>)
   ): Iterable<ExpressionVisitorOutput<Methods>> {
-    this.ctx.assertMethodExists('visitExpression');
+    this.ctx.assertMethodExists(['visitExpression', 'visitMapEntryExpression']);
 
     for (const value of this.node.entries) {
       yield this.visitExpression(value, typeof input === 'function' ? (input as any)() : input);
@@ -614,7 +614,7 @@ export class MapExpressionVisitorContext<
       | VisitorInput<Methods, 'visitExpression'>
       | (() => VisitorInput<Methods, 'visitExpression'>)
   ): Iterable<VisitorOutput<Methods, 'visitExpression'>> {
-    return this.visitEntries(input);
+    return yield* this.visitEntries(input);
   }
 }
 

@@ -165,7 +165,7 @@ test('"visitMapEntryExpression" takes over expression visiting', () => {
     ROW fn(1, {"a": 2, "b": "3"})
   `);
   const visitor = new Visitor()
-    .on('visitMapEntryExpression', () => {
+    .on('visitMapEntryExpression', (ctx) => {
       return '<ENTRY>';
     })
     .on('visitMapExpression', (ctx) => {

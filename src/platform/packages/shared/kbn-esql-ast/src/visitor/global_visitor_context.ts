@@ -50,10 +50,16 @@ export class GlobalVisitorContext<
     public data: Data
   ) {}
 
-  public assertMethodExists<K extends keyof types.VisitorMethods>(name: K) {
-    if (!this.methods[name]) {
-      throw new Error(`${name}() method is not defined`);
+  public assertMethodExists<K extends keyof types.VisitorMethods>(name: K | K[]) {
+    if (!Array.isArray(name)) {
+      name = [name];
     }
+
+    for (const n of name) {
+      if (this.methods[n]) return;
+    }
+
+    throw new Error(`${name}() method is not defined`);
   }
 
   private visitWithSpecificContext<
