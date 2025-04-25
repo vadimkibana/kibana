@@ -65,28 +65,26 @@ export const buildEsqlTheme = ({
 
     // All comments, single line "// asdf" and multi line "/* asdf */"
     { token: 'comment', foreground: colors.textSubdued },
-  ];
 
-  // ------------------------------------------------------------------ commands
+    // ---------------------------------------------------------------- commands
 
-  // All commands. (Below is an override for *source* commands).
-  rules.push({
-    token: 'keyword.command',
-    foreground: colors.accent,
-    fontStyle: 'bold',
-  });
+    // All commands. (Below is an override for *source* commands).
+    {
+      token: 'keyword.command',
+      foreground: colors.accent,
+      fontStyle: 'bold',
+    },
 
-  // Source commands
-  const sourceCommands = ['from', 'row', 'explain', 'show', 'ts'];
-
-  for (const command of sourceCommands) {
-    rules.push({
-      token: `keyword.command.${command}.esql`,
+    // Source commands.
+    {
+      token: `keyword.command.source`,
       foreground: colors.primary,
       fontStyle: 'bold',
-    });
-  }
+    },
+  ];
 
+  // `lightestShade` and `emptyShade` are deprecated, so we backfill them with
+  // equivalent colors from the theme.
   const borderColor = colors.lightestShade || colors.borderBasePlain;
   const bgColor = colors.emptyShade || colors.backgroundBasePlain;
 
