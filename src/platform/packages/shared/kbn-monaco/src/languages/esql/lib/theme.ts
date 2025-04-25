@@ -14,16 +14,26 @@ export const buildEsqlTheme = ({
   euiTheme,
   colorMode,
 }: UseEuiTheme): monaco.editor.IStandaloneThemeData => {
-  console.log('euiTheme', euiTheme);
-  console.log('colorMode', colorMode);
-
   const { colors } = euiTheme;
 
   const rules: monaco.editor.IStandaloneThemeData['rules'] = [
+    // -------------------------------------------------------------- plain text
+
+    { token: 'identifier', foreground: colors.textParagraph },
+    { token: 'delimiter', foreground: colors.textParagraph },
+
     // --------------------------------------------------- strings & string-like
 
     { token: 'string', foreground: colors.textSuccess },
     { token: 'source', foreground: colors.textSuccess },
+
+    // ----------------------------------------------------------------- numbers
+
+    // Numbers, decimals, and time intervals
+    { token: 'number', foreground: colors.textSuccess },
+
+    // Constants, such as "true", "false", "null"
+    { token: 'keyword.literal', foreground: colors.textSuccess },
 
     // ------------------------------------------------------------------ params
 
@@ -43,10 +53,13 @@ export const buildEsqlTheme = ({
 
     { token: 'identifier.function', foreground: colors.primary },
 
-    // --------------------------------------------------------------- operators
+    // --------------------------------------------------------- named operators
 
     // Named operators such as "AND", "OR", "NOT" etc.
     { token: 'keyword.operator', foreground: colors.primary },
+
+    // Type cast "::" operator
+    { token: 'type', foreground: colors.primary },
 
     // ---------------------------------------------------------------- comments
 
