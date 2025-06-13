@@ -172,7 +172,34 @@ export class Walker {
 
   /**
    * Matches a single node against a template object. Returns the first node
-   * that matches the template.
+   * that matches the template. The *template* object is a sparse representation
+   * of the node structure, where each property corresponds to a node type or
+   * property to match against.
+   *
+   * For example, match the first `literal`:
+   *
+   * ```typescript
+   * const literal = Walker.match(ast, { type: 'literal' });
+   * ```
+   *
+   * Find the first `literal` with a specific value:
+   *
+   * ```typescript
+   * const number42 = Walker.match(ast, { type: 'literal', value: 42 });
+   * ```
+   *
+   * Find the first literal of type `integer` or `decimal`:
+   *
+   * ```typescript
+   * const number = Walker.match(ast, { type: 'literal', literalType: ['integer', 'decimal'] });
+   * ```
+   *
+   * Finally, you can also match any field by regular expression. Find
+   * the first `source` AST node, which has "log" in its name:
+   *
+   * ```typescript
+   * const logSource = Walker.match(ast, { type: 'source', name: /.+log.+/ });
+   * ```
    *
    * @param node AST node to match against the template.
    * @param template Template object to match against the node.
