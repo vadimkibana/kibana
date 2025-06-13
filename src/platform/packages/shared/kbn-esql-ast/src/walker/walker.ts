@@ -328,23 +328,17 @@ export class Walker {
 
   constructor(protected readonly options: WalkerOptions) {}
 
-  public walk(node: undefined | ESQLAstNode | ESQLAstNode[]): void {
+  public walk(
+    node: undefined | ESQLAstNode | ESQLAstNode[],
+    parent: ESQLAstNode | undefined = undefined
+  ): void {
     if (!node) return;
-
-    if (node instanceof Array) {
-      this.walkList(node, undefined);
-      return;
-    }
-
-    switch (node.type) {
-      case 'command': {
-        this.walkCommand(node as ESQLAstCommand);
-        break;
-      }
-      default: {
-        this.walkExpression(node as ESQLAstItem);
-        break;
-      }
+    if (Array.isArray(node)) {
+      this.walkList(node, parent);
+    } else if (node.type === 'command') {
+      this.walkCommand(node as ESQLAstCommand);
+    } else {
+      this.walkExpression(node as ESQLAstExpression);
     }
   }
 
@@ -441,9 +435,12 @@ export class Walker {
 
   public walkQuery(node: ESQLAstQueryExpression): void {
     const { options } = this;
+
     (options.visitQuery ?? options.visitAny)?.(node);
+
     const commands = node.commands;
     const length = commands.length;
+
     for (let i = 0; i < length; i++) {
       const arg = commands[i];
       this.walkCommand(arg);
