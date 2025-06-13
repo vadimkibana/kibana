@@ -321,20 +321,13 @@ export class Walker {
   public walkCommand(node: ESQLAstCommand): void {
     const { options } = this;
     (options.visitCommand ?? options.visitAny)?.(node);
-    switch (node.name) {
-      default: {
-        this.walkList(node.args, undefined);
-        break;
-      }
-    }
+    this.walkList(node.args, undefined);
   }
 
   public walkOption(node: ESQLCommandOption): void {
     const { options } = this;
     (options.visitCommandOption ?? options.visitAny)?.(node);
-    for (const child of node.args) {
-      this.walkAstItem(child);
-    }
+    this.walkList(node.args, undefined);
   }
 
   public walkAstItem(node: ESQLAstItem | ESQLAstExpression): void {

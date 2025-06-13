@@ -11,38 +11,77 @@ import { EsqlQuery } from '../../query';
 import { walk } from '../walker';
 
 describe('traversal order', () => {
-  test('by default walks in "forward" order', () => {
-    const { ast } = EsqlQuery.fromSrc('FROM a, b, c');
-    const sources: string[] = [];
+  describe('command arguments', () => {
+    test('by default walks in "forward" order', () => {
+      const { ast } = EsqlQuery.fromSrc('FROM a, b, c');
+      const sources: string[] = [];
 
-    walk(ast, {
-      visitSource: (src) => sources.push(src.name),
+      walk(ast, {
+        visitSource: (src) => sources.push(src.name),
+      });
+
+      expect(sources).toStrictEqual(['a', 'b', 'c']);
     });
 
-    expect(sources).toStrictEqual(['a', 'b', 'c']);
+    test('can explicitly specify "forward" order', () => {
+      const { ast } = EsqlQuery.fromSrc('FROM a, b, c');
+      const sources: string[] = [];
+
+      walk(ast, {
+        visitSource: (src) => sources.push(src.name),
+        order: 'forward',
+      });
+
+      expect(sources).toStrictEqual(['a', 'b', 'c']);
+    });
+
+    test('can walk sources in "backward" order', () => {
+      const { ast } = EsqlQuery.fromSrc('FROM a, b, c');
+      const sources: string[] = [];
+
+      walk(ast, {
+        visitSource: (src) => sources.push(src.name),
+        order: 'backward',
+      });
+
+      expect(sources).toStrictEqual(['c', 'b', 'a']);
+    });
   });
 
-  test('can explicitly specify "forward" order', () => {
-    const { ast } = EsqlQuery.fromSrc('FROM a, b, c');
-    const sources: string[] = [];
+  describe('option arguments', () => {
+    test('by default walks in "forward" order', () => {
+      const { ast } = EsqlQuery.fromSrc('FROM index METADATA a, b, c');
+      const sources: string[] = [];
 
-    walk(ast, {
-      visitSource: (src) => sources.push(src.name),
-      order: 'forward',
+      walk(ast, {
+        visitColumn: (src) => sources.push(src.name),
+      });
+
+      expect(sources).toStrictEqual(['a', 'b', 'c']);
     });
 
-    expect(sources).toStrictEqual(['a', 'b', 'c']);
-  });
+    test('can explicitly specify "forward" order', () => {
+      const { ast } = EsqlQuery.fromSrc('FROM index METADATA a, b, c');
+      const sources: string[] = [];
 
-  test('can walk sources in "backward" order', () => {
-    const { ast } = EsqlQuery.fromSrc('FROM a, b, c');
-    const sources: string[] = [];
+      walk(ast, {
+        visitColumn: (src) => sources.push(src.name),
+        order: 'forward',
+      });
 
-    walk(ast, {
-      visitSource: (src) => sources.push(src.name),
-      order: 'backward',
+      expect(sources).toStrictEqual(['a', 'b', 'c']);
     });
 
-    expect(sources).toStrictEqual(['c', 'b', 'a']);
+    test('can walk sources in "backward" order', () => {
+      const { ast } = EsqlQuery.fromSrc('FROM index METADATA a, b, c');
+      const sources: string[] = [];
+
+      walk(ast, {
+        visitColumn: (src) => sources.push(src.name),
+        order: 'backward',
+      });
+
+      expect(sources).toStrictEqual(['c', 'b', 'a']);
+    });
   });
 });
