@@ -26,37 +26,37 @@ import {
 } from '../../types';
 import { walk, Walker } from '../walker';
 
-test('can walk all functions', () => {
-  const { root } = parse('TS index | EVAL a(b(c(foo)))');
-  const functions: string[] = [];
-
-  walk(root, {
-    visitFunction: (fn) => functions.push(fn.name),
-  });
-
-  expect(functions.sort()).toStrictEqual(['a', 'b', 'c']);
-});
-
-test('can find assignment expression', () => {
-  const query = 'TS source | STATS var0 = bucket(bytes, 1 hour)';
-  const { root } = parse(query);
-  const functions: ESQLFunction[] = [];
-
-  Walker.walk(root, {
-    visitFunction: (fn) => {
-      if (fn.name === '=') {
-        functions.push(fn);
-      }
-    },
-  });
-
-  expect(functions.length).toBe(1);
-  expect(functions[0].name).toBe('=');
-  expect(functions[0].args.length).toBe(2);
-  expect((functions[0].args[0] as any).name).toBe('var0');
-});
-
 describe('structurally can walk all nodes', () => {
+  test('can walk all functions', () => {
+    const { root } = parse('TS index | EVAL a(b(c(foo)))');
+    const functions: string[] = [];
+
+    walk(root, {
+      visitFunction: (fn) => functions.push(fn.name),
+    });
+
+    expect(functions.sort()).toStrictEqual(['a', 'b', 'c']);
+  });
+
+  test('can find assignment expression', () => {
+    const query = 'TS source | STATS var0 = bucket(bytes, 1 hour)';
+    const { root } = parse(query);
+    const functions: ESQLFunction[] = [];
+
+    Walker.walk(root, {
+      visitFunction: (fn) => {
+        if (fn.name === '=') {
+          functions.push(fn);
+        }
+      },
+    });
+
+    expect(functions.length).toBe(1);
+    expect(functions[0].name).toBe('=');
+    expect(functions[0].args.length).toBe(2);
+    expect((functions[0].args[0] as any).name).toBe('var0');
+  });
+
   describe('commands', () => {
     test('can visit a single source command', () => {
       const { ast } = parse('FROM index');
