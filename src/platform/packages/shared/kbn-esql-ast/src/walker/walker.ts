@@ -398,9 +398,7 @@ export class Walker {
     (options.visitColumn ?? options.visitAny)?.(node);
 
     if (args) {
-      for (const value of args) {
-        this.walkExpression(value);
-      }
+      this.walkList(args, node);
     }
   }
 

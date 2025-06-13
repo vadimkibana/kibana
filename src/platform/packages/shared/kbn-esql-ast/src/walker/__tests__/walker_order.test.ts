@@ -8,7 +8,7 @@
  */
 
 import { EsqlQuery } from '../../query';
-import { ESQLLiteral } from '../../types';
+import { ESQLIdentifier, ESQLLiteral } from '../../types';
 import { walk, Walker } from '../walker';
 
 describe('traversal order', () => {
@@ -143,6 +143,26 @@ describe('traversal order', () => {
       ) as ESQLLiteral[];
 
       expect(numbers.map((n) => n.value)).toStrictEqual([3, 2, 1]);
+    });
+  });
+
+  describe('column fields', () => {
+    test('in "forward" order', () => {
+      const { ast } = EsqlQuery.fromSrc('ROW a.b.c = 123');
+      const numbers = Walker.matchAll(ast, { type: 'identifier' }) as ESQLIdentifier[];
+
+      expect(numbers.map((n) => n.name)).toStrictEqual(['a', 'b', 'c']);
+    });
+
+    test('in "backward" order', () => {
+      const { ast } = EsqlQuery.fromSrc('ROW a.b.c = 123');
+      const numbers = Walker.matchAll(
+        ast,
+        { type: 'identifier' },
+        { order: 'backward' }
+      ) as ESQLIdentifier[];
+
+      expect(numbers.map((n) => n.name)).toStrictEqual(['c', 'b', 'a']);
     });
   });
 });
