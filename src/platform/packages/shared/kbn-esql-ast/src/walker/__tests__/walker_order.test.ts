@@ -8,7 +8,7 @@
  */
 
 import { EsqlQuery } from '../../query';
-import { walk } from '../walker';
+import { walk, Walker } from '../walker';
 
 describe('traversal order', () => {
   describe('command arguments', () => {
@@ -43,6 +43,46 @@ describe('traversal order', () => {
         visitSource: (src) => sources.push(src.name),
         order: 'backward',
       });
+
+      expect(sources).toStrictEqual(['c', 'b', 'a']);
+    });
+  });
+
+  describe('array of expressions', () => {
+    test('by default walks in "forward" order', () => {
+      const { ast } = EsqlQuery.fromSrc('FROM a, b, c');
+      const sources: string[] = [];
+      const walker = new Walker({
+        visitSource: (src) => sources.push(src.name),
+      });
+
+      walker.walkExpression(ast.commands[0].args);
+
+      expect(sources).toStrictEqual(['a', 'b', 'c']);
+    });
+
+    test('can explicitly specify "forward" order', () => {
+      const { ast } = EsqlQuery.fromSrc('FROM a, b, c');
+      const sources: string[] = [];
+      const walker = new Walker({
+        visitSource: (src) => sources.push(src.name),
+        order: 'forward',
+      });
+
+      walker.walkExpression(ast.commands[0].args);
+
+      expect(sources).toStrictEqual(['a', 'b', 'c']);
+    });
+
+    test('can walk sources in "backward" order', () => {
+      const { ast } = EsqlQuery.fromSrc('FROM a, b, c');
+      const sources: string[] = [];
+      const walker = new Walker({
+        visitSource: (src) => sources.push(src.name),
+        order: 'backward',
+      });
+
+      walker.walkExpression(ast.commands[0].args);
 
       expect(sources).toStrictEqual(['c', 'b', 'a']);
     });
