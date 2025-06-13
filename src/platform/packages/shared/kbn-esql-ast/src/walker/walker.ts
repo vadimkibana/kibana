@@ -60,6 +60,15 @@ export interface WalkerOptions {
    * @param node Any valid AST node.
    */
   visitAny?: (node: ESQLProperNode) => void;
+
+  /**
+   * Order in which to traverse child nodes. If set to 'forward', child nodes
+   * are traversed in the order they appear in the AST. If set to 'backward',
+   * child nodes are traversed in reverse order.
+   *
+   * @default 'forward'
+   */
+  order?: 'forward' | 'backward';
 }
 
 export type WalkerAstNode = ESQLAstNode | ESQLAstNode[];
@@ -278,7 +287,7 @@ export class Walker {
     if (!node) return;
 
     if (node instanceof Array) {
-      for (const item of node) this.walk(item);
+      this.walkList(node, undefined);
       return;
     }
 
@@ -294,12 +303,27 @@ export class Walker {
     }
   }
 
+  protected walkList(list: ESQLAstNode[], parent: ESQLAstNode | undefined): void {
+    const { options } = this;
+    const length = list.length;
+
+    if (options.order === 'backward') {
+      for (let i = length - 1; i >= 0; i--) {
+        this.walk(list[i]);
+      }
+    } else {
+      for (let i = 0; i < length; i++) {
+        this.walk(list[i]);
+      }
+    }
+  }
+
   public walkCommand(node: ESQLAstCommand): void {
     const { options } = this;
     (options.visitCommand ?? options.visitAny)?.(node);
     switch (node.name) {
       default: {
-        this.walk(node.args);
+        this.walkList(node.args, undefined);
         break;
       }
     }
