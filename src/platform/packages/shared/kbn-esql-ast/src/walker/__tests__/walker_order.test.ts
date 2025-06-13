@@ -8,7 +8,7 @@
  */
 
 import { EsqlQuery } from '../../query';
-import { ESQLIdentifier, ESQLLiteral, ESQLStringLiteral } from '../../types';
+import { ESQLCommand, ESQLIdentifier, ESQLLiteral, ESQLStringLiteral } from '../../types';
 import { walk, Walker } from '../walker';
 
 describe('traversal order', () => {
@@ -209,6 +209,34 @@ describe('traversal order', () => {
       ) as ESQLStringLiteral[];
 
       expect(numbers.map((n) => n.valueUnquoted)).toStrictEqual(['d', 'c', 'b', 'a']);
+    });
+  });
+
+  describe('commands', () => {
+    test('in "forward" order', () => {
+      const { ast } = EsqlQuery.fromSrc('FROM a | LIMIT 1');
+      const numbers = Walker.matchAll(
+        ast,
+        {
+          type: 'command',
+        },
+        { order: 'forward' }
+      ) as ESQLCommand[];
+
+      expect(numbers.map((n) => n.name)).toStrictEqual(['from', 'limit']);
+    });
+
+    test('in "backward" order', () => {
+      const { ast } = EsqlQuery.fromSrc('FROM a | LIMIT 1');
+      const numbers = Walker.matchAll(
+        ast,
+        {
+          type: 'command',
+        },
+        { order: 'backward' }
+      ) as ESQLCommand[];
+
+      expect(numbers.map((n) => n.name)).toStrictEqual(['limit', 'from']);
     });
   });
 });

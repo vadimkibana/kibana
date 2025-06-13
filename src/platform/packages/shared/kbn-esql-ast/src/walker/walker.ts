@@ -413,9 +413,7 @@ export class Walker {
 
   public walkMap(node: ESQLMap): void {
     const { options } = this;
-
     (options.visitMap ?? options.visitAny)?.(node);
-
     this.walkList(node.entries, node);
   }
 
@@ -435,16 +433,8 @@ export class Walker {
 
   public walkQuery(node: ESQLAstQueryExpression): void {
     const { options } = this;
-
     (options.visitQuery ?? options.visitAny)?.(node);
-
-    const commands = node.commands;
-    const length = commands.length;
-
-    for (let i = 0; i < length; i++) {
-      const arg = commands[i];
-      this.walkCommand(arg);
-    }
+    this.walkList(node.commands, node);
   }
 
   public walkSingleAstItem(node: ESQLAstExpression): void {
