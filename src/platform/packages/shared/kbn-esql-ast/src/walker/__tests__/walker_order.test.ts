@@ -8,7 +8,7 @@
  */
 
 import { EsqlQuery } from '../../query';
-import { ESQLIdentifier, ESQLLiteral } from '../../types';
+import { ESQLIdentifier, ESQLLiteral, ESQLStringLiteral } from '../../types';
 import { walk, Walker } from '../walker';
 
 describe('traversal order', () => {
@@ -183,6 +183,32 @@ describe('traversal order', () => {
       ) as ESQLLiteral[];
 
       expect(numbers.map((n) => n.value)).toStrictEqual([2, 1]);
+    });
+  });
+
+  describe('map entries', () => {
+    test('in "forward" order', () => {
+      const { ast } = EsqlQuery.fromSrc('ROW avg(1, {"a": "b", "c": "d"})');
+      const numbers = Walker.matchAll(ast, {
+        type: 'literal',
+        literalType: 'keyword',
+      }) as ESQLStringLiteral[];
+
+      expect(numbers.map((n) => n.valueUnquoted)).toStrictEqual(['a', 'b', 'c', 'd']);
+    });
+
+    test('in "backward" order', () => {
+      const { ast } = EsqlQuery.fromSrc('ROW avg(1, {"a": "b", "c": "d"})');
+      const numbers = Walker.matchAll(
+        ast,
+        {
+          type: 'literal',
+          literalType: 'keyword',
+        },
+        { order: 'backward' }
+      ) as ESQLStringLiteral[];
+
+      expect(numbers.map((n) => n.valueUnquoted)).toStrictEqual(['d', 'c', 'b', 'a']);
     });
   });
 });

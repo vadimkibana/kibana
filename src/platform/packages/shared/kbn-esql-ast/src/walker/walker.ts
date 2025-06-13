@@ -422,13 +422,7 @@ export class Walker {
 
     (options.visitMap ?? options.visitAny)?.(node);
 
-    const entries = node.entries;
-    const length = entries.length;
-
-    for (let i = 0; i < length; i++) {
-      const arg = entries[i];
-      this.walkSingleAstItem(arg);
-    }
+    this.walkList(node.entries, node);
   }
 
   public walkMapEntry(node: ESQLMapEntry): void {
@@ -436,8 +430,13 @@ export class Walker {
 
     (options.visitMapEntry ?? options.visitAny)?.(node);
 
-    this.walkSingleAstItem(node.key);
-    this.walkSingleAstItem(node.value);
+    if (options.order === 'backward') {
+      this.walkSingleAstItem(node.value);
+      this.walkSingleAstItem(node.key);
+    } else {
+      this.walkSingleAstItem(node.key);
+      this.walkSingleAstItem(node.value);
+    }
   }
 
   public walkQuery(node: ESQLAstQueryExpression): void {
