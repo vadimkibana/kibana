@@ -8,6 +8,7 @@
  */
 
 import { EsqlQuery } from '../../query';
+import { ESQLLiteral } from '../../types';
 import { walk, Walker } from '../walker';
 
 describe('traversal order', () => {
@@ -122,6 +123,26 @@ describe('traversal order', () => {
       });
 
       expect(sources).toStrictEqual(['c', 'b', 'a']);
+    });
+  });
+
+  describe('list elements', () => {
+    test('by default walks in "forward" order', () => {
+      const { ast } = EsqlQuery.fromSrc('ROW a = [1, 2, 3]');
+      const numbers = Walker.matchAll(ast, { type: 'literal' }) as ESQLLiteral[];
+
+      expect(numbers.map((n) => n.value)).toStrictEqual([1, 2, 3]);
+    });
+
+    test('in "backward" order', () => {
+      const { ast } = EsqlQuery.fromSrc('ROW a = [1, 2, 3]');
+      const numbers = Walker.matchAll(
+        ast,
+        { type: 'literal' },
+        { order: 'backward' }
+      ) as ESQLLiteral[];
+
+      expect(numbers.map((n) => n.value)).toStrictEqual([3, 2, 1]);
     });
   });
 });

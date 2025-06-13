@@ -92,9 +92,10 @@ export class Walker {
    *
    * @param node AST node to extract parameters from.
    */
-  public static readonly commands = (node: Node): ESQLCommand[] => {
+  public static readonly commands = (node: Node, options?: WalkerOptions): ESQLCommand[] => {
     const commands: ESQLCommand[] = [];
-    walk(node, {
+    Walker.walk(node, {
+      ...options,
       visitCommand: (cmd) => commands.push(cmd),
     });
     return commands;
@@ -105,9 +106,13 @@ export class Walker {
    *
    * @param node AST node to extract parameters from.
    */
-  public static readonly params = (node: WalkerAstNode): ESQLParamLiteral[] => {
+  public static readonly params = (
+    node: WalkerAstNode,
+    options?: WalkerOptions
+  ): ESQLParamLiteral[] => {
     const params: ESQLParamLiteral[] = [];
     Walker.walk(node, {
+      ...options,
       visitLiteral: (param) => {
         if (param.literalType === 'param') {
           params.push(param);
@@ -126,10 +131,12 @@ export class Walker {
    */
   public static readonly find = (
     node: WalkerAstNode,
-    predicate: (node: ESQLProperNode) => boolean
+    predicate: (node: ESQLProperNode) => boolean,
+    options?: WalkerOptions
   ): ESQLProperNode | undefined => {
     let found: ESQLProperNode | undefined;
     Walker.walk(node, {
+      ...options,
       visitAny: (child) => {
         if (!found && predicate(child)) {
           found = child;
@@ -148,10 +155,12 @@ export class Walker {
    */
   public static readonly findAll = (
     node: WalkerAstNode,
-    predicate: (node: ESQLProperNode) => boolean
+    predicate: (node: ESQLProperNode) => boolean,
+    options?: WalkerOptions
   ): ESQLProperNode[] => {
     const list: ESQLProperNode[] = [];
     Walker.walk(node, {
+      ...options,
       visitAny: (child) => {
         if (predicate(child)) {
           list.push(child);
@@ -171,10 +180,11 @@ export class Walker {
    */
   public static readonly match = (
     node: WalkerAstNode,
-    template: NodeMatchTemplate
+    template: NodeMatchTemplate,
+    options?: WalkerOptions
   ): ESQLProperNode | undefined => {
     const predicate = templateToPredicate(template);
-    return Walker.find(node, predicate);
+    return Walker.find(node, predicate, options);
   };
 
   /**
@@ -187,10 +197,11 @@ export class Walker {
    */
   public static readonly matchAll = (
     node: WalkerAstNode,
-    template: NodeMatchTemplate
+    template: NodeMatchTemplate,
+    options?: WalkerOptions
   ): ESQLProperNode[] => {
     const predicate = templateToPredicate(template);
-    return Walker.findAll(node, predicate);
+    return Walker.findAll(node, predicate, options);
   };
 
   /**
@@ -343,9 +354,7 @@ export class Walker {
   public walkListLiteral(node: ESQLList): void {
     const { options } = this;
     (options.visitListLiteral ?? options.visitAny)?.(node);
-    for (const value of node.values) {
-      this.walkExpression(value);
-    }
+    this.walkList(node.values, node);
   }
 
   public walkColumn(node: ESQLColumn): void {
