@@ -165,4 +165,24 @@ describe('traversal order', () => {
       expect(numbers.map((n) => n.name)).toStrictEqual(['c', 'b', 'a']);
     });
   });
+
+  describe('function arguments', () => {
+    test('in "forward" order', () => {
+      const { ast } = EsqlQuery.fromSrc('ROW avg(1, 2)');
+      const numbers = Walker.matchAll(ast, { type: 'literal' }) as ESQLLiteral[];
+
+      expect(numbers.map((n) => n.value)).toStrictEqual([1, 2]);
+    });
+
+    test('in "backward" order', () => {
+      const { ast } = EsqlQuery.fromSrc('ROW avg(1, 2)');
+      const numbers = Walker.matchAll(
+        ast,
+        { type: 'literal' },
+        { order: 'backward' }
+      ) as ESQLLiteral[];
+
+      expect(numbers.map((n) => n.value)).toStrictEqual([2, 1]);
+    });
+  });
 });

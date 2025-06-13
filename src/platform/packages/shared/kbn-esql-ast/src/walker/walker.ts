@@ -411,15 +411,10 @@ export class Walker {
   public walkFunction(node: ESQLFunction): void {
     const { options } = this;
     (options.visitFunction ?? options.visitAny)?.(node);
-    const args = node.args;
-    const length = args.length;
 
     if (node.operator) this.walkSingleAstItem(node.operator);
 
-    for (let i = 0; i < length; i++) {
-      const arg = args[i];
-      this.walkExpression(arg);
-    }
+    this.walkList(node.args, node);
   }
 
   public walkMap(node: ESQLMap): void {
