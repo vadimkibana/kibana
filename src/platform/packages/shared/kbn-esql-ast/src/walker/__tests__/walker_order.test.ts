@@ -72,7 +72,7 @@ describe('traversal order', () => {
       expect(sources).toStrictEqual(['a', 'b', 'c']);
     });
 
-    test('can walk sources in "backward" order', () => {
+    test('can walk fields in "backward" order', () => {
       const { ast } = EsqlQuery.fromSrc('FROM index METADATA a, b, c');
       const sources: string[] = [];
 

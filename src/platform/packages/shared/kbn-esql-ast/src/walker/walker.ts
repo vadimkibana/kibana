@@ -297,7 +297,7 @@ export class Walker {
         break;
       }
       default: {
-        this.walkAstItem(node as ESQLAstItem);
+        this.walkExpression(node as ESQLAstItem);
         break;
       }
     }
@@ -330,10 +330,10 @@ export class Walker {
     this.walkList(node.args, undefined);
   }
 
-  public walkAstItem(node: ESQLAstItem | ESQLAstExpression): void {
-    if (node instanceof Array) {
+  public walkExpression(node: ESQLAstItem | ESQLAstExpression): void {
+    if (Array.isArray(node)) {
       const list = node as ESQLAstItem[];
-      for (const item of list) this.walkAstItem(item);
+      this.walkList(list, undefined);
     } else {
       const item = node as ESQLSingleAstItem;
       this.walkSingleAstItem(item);
@@ -344,7 +344,7 @@ export class Walker {
     const { options } = this;
     (options.visitListLiteral ?? options.visitAny)?.(node);
     for (const value of node.values) {
-      this.walkAstItem(value);
+      this.walkExpression(value);
     }
   }
 
@@ -356,7 +356,7 @@ export class Walker {
 
     if (args) {
       for (const value of args) {
-        this.walkAstItem(value);
+        this.walkExpression(value);
       }
     }
   }
@@ -364,7 +364,7 @@ export class Walker {
   public walkInlineCast(node: ESQLInlineCast): void {
     const { options } = this;
     (options.visitInlineCast ?? options.visitAny)?.(node);
-    this.walkAstItem(node.value);
+    this.walkExpression(node.value);
   }
 
   public walkFunction(node: ESQLFunction): void {
@@ -377,7 +377,7 @@ export class Walker {
 
     for (let i = 0; i < length; i++) {
       const arg = args[i];
-      this.walkAstItem(arg);
+      this.walkExpression(arg);
     }
   }
 
