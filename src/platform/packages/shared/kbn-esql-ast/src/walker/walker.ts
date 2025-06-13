@@ -176,6 +176,10 @@ export class Walker {
    * of the node structure, where each property corresponds to a node type or
    * property to match against.
    *
+   * - An array matches if the node key is in the array.
+   * - A RegExp matches if the node key matches the RegExp.
+   * - Any other value matches if the node key is triple-equal to the value.
+   *
    * For example, match the first `literal`:
    *
    * ```typescript
@@ -191,7 +195,10 @@ export class Walker {
    * Find the first literal of type `integer` or `decimal`:
    *
    * ```typescript
-   * const number = Walker.match(ast, { type: 'literal', literalType: ['integer', 'decimal'] });
+   * const number = Walker.match(ast, {
+   *   type: 'literal',
+   *   literalType: [ 'integer', 'decimal' ],
+   * });
    * ```
    *
    * Finally, you can also match any field by regular expression. Find
