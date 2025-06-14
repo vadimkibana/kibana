@@ -37,29 +37,66 @@ import { NodeMatchTemplate, templateToPredicate } from './helpers';
 type Node = ESQLAstNode | ESQLAstNode[];
 
 export interface WalkerOptions {
-  visitCommand?: (node: ESQLCommand) => void;
-  visitCommandOption?: (node: ESQLCommandOption) => void;
-  /** @todo Rename to `visitExpression`. */
-  visitSingleAstItem?: (node: ESQLAstExpression) => void;
-  visitQuery?: (node: ESQLAstQueryExpression) => void;
-  visitFunction?: (node: ESQLFunction) => void;
-  visitSource?: (node: ESQLSource) => void;
-  visitColumn?: (node: ESQLColumn) => void;
-  visitLiteral?: (node: ESQLLiteral) => void;
-  visitListLiteral?: (node: ESQLList) => void;
-  visitTimeIntervalLiteral?: (node: ESQLTimeInterval) => void;
-  visitInlineCast?: (node: ESQLInlineCast) => void;
-  visitUnknown?: (node: ESQLUnknownItem) => void;
-  visitIdentifier?: (node: ESQLIdentifier) => void;
-  visitMap?: (node: ESQLMap) => void;
-  visitMapEntry?: (node: ESQLMapEntry) => void;
+  visitCommand?: (
+    node: ESQLCommand,
+    parent: ESQLAstQueryExpression | undefined,
+    walker: Walker
+  ) => void;
+  visitCommandOption?: (
+    node: ESQLCommandOption,
+    parent: ESQLCommand | undefined,
+    walker: Walker
+  ) => void;
+  visitQuery?: (
+    node: ESQLAstQueryExpression,
+    parent: ESQLProperNode | undefined,
+    walker: Walker
+  ) => void;
+  visitFunction?: (node: ESQLFunction, parent: ESQLProperNode | undefined, walker: Walker) => void;
+  visitSource?: (node: ESQLSource, parent: ESQLProperNode | undefined, walker: Walker) => void;
+  visitColumn?: (node: ESQLColumn, parent: ESQLProperNode | undefined, walker: Walker) => void;
+  visitLiteral?: (node: ESQLLiteral, parent: ESQLProperNode | undefined, walker: Walker) => void;
+  visitListLiteral?: (node: ESQLList, parent: ESQLProperNode | undefined, walker: Walker) => void;
+  visitTimeIntervalLiteral?: (
+    node: ESQLTimeInterval,
+    parent: ESQLProperNode | undefined,
+    walker: Walker
+  ) => void;
+  visitInlineCast?: (
+    node: ESQLInlineCast,
+    parent: ESQLProperNode | undefined,
+    walker: Walker
+  ) => void;
+  visitUnknown?: (
+    node: ESQLUnknownItem,
+    parent: ESQLProperNode | undefined,
+    walker: Walker
+  ) => void;
+  visitIdentifier?: (
+    node: ESQLIdentifier,
+    parent: ESQLProperNode | undefined,
+    walker: Walker
+  ) => void;
+  visitMap?: (node: ESQLMap, parent: ESQLProperNode | undefined, walker: Walker) => void;
+  visitMapEntry?: (node: ESQLMapEntry, parent: ESQLProperNode | undefined, walker: Walker) => void;
+
+  /**
+   * Called on every expression node.
+   *
+   * @todo Rename to `visitExpression`.
+   */
+  visitSingleAstItem?: (
+    node: ESQLAstExpression,
+    parent: ESQLProperNode | undefined,
+    walker: Walker
+  ) => void;
 
   /**
    * Called for any node type that does not have a specific visitor.
    *
    * @param node Any valid AST node.
    */
-  visitAny?: (node: ESQLProperNode) => void;
+  visitAny?: (node: ESQLProperNode, parent: ESQLProperNode | undefined, walker: Walker) => void;
 
   /**
    * Order in which to traverse child nodes. If set to 'forward', child nodes
@@ -330,168 +367,171 @@ export class Walker {
 
   public walk(
     node: undefined | ESQLAstNode | ESQLAstNode[],
-    parent: ESQLAstNode | undefined = undefined
+    parent: ESQLProperNode | undefined = undefined
   ): void {
     if (!node) return;
     if (Array.isArray(node)) {
       this.walkList(node, parent);
     } else if (node.type === 'command') {
-      this.walkCommand(node as ESQLAstCommand);
+      this.walkCommand(node as ESQLAstCommand, parent as ESQLAstQueryExpression | undefined);
     } else {
-      this.walkExpression(node as ESQLAstExpression);
+      this.walkExpression(node as ESQLAstExpression, parent);
     }
   }
 
-  protected walkList(list: ESQLAstNode[], parent: ESQLAstNode | undefined): void {
+  protected walkList(list: ESQLAstNode[], parent: ESQLProperNode | undefined): void {
     const { options } = this;
     const length = list.length;
 
     if (options.order === 'backward') {
       for (let i = length - 1; i >= 0; i--) {
-        this.walk(list[i]);
+        this.walk(list[i], parent);
       }
     } else {
       for (let i = 0; i < length; i++) {
-        this.walk(list[i]);
+        this.walk(list[i], parent);
       }
     }
   }
 
-  public walkCommand(node: ESQLAstCommand): void {
+  public walkCommand(node: ESQLAstCommand, parent: ESQLAstQueryExpression | undefined): void {
     const { options } = this;
-    (options.visitCommand ?? options.visitAny)?.(node);
-    this.walkList(node.args, undefined);
+    (options.visitCommand ?? options.visitAny)?.(node, parent, this);
+    this.walkList(node.args, node);
   }
 
-  public walkOption(node: ESQLCommandOption): void {
+  public walkOption(node: ESQLCommandOption, parent: ESQLCommand | undefined): void {
     const { options } = this;
-    (options.visitCommandOption ?? options.visitAny)?.(node);
-    this.walkList(node.args, undefined);
+    (options.visitCommandOption ?? options.visitAny)?.(node, parent, this);
+    this.walkList(node.args, node);
   }
 
-  public walkExpression(node: ESQLAstItem | ESQLAstExpression): void {
+  public walkExpression(
+    node: ESQLAstItem | ESQLAstExpression,
+    parent: ESQLProperNode | undefined = undefined
+  ): void {
     if (Array.isArray(node)) {
       const list = node as ESQLAstItem[];
-      this.walkList(list, undefined);
+      this.walkList(list, parent);
     } else {
       const item = node as ESQLSingleAstItem;
-      this.walkSingleAstItem(item);
+      this.walkSingleAstItem(item, parent);
     }
   }
 
-  public walkListLiteral(node: ESQLList): void {
+  public walkListLiteral(node: ESQLList, parent: ESQLProperNode | undefined): void {
     const { options } = this;
-    (options.visitListLiteral ?? options.visitAny)?.(node);
+    (options.visitListLiteral ?? options.visitAny)?.(node, parent, this);
     this.walkList(node.values, node);
   }
 
-  public walkColumn(node: ESQLColumn): void {
+  public walkColumn(node: ESQLColumn, parent: ESQLProperNode | undefined): void {
     const { options } = this;
     const { args } = node;
 
-    (options.visitColumn ?? options.visitAny)?.(node);
+    (options.visitColumn ?? options.visitAny)?.(node, parent, this);
 
     if (args) {
       this.walkList(args, node);
     }
   }
 
-  public walkInlineCast(node: ESQLInlineCast): void {
+  public walkInlineCast(node: ESQLInlineCast, parent: ESQLProperNode | undefined): void {
     const { options } = this;
-    (options.visitInlineCast ?? options.visitAny)?.(node);
-    this.walkExpression(node.value);
+    (options.visitInlineCast ?? options.visitAny)?.(node, parent, this);
+    this.walkExpression(node.value, node);
   }
 
-  public walkFunction(node: ESQLFunction): void {
+  public walkFunction(node: ESQLFunction, parent: ESQLProperNode | undefined): void {
     const { options } = this;
-    (options.visitFunction ?? options.visitAny)?.(node);
+    (options.visitFunction ?? options.visitAny)?.(node, parent, this);
 
-    if (node.operator) this.walkSingleAstItem(node.operator);
+    if (node.operator) this.walkSingleAstItem(node.operator, node);
 
     this.walkList(node.args, node);
   }
 
-  public walkMap(node: ESQLMap): void {
+  public walkMap(node: ESQLMap, parent: ESQLProperNode | undefined): void {
     const { options } = this;
-    (options.visitMap ?? options.visitAny)?.(node);
+    (options.visitMap ?? options.visitAny)?.(node, parent, this);
     this.walkList(node.entries, node);
   }
 
-  public walkMapEntry(node: ESQLMapEntry): void {
+  public walkMapEntry(node: ESQLMapEntry, parent: ESQLProperNode | undefined): void {
     const { options } = this;
 
-    (options.visitMapEntry ?? options.visitAny)?.(node);
+    (options.visitMapEntry ?? options.visitAny)?.(node, parent, this);
 
     if (options.order === 'backward') {
-      this.walkSingleAstItem(node.value);
-      this.walkSingleAstItem(node.key);
+      this.walkSingleAstItem(node.value, node);
+      this.walkSingleAstItem(node.key, node);
     } else {
-      this.walkSingleAstItem(node.key);
-      this.walkSingleAstItem(node.value);
+      this.walkSingleAstItem(node.key, node);
+      this.walkSingleAstItem(node.value, node);
     }
   }
 
-  public walkQuery(node: ESQLAstQueryExpression): void {
+  public walkQuery(node: ESQLAstQueryExpression, parent: ESQLProperNode | undefined): void {
     const { options } = this;
-    (options.visitQuery ?? options.visitAny)?.(node);
+    (options.visitQuery ?? options.visitAny)?.(node, parent, this);
     this.walkList(node.commands, node);
   }
 
-  public walkSingleAstItem(node: ESQLAstExpression): void {
+  public walkSingleAstItem(node: ESQLAstExpression, parent: ESQLProperNode | undefined): void {
     if (!node) return;
     const { options } = this;
-    options.visitSingleAstItem?.(node);
+    options.visitSingleAstItem?.(node, parent, this);
     switch (node.type) {
       case 'query': {
-        this.walkQuery(node as ESQLAstQueryExpression);
+        this.walkQuery(node as ESQLAstQueryExpression, parent);
         break;
       }
       case 'function': {
-        this.walkFunction(node as ESQLFunction);
+        this.walkFunction(node as ESQLFunction, parent);
         break;
       }
       case 'map': {
-        this.walkMap(node as ESQLMap);
+        this.walkMap(node as ESQLMap, parent);
         break;
       }
       case 'map-entry': {
-        this.walkMapEntry(node as ESQLMapEntry);
+        this.walkMapEntry(node as ESQLMapEntry, parent);
         break;
       }
       case 'option': {
-        this.walkOption(node);
+        this.walkOption(node, parent as ESQLCommand | undefined);
         break;
       }
       case 'source': {
-        (options.visitSource ?? options.visitAny)?.(node);
+        (options.visitSource ?? options.visitAny)?.(node, parent, this);
         break;
       }
       case 'column': {
-        this.walkColumn(node);
+        this.walkColumn(node, parent);
         break;
       }
       case 'literal': {
-        (options.visitLiteral ?? options.visitAny)?.(node);
+        (options.visitLiteral ?? options.visitAny)?.(node, parent, this);
         break;
       }
       case 'list': {
-        this.walkListLiteral(node);
+        this.walkListLiteral(node, parent);
         break;
       }
       case 'timeInterval': {
-        (options.visitTimeIntervalLiteral ?? options.visitAny)?.(node);
+        (options.visitTimeIntervalLiteral ?? options.visitAny)?.(node, parent, this);
         break;
       }
       case 'inlineCast': {
-        this.walkInlineCast(node);
+        this.walkInlineCast(node, parent);
         break;
       }
       case 'identifier': {
-        (options.visitIdentifier ?? options.visitAny)?.(node);
+        (options.visitIdentifier ?? options.visitAny)?.(node, parent, this);
         break;
       }
       case 'unknown': {
-        (options.visitUnknown ?? options.visitAny)?.(node);
+        (options.visitUnknown ?? options.visitAny)?.(node, parent, this);
         break;
       }
     }

@@ -9,6 +9,7 @@
 
 import { parse } from '../../parser';
 import { Parser } from '../../parser/parser';
+import { EsqlQuery } from '../../query';
 import {
   ESQLColumn,
   ESQLCommand,
@@ -861,5 +862,53 @@ describe('structurally can walk all nodes', () => {
         },
       ]);
     });
+  });
+
+  describe('returns parent nodes', () => {
+    test('function arguments', () => {
+      const { ast } = EsqlQuery.fromSrc('ROW a(1), b(2)');
+      const tuples: Array<[value: number, function: string]> = [];
+
+      walk(ast, {
+        visitLiteral: (node, parent) => {
+          tuples.push([node.value as number, (parent as ESQLFunction).name]);
+        },
+      });
+
+      expect(tuples).toStrictEqual([
+        [1, 'a'],
+        [2, 'b'],
+      ]);
+    });
+  });
+
+  test('source parent command', () => {
+    const { ast } = EsqlQuery.fromSrc('FROM a, b');
+    const tuples: Array<[index: string, command: string]> = [];
+
+    walk(ast, {
+      visitSource: (node, parent) => {
+        tuples.push([node.name, (parent as ESQLCommand).name]);
+      },
+    });
+
+    expect(tuples).toStrictEqual([
+      ['a', 'from'],
+      ['b', 'from'],
+    ]);
+  });
+
+  test('column parent', () => {
+    const { ast } = EsqlQuery.fromSrc('ROW a | LIMIT 10');
+    const tuples: Array<[index: string, command: string]> = [];
+
+    walk(ast, {
+      visitColumn: (node, parent) => {
+        tuples.push([node.name, (parent as ESQLCommand).name]);
+      },
+      order: 'backward',
+    });
+
+    expect(tuples).toStrictEqual([['a', 'row']]);
   });
 });
