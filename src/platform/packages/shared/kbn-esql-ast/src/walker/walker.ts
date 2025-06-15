@@ -273,17 +273,17 @@ export class Walker {
    * Matches all nodes against a template object. Returns all nodes that match
    * the template.
    *
-   * @param node AST node to match against the template.
+   * @param tree AST node to match against the template.
    * @param template Template object to match against the node.
    * @returns All nodes that match the template
    */
   public static readonly matchAll = (
-    node: WalkerAstNode,
+    tree: WalkerAstNode,
     template: NodeMatchTemplate,
     options?: WalkerOptions
   ): types.ESQLProperNode[] => {
     const predicate = templateToPredicate(template);
-    return Walker.findAll(node, predicate, options);
+    return Walker.findAll(tree, predicate, options);
   };
 
   /**
@@ -384,17 +384,19 @@ export class Walker {
    * ```typescript
    * const { ast } = EsqlQuery.fromSrc('FROM index');
    * const child = Walker.match(ast, { type: 'source' });
-   * const parent = Walker.parent(child); // FROM
+   * const parent = Walker.parent(ast, child); // FROM
+   * const grandParent = Walker.parent(ast, parent); // query expression
    * ```
    *
    * @param child The child node for which to find the parent.
    * @returns The parent node of the child, if found.
    */
   public static readonly parent = (
+    tree: WalkerAstNode,
     child: types.ESQLProperNode
   ): types.ESQLProperNode | undefined => {
     let found: types.ESQLProperNode | undefined;
-    Walker.walk(child, {
+    Walker.walk(tree, {
       visitAny: (node, parent, walker) => {
         if (node === child) {
           found = parent;

@@ -8,6 +8,7 @@
  */
 
 import { parse } from '../../parser';
+import { EsqlQuery } from '../../query';
 import { ESQLAstRerankCommand } from '../../types';
 import { Walker } from '../walker';
 
@@ -436,6 +437,27 @@ describe('Walker static methods', () => {
 
       expect(has1).toBe(false);
       expect(has2).toBe(true);
+    });
+  });
+
+  describe('Walker.parent()', () => {
+    test('can find parent node (FROM command) of a source', () => {
+      const { ast } = EsqlQuery.fromSrc('FROM index');
+      const child = Walker.match(ast, { type: 'source' })!;
+      const parent = Walker.parent(ast, child)!;
+      const grandParent = Walker.parent(ast, parent);
+
+      expect(child).toMatchObject({
+        type: 'source',
+        name: 'index',
+      });
+      expect(parent).toMatchObject({
+        type: 'command',
+        name: 'from',
+      });
+      expect(grandParent).toMatchObject({
+        type: 'query',
+      });
     });
   });
 });
