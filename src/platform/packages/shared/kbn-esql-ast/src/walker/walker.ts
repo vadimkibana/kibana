@@ -40,45 +40,69 @@ export interface WalkerOptions {
   visitCommand?: (
     node: ESQLCommand,
     parent: ESQLAstQueryExpression | undefined,
-    walker: Walker
+    walker: WalkerVisitorApi
   ) => void;
   visitCommandOption?: (
     node: ESQLCommandOption,
     parent: ESQLCommand | undefined,
-    walker: Walker
+    walker: WalkerVisitorApi
   ) => void;
   visitQuery?: (
     node: ESQLAstQueryExpression,
     parent: ESQLProperNode | undefined,
-    walker: Walker
+    walker: WalkerVisitorApi
   ) => void;
-  visitFunction?: (node: ESQLFunction, parent: ESQLProperNode | undefined, walker: Walker) => void;
-  visitSource?: (node: ESQLSource, parent: ESQLProperNode | undefined, walker: Walker) => void;
-  visitColumn?: (node: ESQLColumn, parent: ESQLProperNode | undefined, walker: Walker) => void;
-  visitLiteral?: (node: ESQLLiteral, parent: ESQLProperNode | undefined, walker: Walker) => void;
-  visitListLiteral?: (node: ESQLList, parent: ESQLProperNode | undefined, walker: Walker) => void;
+  visitFunction?: (
+    node: ESQLFunction,
+    parent: ESQLProperNode | undefined,
+    walker: WalkerVisitorApi
+  ) => void;
+  visitSource?: (
+    node: ESQLSource,
+    parent: ESQLProperNode | undefined,
+    walker: WalkerVisitorApi
+  ) => void;
+  visitColumn?: (
+    node: ESQLColumn,
+    parent: ESQLProperNode | undefined,
+    walker: WalkerVisitorApi
+  ) => void;
+  visitLiteral?: (
+    node: ESQLLiteral,
+    parent: ESQLProperNode | undefined,
+    walker: WalkerVisitorApi
+  ) => void;
+  visitListLiteral?: (
+    node: ESQLList,
+    parent: ESQLProperNode | undefined,
+    walker: WalkerVisitorApi
+  ) => void;
   visitTimeIntervalLiteral?: (
     node: ESQLTimeInterval,
     parent: ESQLProperNode | undefined,
-    walker: Walker
+    walker: WalkerVisitorApi
   ) => void;
   visitInlineCast?: (
     node: ESQLInlineCast,
     parent: ESQLProperNode | undefined,
-    walker: Walker
+    walker: WalkerVisitorApi
   ) => void;
   visitUnknown?: (
     node: ESQLUnknownItem,
-    parent: ESQLProperNode | undefined,
-    walker: Walker
+    parents: ESQLProperNode | undefined,
+    walker: WalkerVisitorApi
   ) => void;
   visitIdentifier?: (
     node: ESQLIdentifier,
     parent: ESQLProperNode | undefined,
-    walker: Walker
+    walker: WalkerVisitorApi
   ) => void;
-  visitMap?: (node: ESQLMap, parent: ESQLProperNode | undefined, walker: Walker) => void;
-  visitMapEntry?: (node: ESQLMapEntry, parent: ESQLProperNode | undefined, walker: Walker) => void;
+  visitMap?: (node: ESQLMap, parent: ESQLProperNode | undefined, walker: WalkerVisitorApi) => void;
+  visitMapEntry?: (
+    node: ESQLMapEntry,
+    parent: ESQLProperNode | undefined,
+    walker: WalkerVisitorApi
+  ) => void;
 
   /**
    * Called on every expression node.
@@ -88,7 +112,7 @@ export interface WalkerOptions {
   visitSingleAstItem?: (
     node: ESQLAstExpression,
     parent: ESQLProperNode | undefined,
-    walker: Walker
+    walker: WalkerVisitorApi
   ) => void;
 
   /**
@@ -96,7 +120,11 @@ export interface WalkerOptions {
    *
    * @param node Any valid AST node.
    */
-  visitAny?: (node: ESQLProperNode, parent: ESQLProperNode | undefined, walker: Walker) => void;
+  visitAny?: (
+    node: ESQLProperNode,
+    parent: ESQLProperNode | undefined,
+    walker: WalkerVisitorApi
+  ) => void;
 
   /**
    * Order in which to traverse child nodes. If set to 'forward', child nodes
@@ -109,6 +137,8 @@ export interface WalkerOptions {
 }
 
 export type WalkerAstNode = ESQLAstNode | ESQLAstNode[];
+
+export type WalkerVisitorApi = Pick<Walker, 'abort'>;
 
 /**
  * Iterates over all nodes in the AST and calls the appropriate visitor
@@ -363,12 +393,19 @@ export class Walker {
     });
   };
 
+  protected aborted: boolean = false;
+
   constructor(protected readonly options: WalkerOptions) {}
+
+  public abort(): void {
+    this.aborted = true;
+  }
 
   public walk(
     node: undefined | ESQLAstNode | ESQLAstNode[],
     parent: ESQLProperNode | undefined = undefined
   ): void {
+    if (this.aborted) return;
     if (!node) return;
     if (Array.isArray(node)) {
       this.walkList(node, parent);
@@ -380,6 +417,8 @@ export class Walker {
   }
 
   protected walkList(list: ESQLAstNode[], parent: ESQLProperNode | undefined): void {
+    if (this.aborted) return;
+
     const { options } = this;
     const length = list.length;
 
@@ -395,6 +434,8 @@ export class Walker {
   }
 
   public walkCommand(node: ESQLAstCommand, parent: ESQLAstQueryExpression | undefined): void {
+    if (this.aborted) return;
+
     const { options } = this;
     (options.visitCommand ?? options.visitAny)?.(node, parent, this);
     this.walkList(node.args, node);
@@ -478,6 +519,7 @@ export class Walker {
   }
 
   public walkSingleAstItem(node: ESQLAstExpression, parent: ESQLProperNode | undefined): void {
+    if (this.aborted) return;
     if (!node) return;
     const { options } = this;
     options.visitSingleAstItem?.(node, parent, this);
