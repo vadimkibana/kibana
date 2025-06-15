@@ -157,16 +157,14 @@ export class Walker {
     tree: WalkerAstNode,
     options?: WalkerOptions
   ): types.ESQLParamLiteral[] => {
-    const params: types.ESQLParamLiteral[] = [];
-    Walker.walk(tree, {
-      ...options,
-      visitLiteral: (param) => {
-        if (param.literalType === 'param') {
-          params.push(param);
-        }
+    return Walker.matchAll(
+      tree,
+      {
+        type: 'literal',
+        literalType: 'param',
       },
-    });
-    return params;
+      options
+    ) as types.ESQLParamLiteral[];
   };
 
   /**
