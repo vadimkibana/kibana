@@ -148,20 +148,20 @@ export class Walker {
   /**
    * Walks the AST and calls the appropriate visitor functions.
    */
-  public static readonly walk = (node: WalkerAstNode, options: WalkerOptions): Walker => {
+  public static readonly walk = (tree: WalkerAstNode, options: WalkerOptions): Walker => {
     const walker = new Walker(options);
-    walker.walk(node);
+    walker.walk(tree);
     return walker;
   };
 
   /**
    * Walks the AST and extracts all command statements.
    *
-   * @param node AST node to extract parameters from.
+   * @param tree AST node to extract parameters from.
    */
-  public static readonly commands = (node: Node, options?: WalkerOptions): ESQLCommand[] => {
+  public static readonly commands = (tree: Node, options?: WalkerOptions): ESQLCommand[] => {
     const commands: ESQLCommand[] = [];
-    Walker.walk(node, {
+    Walker.walk(tree, {
       ...options,
       visitCommand: (cmd) => commands.push(cmd),
     });
@@ -171,14 +171,14 @@ export class Walker {
   /**
    * Walks the AST and extracts all parameter literals.
    *
-   * @param node AST node to extract parameters from.
+   * @param tree AST node to extract parameters from.
    */
   public static readonly params = (
-    node: WalkerAstNode,
+    tree: WalkerAstNode,
     options?: WalkerOptions
   ): ESQLParamLiteral[] => {
     const params: ESQLParamLiteral[] = [];
-    Walker.walk(node, {
+    Walker.walk(tree, {
       ...options,
       visitLiteral: (param) => {
         if (param.literalType === 'param') {
@@ -192,21 +192,22 @@ export class Walker {
   /**
    * Finds and returns the first node that matches the search criteria.
    *
-   * @param node AST node to start the search from.
+   * @param tree AST node to start the search from.
    * @param predicate A function that returns true if the node matches the search criteria.
    * @returns The first node that matches the search criteria.
    */
   public static readonly find = (
-    node: WalkerAstNode,
+    tree: WalkerAstNode,
     predicate: (node: ESQLProperNode) => boolean,
     options?: WalkerOptions
   ): ESQLProperNode | undefined => {
     let found: ESQLProperNode | undefined;
-    Walker.walk(node, {
+    Walker.walk(tree, {
       ...options,
-      visitAny: (child) => {
-        if (!found && predicate(child)) {
-          found = child;
+      visitAny: (node, parent, walker) => {
+        if (!found && predicate(node)) {
+          found = node;
+          walker.abort();
         }
       },
     });
@@ -216,21 +217,21 @@ export class Walker {
   /**
    * Finds and returns all nodes that match the search criteria.
    *
-   * @param node AST node to start the search from.
+   * @param tree AST node to start the search from.
    * @param predicate A function that returns true if the node matches the search criteria.
    * @returns All nodes that match the search criteria.
    */
   public static readonly findAll = (
-    node: WalkerAstNode,
+    tree: WalkerAstNode,
     predicate: (node: ESQLProperNode) => boolean,
     options?: WalkerOptions
   ): ESQLProperNode[] => {
     const list: ESQLProperNode[] = [];
-    Walker.walk(node, {
+    Walker.walk(tree, {
       ...options,
-      visitAny: (child) => {
-        if (predicate(child)) {
-          list.push(child);
+      visitAny: (node) => {
+        if (predicate(node)) {
+          list.push(node);
         }
       },
     });
@@ -275,17 +276,17 @@ export class Walker {
    * const logSource = Walker.match(ast, { type: 'source', name: /.+log.+/ });
    * ```
    *
-   * @param node AST node to match against the template.
+   * @param tree AST node to match against the template.
    * @param template Template object to match against the node.
    * @returns The first node that matches the template
    */
   public static readonly match = (
-    node: WalkerAstNode,
+    tree: WalkerAstNode,
     template: NodeMatchTemplate,
     options?: WalkerOptions
   ): ESQLProperNode | undefined => {
     const predicate = templateToPredicate(template);
-    return Walker.find(node, predicate, options);
+    return Walker.find(tree, predicate, options);
   };
 
   /**
@@ -308,19 +309,20 @@ export class Walker {
   /**
    * Finds the first function that matches the predicate.
    *
-   * @param node AST node from which to search for a function
+   * @param tree AST node from which to search for a function
    * @param predicate Callback function to determine if the function is found
    * @returns The first function that matches the predicate
    */
   public static readonly findFunction = (
-    node: WalkerAstNode,
+    tree: WalkerAstNode,
     predicate: (node: ESQLFunction) => boolean
   ): ESQLFunction | undefined => {
     let found: ESQLFunction | undefined;
-    Walker.walk(node, {
-      visitFunction: (func) => {
+    Walker.walk(tree, {
+      visitFunction: (func, parent, walker) => {
         if (!found && predicate(func)) {
           found = func;
+          walker.abort();
         }
       },
     });
@@ -342,14 +344,14 @@ export class Walker {
   };
 
   public static readonly visitComments = (
-    root: ESQLAstNode | ESQLAstNode[],
+    tree: ESQLAstNode | ESQLAstNode[],
     callback: (
       comment: ESQLAstComment,
       node: ESQLProperNode,
       attachment: keyof ESQLAstNodeFormatting
     ) => void
   ): void => {
-    Walker.walk(root, {
+    Walker.walk(tree, {
       visitAny: (node) => {
         const formatting = node.formatting;
         if (!formatting) return;
