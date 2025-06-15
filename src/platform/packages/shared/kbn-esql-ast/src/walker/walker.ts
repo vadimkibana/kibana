@@ -375,6 +375,36 @@ export class Walker {
     });
   };
 
+  /**
+   * Returns the parent node of the given child node.
+   *
+   * For example, if the child node is a source node, this method will return
+   * the `FROM` command that contains the source:
+   *
+   * ```typescript
+   * const { ast } = EsqlQuery.fromSrc('FROM index');
+   * const child = Walker.match(ast, { type: 'source' });
+   * const parent = Walker.parent(child); // FROM
+   * ```
+   *
+   * @param child The child node for which to find the parent.
+   * @returns The parent node of the child, if found.
+   */
+  public static readonly parent = (
+    child: types.ESQLProperNode
+  ): types.ESQLProperNode | undefined => {
+    let found: types.ESQLProperNode | undefined;
+    Walker.walk(child, {
+      visitAny: (node, parent, walker) => {
+        if (node === child) {
+          found = parent;
+          walker.abort();
+        }
+      },
+    });
+    return found;
+  };
+
   protected aborted: boolean = false;
 
   constructor(protected readonly options: WalkerOptions) {}
