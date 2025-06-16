@@ -135,39 +135,6 @@ export class Walker {
   };
 
   /**
-   * Walks the AST and extracts all command statements.
-   *
-   * @param tree AST node to extract parameters from.
-   */
-  public static readonly commands = (tree: Node, options?: WalkerOptions): types.ESQLCommand[] => {
-    const commands: types.ESQLCommand[] = [];
-    Walker.walk(tree, {
-      ...options,
-      visitCommand: (cmd) => commands.push(cmd),
-    });
-    return commands;
-  };
-
-  /**
-   * Walks the AST and extracts all parameter literals.
-   *
-   * @param tree AST node to extract parameters from.
-   */
-  public static readonly params = (
-    tree: WalkerAstNode,
-    options?: WalkerOptions
-  ): types.ESQLParamLiteral[] => {
-    return Walker.matchAll(
-      tree,
-      {
-        type: 'literal',
-        literalType: 'param',
-      },
-      options
-    ) as types.ESQLParamLiteral[];
-  };
-
-  /**
    * Finds and returns the first node that matches the search criteria.
    *
    * @param tree AST node to start the search from.
@@ -285,6 +252,34 @@ export class Walker {
   };
 
   /**
+   * Walks the AST and extracts all command statements.
+   *
+   * @param tree AST node to extract parameters from.
+   */
+  public static readonly commands = (tree: Node, options?: WalkerOptions): types.ESQLCommand[] => {
+    return Walker.matchAll(tree, { type: 'command' }, options) as types.ESQLCommand[];
+  };
+
+  /**
+   * Walks the AST and extracts all parameter literals.
+   *
+   * @param tree AST node to extract parameters from.
+   */
+  public static readonly params = (
+    tree: WalkerAstNode,
+    options?: WalkerOptions
+  ): types.ESQLParamLiteral[] => {
+    return Walker.matchAll(
+      tree,
+      {
+        type: 'literal',
+        literalType: 'param',
+      },
+      options
+    ) as types.ESQLParamLiteral[];
+  };
+
+  /**
    * Finds the first function that matches the predicate.
    *
    * @param tree AST node from which to search for a function
@@ -310,15 +305,17 @@ export class Walker {
   /**
    * Searches for at least one occurrence of a function or expression in the AST.
    *
-   * @param node AST subtree to search in.
+   * @param tree AST subtree to search in.
    * @param name Function or expression name to search for.
    * @returns True if the function or expression is found in the AST.
+   *
+   * @todo Rename to `findByName`.
    */
   public static readonly hasFunction = (
-    node: types.ESQLAstNode | types.ESQLAstNode[],
+    tree: types.ESQLAstNode | types.ESQLAstNode[],
     name: string
   ): boolean => {
-    return !!Walker.findFunction(node, (fn) => fn.name === name);
+    return !!Walker.findFunction(tree, (fn) => fn.name === name);
   };
 
   public static readonly visitComments = (
