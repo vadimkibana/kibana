@@ -318,6 +318,63 @@ export class Walker {
     return !!Walker.findFunction(tree, name);
   };
 
+  /**
+   * Returns the parent node of the given child node.
+   *
+   * For example, if the child node is a source node, this method will return
+   * the `FROM` command that contains the source:
+   *
+   * ```typescript
+   * const { ast } = EsqlQuery.fromSrc('FROM index');
+   * const child = Walker.match(ast, { type: 'source' });
+   * const parent = Walker.parent(ast, child); // FROM
+   * const grandParent = Walker.parent(ast, parent); // query expression
+   * ```
+   *
+   * @param child The child node for which to find the parent.
+   * @returns The parent node of the child, if found.
+   */
+  public static readonly parent = (
+    tree: WalkerAstNode,
+    child: types.ESQLProperNode
+  ): types.ESQLProperNode | undefined => {
+    let found: types.ESQLProperNode | undefined;
+    Walker.walk(tree, {
+      visitAny: (node, parent, walker) => {
+        if (node === child) {
+          found = parent;
+          walker.abort();
+        }
+      },
+    });
+    return found;
+  };
+
+  /**
+   * Returns an array of parent nodes for the given child node.
+   * This method traverses the AST upwards from the child node
+   * and collects all parent nodes until it reaches the root. The
+   * most immediate parent is the first element in the array,
+   * and the root node is the last element.
+   *
+   * @param tree AST node to search in.
+   * @param child The child node for which to find the parents.
+   * @returns An array of parent nodes for the child, if found.
+   */
+  public static readonly parents = (
+    tree: WalkerAstNode,
+    child: types.ESQLProperNode
+  ): types.ESQLProperNode[] => {
+    const ancestry: types.ESQLProperNode[] = [];
+    while (true) {
+      const parent = Walker.parent(tree, child);
+      if (!parent) break;
+      ancestry.push(parent);
+      child = parent;
+    }
+    return ancestry;
+  };
+
   public static readonly visitComments = (
     tree: WalkerAstNode,
     callback: (
@@ -368,38 +425,6 @@ export class Walker {
         }
       },
     });
-  };
-
-  /**
-   * Returns the parent node of the given child node.
-   *
-   * For example, if the child node is a source node, this method will return
-   * the `FROM` command that contains the source:
-   *
-   * ```typescript
-   * const { ast } = EsqlQuery.fromSrc('FROM index');
-   * const child = Walker.match(ast, { type: 'source' });
-   * const parent = Walker.parent(ast, child); // FROM
-   * const grandParent = Walker.parent(ast, parent); // query expression
-   * ```
-   *
-   * @param child The child node for which to find the parent.
-   * @returns The parent node of the child, if found.
-   */
-  public static readonly parent = (
-    tree: WalkerAstNode,
-    child: types.ESQLProperNode
-  ): types.ESQLProperNode | undefined => {
-    let found: types.ESQLProperNode | undefined;
-    Walker.walk(tree, {
-      visitAny: (node, parent, walker) => {
-        if (node === child) {
-          found = parent;
-          walker.abort();
-        }
-      },
-    });
-    return found;
   };
 
   protected aborted: boolean = false;

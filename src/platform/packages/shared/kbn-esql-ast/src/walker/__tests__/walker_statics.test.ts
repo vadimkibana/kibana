@@ -476,4 +476,62 @@ describe('Walker static methods', () => {
       });
     });
   });
+
+  describe('Walker.parents()', () => {
+    test('can find all parents of a source', () => {
+      const { ast } = EsqlQuery.fromSrc('FROM index');
+      const child = Walker.match(ast, { type: 'source' })!;
+      const ancestry = Walker.parents(ast, child);
+
+      expect(ancestry).toMatchObject([
+        {
+          type: 'command',
+          name: 'from',
+        },
+        {
+          type: 'query',
+        },
+      ]);
+    });
+
+    test('can find all parents of a nested function', () => {
+      const { ast } = EsqlQuery.fromSrc('FROM index | STATS a = agg(1 - b(3 + c(4)))');
+      const four = Walker.match(ast, { type: 'literal', value: 4 })!;
+      const ancestry = Walker.parents(ast, four);
+
+      expect(ancestry).toMatchObject([
+        {
+          type: 'function',
+          name: 'c',
+        },
+        {
+          type: 'function',
+          name: '+',
+        },
+        {
+          type: 'function',
+          name: 'b',
+        },
+        {
+          type: 'function',
+          name: '-',
+        },
+        {
+          type: 'function',
+          name: 'agg',
+        },
+        {
+          type: 'function',
+          name: '=',
+        },
+        {
+          type: 'command',
+          name: 'stats',
+        },
+        {
+          type: 'query',
+        },
+      ]);
+    });
+  });
 });
