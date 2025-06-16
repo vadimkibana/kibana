@@ -303,23 +303,18 @@ export class Walker {
   };
 
   /**
-   * Searches for at least one occurrence of a function or expression in the AST.
+   * Searches for at least one occurrence of a function by name.
    *
    * @param tree AST subtree to search in.
    * @param name Function or expression name to search for.
    * @returns True if the function or expression is found in the AST.
-   *
-   * @todo Rename to `findByName`.
    */
-  public static readonly hasFunction = (
-    tree: types.ESQLAstNode | types.ESQLAstNode[],
-    name: string
-  ): boolean => {
+  public static readonly hasFunction = (tree: WalkerAstNode, name: string): boolean => {
     return !!Walker.findFunction(tree, (fn) => fn.name === name);
   };
 
   public static readonly visitComments = (
-    tree: types.ESQLAstNode | types.ESQLAstNode[],
+    tree: WalkerAstNode,
     callback: (
       comment: types.ESQLAstComment,
       node: types.ESQLProperNode,
@@ -411,20 +406,20 @@ export class Walker {
   }
 
   public walk(
-    node: undefined | types.ESQLAstNode | types.ESQLAstNode[],
+    tree: WalkerAstNode | undefined,
     parent: types.ESQLProperNode | undefined = undefined
   ): void {
     if (this.aborted) return;
-    if (!node) return;
-    if (Array.isArray(node)) {
-      this.walkList(node, parent);
-    } else if (node.type === 'command') {
+    if (!tree) return;
+    if (Array.isArray(tree)) {
+      this.walkList(tree, parent);
+    } else if (tree.type === 'command') {
       this.walkCommand(
-        node as types.ESQLAstCommand,
+        tree as types.ESQLAstCommand,
         parent as types.ESQLAstQueryExpression | undefined
       );
     } else {
-      this.walkExpression(node as types.ESQLAstExpression, parent);
+      this.walkExpression(tree as types.ESQLAstExpression, parent);
     }
   }
 
