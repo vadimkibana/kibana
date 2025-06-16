@@ -428,8 +428,8 @@ describe('Walker static methods', () => {
     });
   });
 
-  describe('Walker.hasFunction()', () => {
-    test('can find binary expression expression', () => {
+  describe('Walker.findFunction()', () => {
+    test('can find a function by name', () => {
       const query1 = 'FROM a | STATS bucket(bytes, 1 hour)';
       const query2 = 'FROM b | STATS var0 == bucket(bytes, 1 hour)';
       const has1 = Walker.hasFunction(parse(query1).ast!, '==');
@@ -437,6 +437,22 @@ describe('Walker static methods', () => {
 
       expect(has1).toBe(false);
       expect(has2).toBe(true);
+    });
+  });
+
+  describe('Walker.hasFunction()', () => {
+    test('can find binary expression expression', () => {
+      const query1 = 'FROM a | STATS a(b(1), c(2), d(3))';
+      const { ast } = EsqlQuery.fromSrc(query1);
+      const fn1 = Walker.findFunction(ast, 'a');
+      const fn2 = Walker.findFunction(ast, 'b');
+      const fn3 = Walker.findFunction(ast, 'c');
+      const fn4 = Walker.findFunction(ast, 'd');
+
+      expect(fn1).toMatchObject({ type: 'function', name: 'a' });
+      expect(fn2).toMatchObject({ type: 'function', name: 'b' });
+      expect(fn3).toMatchObject({ type: 'function', name: 'c' });
+      expect(fn4).toMatchObject({ type: 'function', name: 'd' });
     });
   });
 

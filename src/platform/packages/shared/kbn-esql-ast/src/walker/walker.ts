@@ -283,14 +283,19 @@ export class Walker {
    * Finds the first function that matches the predicate.
    *
    * @param tree AST node from which to search for a function
-   * @param predicate Callback function to determine if the function is found
+   * @param predicateOrName Callback to determine if the function is found or
+   *     a string with the function name.
    * @returns The first function that matches the predicate
    */
   public static readonly findFunction = (
     tree: WalkerAstNode,
-    predicate: (node: types.ESQLFunction) => boolean
+    predicateOrName: ((node: types.ESQLFunction) => boolean) | string
   ): types.ESQLFunction | undefined => {
     let found: types.ESQLFunction | undefined;
+    const predicate =
+      typeof predicateOrName === 'string'
+        ? (node: types.ESQLFunction) => node.name === predicateOrName
+        : predicateOrName;
     Walker.walk(tree, {
       visitFunction: (func, parent, walker) => {
         if (!found && predicate(func)) {
@@ -310,7 +315,7 @@ export class Walker {
    * @returns True if the function or expression is found in the AST.
    */
   public static readonly hasFunction = (tree: WalkerAstNode, name: string): boolean => {
-    return !!Walker.findFunction(tree, (fn) => fn.name === name);
+    return !!Walker.findFunction(tree, name);
   };
 
   public static readonly visitComments = (
