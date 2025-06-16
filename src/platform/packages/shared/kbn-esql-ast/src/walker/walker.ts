@@ -375,6 +375,16 @@ export class Walker {
     return ancestry;
   };
 
+  /**
+   * Visits all comment nodes in the AST. Comments are part of the *hidden*
+   * channel and normally not part of the AST. To parse the comments, you
+   * need to run the parser with `withFormatting` option set to `true`.
+   *
+   * @param tree AST node to search in.
+   * @param callback Callback function that is called for each comment node.
+   *     The callback receives the comment node, the node it is attached to,
+   *     and the attachment type (top, left, right, rightSingleLine, bottom).
+   */
   public static readonly visitComments = (
     tree: WalkerAstNode,
     callback: (
