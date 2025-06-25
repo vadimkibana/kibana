@@ -9,6 +9,7 @@
 
 import { EsqlQuery } from '../../query';
 import { ESQLAstQueryExpression } from '../../types';
+import { singleItems } from '../../visitor/utils';
 import { Walker } from '../../walker';
 
 const removeParserFields = (tree: ESQLAstQueryExpression): void => {
@@ -17,6 +18,10 @@ const removeParserFields = (tree: ESQLAstQueryExpression): void => {
       delete (node as any).text;
       delete (node as any).location;
       delete (node as any).incomplete;
+      const args = (node as any).args;
+      if (Array.isArray(args)) {
+        (node as any).args = [...singleItems(args)];
+      }
     },
   });
 };
@@ -48,9 +53,24 @@ describe('binary operator precedence', () => {
     assertDifferentAst('FROM a | WHERE a AND b LIKE "c"', 'FROM a | WHERE (a AND b) LIKE "c"');
   });
 
-  it('LIKE has higher precedence than RLIKE', () => {
+  it('LIKE and RLIKE have equal precedence', () => {
     assertSameAst('FROM a | WHERE a RLIKE b LIKE "c"', 'FROM a | WHERE a RLIKE (b LIKE "c")');
     assertSameAst('FROM a | WHERE a LIKE b RLIKE "c"', 'FROM a | WHERE a LIKE (b RLIKE "c")');
-    // assertDifferentAst('FROM a | WHERE a AND b LIKE "c"', 'FROM a | WHERE (a AND b) LIKE "c"');
+  });
+
+  it('addition has higher precedence than AND (and LIKE)', () => {
+    assertSameAst('FROM a | WHERE a + b AND c', 'FROM a | WHERE (a + b) AND c');
+    // TODO: this test should work once right side of LIKE does not return a list of "single items"
+    // assertSameAst('FROM a | WHERE a + b LIKE "c"', 'FROM a | WHERE (a + b) LIKE "c"');
+    assertSameAst('FROM a | WHERE a AND b + c', 'FROM a | WHERE a AND (b + c)');
+    assertDifferentAst('FROM a | WHERE a + b AND c', 'FROM a | WHERE a + (b AND c)');
+    assertDifferentAst('FROM a | WHERE a AND b + c', 'FROM a | WHERE (a AND b) + c');
+  });
+
+  it('multiplication has higher precedence than addition', () => {
+    assertSameAst('FROM a | WHERE a * b + c', 'FROM a | WHERE (a * b) + c');
+    assertSameAst('FROM a | WHERE a + b * c', 'FROM a | WHERE a + (b * c)');
+    assertDifferentAst('FROM a | WHERE a * b + c', 'FROM a | WHERE a * (b + c)');
+    assertDifferentAst('FROM a | WHERE a + b * c', 'FROM a | WHERE (a + b) * c');
   });
 });
