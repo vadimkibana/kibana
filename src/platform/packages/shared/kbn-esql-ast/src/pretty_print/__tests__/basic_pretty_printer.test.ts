@@ -832,7 +832,7 @@ describe('multiline query', () => {
     const query = `FROM kibana_sample_data_logs
 | SORT @timestamp
 | EVAL t = NOW()
-| EVAL key = CASE(timestamp < (t - 1 hour) AND timestamp > (t - 2 hour), "Last hour", "Other")
+| EVAL key = CASE(timestamp < t - 1 hour AND timestamp > t - 2 hour, "Last hour", "Other")
 | STATS sum = SUM(bytes), count = COUNT_DISTINCT(clientip) BY key, extension.keyword
 | EVAL sum_last_hour = CASE(key == "Last hour", sum), sum_rest = CASE(key == "Other", sum), count_last_hour = CASE(key == "Last hour", count), count_rest = CASE(key == "Other", count)
 | STATS sum_last_hour = MAX(sum_last_hour), sum_rest = MAX(sum_rest), count_last_hour = MAX(count_last_hour), count_rest = MAX(count_rest) BY key, extension.keyword

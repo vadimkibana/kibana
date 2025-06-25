@@ -31,29 +31,29 @@ export enum BinaryExpressionGroup {
   and = 11,
 
   /**
-   * Additive: `+`, `-`
+   * Regular expression: `like`, `not like`, `rlike`, `not rlike`
    */
-  additive = 20,
-
-  /**
-   * Multiplicative: `*`, `/`, `%`
-   */
-  multiplicative = 30,
+  regex = 20,
 
   /**
    * Assignment: `=`, `:=`
    */
-  assignment = 40,
+  assignment = 30,
 
   /**
    * Comparison: `==`, `=~`, `!=`, `<`, `<=`, `>`, `>=`
    */
-  comparison = 50,
+  comparison = 40,
 
   /**
-   * Regular expression: `like`, `not like`, `rlike`, `not rlike`
+   * Additive: `+`, `-`
    */
-  regex = 60,
+  additive = 50,
+
+  /**
+   * Multiplicative: `*`, `/`, `%`
+   */
+  multiplicative = 60,
 }
 
 /**
