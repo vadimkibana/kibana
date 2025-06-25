@@ -594,6 +594,7 @@ describe('single line query', () => {
           });
 
           test('issue: https://github.com/elastic/kibana/issues/224990', () => {
+            assertReprint('FROM a | WHERE b AND (c OR d)');
             assertReprint(
               'FROM kibana_sample_data_logs | WHERE agent.keyword == "meow" AND (geo.dest == "GR" OR geo.dest == "ES")'
             );
