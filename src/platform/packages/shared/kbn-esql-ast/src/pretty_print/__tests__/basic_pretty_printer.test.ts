@@ -568,10 +568,35 @@ describe('single line query', () => {
             expect(text).toBe('FROM a | WHERE (1 + 1 + 2) * ((3 - 4) / (5 + 6 + 7) + 1)');
           });
 
-          test.only('groups correctly logical expressions', () => {
+          test('AND has higher precedence than OR', () => {
             assertReprint('FROM a | WHERE b AND (c OR d)');
-            assertReprint('FROM a | WHERE (b AND c) OR d');
-            assertReprint('FROM a | WHERE b AND c OR d');
+            assertReprint('FROM a | WHERE (b AND c) OR d', 'FROM a | WHERE b AND c OR d');
+            assertReprint('FROM a | WHERE b OR c AND d');
+            assertReprint('FROM a | WHERE (b OR c) AND d');
+          });
+
+          test('addition has higher precedence than AND', () => {
+            assertReprint('FROM a | WHERE b + (c AND d)');
+            assertReprint('FROM a | WHERE (b + c) AND d', 'FROM a | WHERE b + c AND d');
+            assertReprint('FROM a | WHERE b AND c + d');
+            assertReprint('FROM a | WHERE (b AND c) + d');
+          });
+
+          test('multiplication (division) has higher precedence than addition (subtraction)', () => {
+            assertReprint('FROM a | WHERE b / (c - d)');
+            assertReprint('FROM a | WHERE b * (c - d)');
+            assertReprint('FROM a | WHERE b * (c + d)');
+            assertReprint('FROM a | WHERE (b / c) - d', 'FROM a | WHERE b / c - d');
+            assertReprint('FROM a | WHERE (b * c) - d', 'FROM a | WHERE b * c - d');
+            assertReprint('FROM a | WHERE (b * c) + d', 'FROM a | WHERE b * c + d');
+            assertReprint('FROM a | WHERE b - c / d');
+            assertReprint('FROM a | WHERE (b - c) / d');
+          });
+
+          test('issue: https://github.com/elastic/kibana/issues/224990', () => {
+            assertReprint(
+              'FROM kibana_sample_data_logs | WHERE agent.keyword == "meow" AND (geo.dest == "GR" OR geo.dest == "ES")'
+            );
           });
         });
       });

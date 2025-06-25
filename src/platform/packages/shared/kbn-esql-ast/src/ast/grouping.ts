@@ -25,29 +25,35 @@ export enum BinaryExpressionGroup {
   unknown = 1,
 
   /**
+   * Logical: `and`, `or`
+   */
+  or = 10,
+  and = 11,
+
+  /**
    * Additive: `+`, `-`
    */
-  additive = 10,
+  additive = 20,
 
   /**
    * Multiplicative: `*`, `/`, `%`
    */
-  multiplicative = 20,
+  multiplicative = 30,
 
   /**
    * Assignment: `=`, `:=`
    */
-  assignment = 30,
+  assignment = 40,
 
   /**
    * Comparison: `==`, `=~`, `!=`, `<`, `<=`, `>`, `>=`
    */
-  comparison = 40,
+  comparison = 50,
 
   /**
    * Regular expression: `like`, `not like`, `rlike`, `not rlike`
    */
-  regex = 50,
+  regex = 60,
 }
 
 /**
@@ -82,6 +88,10 @@ export const binaryExpressionGroup = (node: ESQLAstNode): BinaryExpressionGroup 
       case 'rlike':
       case 'not rlike':
         return BinaryExpressionGroup.regex;
+      case 'or':
+        return BinaryExpressionGroup.or;
+      case 'and':
+        return BinaryExpressionGroup.and;
     }
     return BinaryExpressionGroup.unknown;
   }
