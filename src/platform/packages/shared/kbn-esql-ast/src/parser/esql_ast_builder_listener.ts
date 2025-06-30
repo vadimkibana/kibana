@@ -18,19 +18,15 @@ import {
   type EnrichCommandContext,
   type EvalCommandContext,
   type ForkCommandContext,
-  type FromCommandContext,
   type GrokCommandContext,
   type KeepCommandContext,
   type LimitCommandContext,
   type MvExpandCommandContext,
   type RenameCommandContext,
-  type RowCommandContext,
-  type ShowCommandContext,
   type ShowInfoContext,
   type SingleStatementContext,
   type SortCommandContext,
   type StatsCommandContext,
-  type TimeSeriesCommandContext,
   type WhereCommandContext,
   RerankCommandContext,
   CompletionCommandContext,
@@ -44,11 +40,9 @@ import { createChangePointCommand } from './factories/change_point';
 import { createDissectCommand } from './factories/dissect';
 import { createEvalCommand } from './factories/eval';
 import { createForkCommand } from './factories/fork';
-import { createFromCommand } from './factories/from';
 import { createGrokCommand } from './factories/grok';
 import { createJoinCommand } from './factories/join';
 import { createLimitCommand } from './factories/limit';
-import { createRowCommand } from './factories/row';
 import { createSortCommand } from './factories/sort';
 import { createStatsCommand } from './factories/stats';
 import { createWhereCommand } from './factories/where';
@@ -59,7 +53,6 @@ import { createRenameCommand } from './factories/rename';
 import { createSampleCommand } from './factories/sample';
 import { getPosition } from './helpers';
 import { collectAllAggFields, visitByOption } from './walkers';
-import { createTimeseriesCommand } from './factories/timeseries';
 import { createRerankCommand } from './factories/rerank';
 import { createEnrichCommand } from './factories/enrich';
 
@@ -108,35 +101,6 @@ export class ESQLAstBuilderListener implements ESQLParserListener {
 
     const command = createWhereCommand(ctx);
 
-    this.ast.push(command);
-  }
-
-  /**
-   * Exit a parse tree produced by `esql_parser.rowCommand`.
-   * @param ctx the parse tree
-   */
-  exitRowCommand(ctx: RowCommandContext) {
-    const command = createRowCommand(ctx);
-
-    this.ast.push(command);
-  }
-
-  /**
-   * Exit a parse tree produced by `esql_parser.fromCommand`.
-   * @param ctx the parse tree
-   */
-  exitFromCommand(ctx: FromCommandContext) {
-    const command = createFromCommand(ctx);
-
-    this.ast.push(command);
-  }
-
-  /**
-   * Exit a parse tree produced by `esql_parser.timeseriesCommand`.
-   * @param ctx the parse tree
-   */
-  exitTimeSeriesCommand(ctx: TimeSeriesCommandContext): void {
-    const command = createTimeseriesCommand(ctx);
     this.ast.push(command);
   }
 
@@ -279,15 +243,6 @@ export class ESQLAstBuilderListener implements ESQLParserListener {
       return;
     }
     const command = createMvExpandCommand(ctx);
-    this.ast.push(command);
-  }
-
-  /**
-   * Enter a parse tree produced by `esql_parser.showCommand`.
-   * @param ctx the parse tree
-   */
-  enterShowCommand(ctx: ShowCommandContext) {
-    const command = createCommand('show', ctx);
     this.ast.push(command);
   }
 
