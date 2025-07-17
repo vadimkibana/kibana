@@ -7,6 +7,8 @@
  * License v3.0 only", or the "Server Side Public License, v 1".
  */
 
+/* eslint-disable max-classes-per-file */
+
 import { Builder } from '../builder';
 import { Walker, WalkerAstNode } from '../walker/walker';
 import { BasicPrettyPrinter, LeafPrinter } from '../pretty_print';
@@ -18,6 +20,7 @@ import type {
   SynthTemplateHole,
 } from './types';
 import type { ParseOptions } from '../parser';
+import { isProperNode } from '../ast/is';
 
 const serialize = (node: ESQLProperNode): string => {
   return node.type === 'command'
@@ -54,11 +57,14 @@ export const makeSynthNode = (ast: WalkerAstNode) => {
   });
 };
 
+class UnexpectedSynthHoleError extends Error {
+  constructor(hole: unknown) {
+    super(`Unexpected synth hole: ${JSON.stringify(hole)}`);
+  }
+}
+
 const holeToFragment = (hole: SynthTemplateHole): string => {
   switch (typeof hole) {
-    case 'string': {
-      return hole;
-    }
     case 'number': {
       const isInteger = Math.round(hole) === hole;
       const node = isInteger
@@ -72,18 +78,18 @@ const holeToFragment = (hole: SynthTemplateHole): string => {
         let list: string = '';
 
         for (const item of hole) {
-          const serialized = typeof item === 'string' ? item : serialize(item);
-
-          list += (list ? ', ' : '') + serialized;
+          list += (list ? ', ' : '') + holeToFragment(item);
         }
 
         return list;
-      } else {
+      } else if (hole instanceof SynthNode || isProperNode(hole)) {
         return serialize(hole);
       }
+
+      throw new UnexpectedSynthHoleError(hole);
     }
     default: {
-      throw new Error(`Unexpected hole synth hole: ${JSON.stringify(hole)}`);
+      throw new UnexpectedSynthHoleError(hole);
     }
   }
 };
