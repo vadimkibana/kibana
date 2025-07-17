@@ -22,6 +22,12 @@ test('throws on invalid command', () => {
   expect(() => cmd`WHERE [1, ]`).toThrow();
 });
 
+test('throws on invalid hole', () => {
+  expect(() => cmd`WHERE field == ${123}`).not.toThrow();
+  expect(() => cmd`WHERE field == ${{} as any}`).toThrow();
+  expect(() => cmd`WHERE field == ${new Date() as any}`).toThrow();
+});
+
 test('can create a ROW command', () => {
   const node = cmd`ROW coordinates.lat >= 12.123123`;
   const text = BasicPrettyPrinter.command(node);
