@@ -7,26 +7,28 @@
  * License v3.0 only", or the "Server Side Public License, v 1".
  */
 
-import { ParseOptions, Parser } from '../parser';
+import { ParseOptions } from '../parser';
+import { EsqlQuery } from '../query';
 import { makeSynthNode, createSynthMethod } from './helpers';
 import type { SynthGenerator } from './types';
-import type { ESQLCommand } from '../types';
+import type { ESQLAstQueryExpression } from '../types';
 
-const generator: SynthGenerator<ESQLCommand> = (
+const generator: SynthGenerator<ESQLAstQueryExpression> = (
   src: string,
   { withFormatting = true, ...rest }: ParseOptions = {}
-): ESQLCommand => {
+): ESQLAstQueryExpression => {
   src = src.trimStart();
+  const query = EsqlQuery.fromSrc(src, { withFormatting, ...rest });
+  const node = query.ast;
 
-  const { root: command } = Parser.parseCommand(src, { withFormatting, ...rest });
+  makeSynthNode(node);
 
-  if (command.type !== 'command') {
-    throw new Error('Expected a command node');
-  }
-
-  makeSynthNode(command);
-
-  return command;
+  return node;
 };
 
-export const cmd = createSynthMethod<ESQLCommand>(generator);
+export const query = createSynthMethod<ESQLAstQueryExpression>(generator);
+
+/**
+ * Short 3-letter alias for DX convenience.
+ */
+export const qry = query;

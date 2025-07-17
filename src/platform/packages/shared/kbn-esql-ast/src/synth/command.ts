@@ -10,17 +10,28 @@
 import { ParseOptions, Parser } from '../parser';
 import { makeSynthNode, createSynthMethod } from './helpers';
 import type { SynthGenerator } from './types';
-import type { ESQLAstExpression } from '../types';
+import type { ESQLCommand } from '../types';
 
-const generator: SynthGenerator<ESQLAstExpression> = (
+const generator: SynthGenerator<ESQLCommand> = (
   src: string,
   { withFormatting = true, ...rest }: ParseOptions = {}
-): ESQLAstExpression => {
-  const { root: expression } = Parser.parseExpression(src, { withFormatting, ...rest });
+): ESQLCommand => {
+  src = src.trimStart();
 
-  makeSynthNode(expression);
+  const { root: command } = Parser.parseCommand(src, { withFormatting, ...rest });
 
-  return expression;
+  if (command.type !== 'command') {
+    throw new Error('Expected a command node');
+  }
+
+  makeSynthNode(command);
+
+  return command;
 };
 
-export const expr = createSynthMethod<ESQLAstExpression>(generator);
+export const command = createSynthMethod<ESQLCommand>(generator);
+
+/**
+ * Short 3-letter alias for DX convenience.
+ */
+export const cmd = command;

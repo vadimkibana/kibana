@@ -8,8 +8,8 @@
  */
 
 import { BasicPrettyPrinter } from '../../pretty_print';
-import { cmd } from '../cmd';
-import { expr } from '../expr';
+import { cmd } from '../command';
+import { exp } from '../expression';
 
 test('can create a WHERE command', () => {
   const node = cmd`WHERE coordinates.lat >= 12.123123`;
@@ -66,7 +66,7 @@ test('throws if specified source is not a command', () => {
 });
 
 test('can compose expressions into commands', () => {
-  const field = expr`a.b.c`;
+  const field = exp`a.b.c`;
   const cmd1 = cmd` WHERE ${field} == "asdf"`;
   const cmd2 = cmd` DISSECT ${field} """%{date}"""`;
   const text1 = BasicPrettyPrinter.command(cmd1);
