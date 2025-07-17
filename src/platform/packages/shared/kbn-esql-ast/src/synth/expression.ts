@@ -8,7 +8,7 @@
  */
 
 import { ParseOptions, Parser } from '../parser';
-import { makeSynthNode, createSynthMethod } from './helpers';
+import { createTag, makeSynthNode } from './tag';
 import type { SynthGenerator } from './types';
 import type { ESQLAstExpression } from '../types';
 
@@ -23,7 +23,7 @@ const generator: SynthGenerator<ESQLAstExpression> = (
   return expression;
 };
 
-export const expression = createSynthMethod<ESQLAstExpression>(generator);
+export const expression = createTag<ESQLAstExpression>(generator);
 
 /**
  * Short 3-letter alias for DX convenience.

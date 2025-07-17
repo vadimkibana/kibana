@@ -8,7 +8,7 @@
  */
 
 import { BasicPrettyPrinter, Builder, synth } from '../../..';
-import { SynthNode } from '../helpers';
+import { SynthNode } from '../synth_node';
 
 test('synthesized nodes have SynthNodePrototype prototype', () => {
   const expression = synth.exp`?my_param`;
