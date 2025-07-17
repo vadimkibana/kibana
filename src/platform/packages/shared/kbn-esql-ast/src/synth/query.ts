@@ -7,8 +7,7 @@
  * License v3.0 only", or the "Server Side Public License, v 1".
  */
 
-import { ParseOptions } from '../parser';
-import { EsqlQuery } from '../query';
+import { ParseOptions, Parser } from '../parser';
 import { makeSynthNode, createSynthMethod } from './helpers';
 import type { SynthGenerator } from './types';
 import type { ESQLAstQueryExpression } from '../types';
@@ -18,8 +17,7 @@ const generator: SynthGenerator<ESQLAstQueryExpression> = (
   { withFormatting = true, ...rest }: ParseOptions = {}
 ): ESQLAstQueryExpression => {
   src = src.trimStart();
-  const query = EsqlQuery.fromSrc(src, { withFormatting, ...rest });
-  const node = query.ast;
+  const { root: node } = Parser.parse(src, { withFormatting, ...rest });
 
   makeSynthNode(node);
 
