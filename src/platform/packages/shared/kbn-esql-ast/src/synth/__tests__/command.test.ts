@@ -18,6 +18,10 @@ test('can create a WHERE command', () => {
   expect(text).toBe('WHERE coordinates.lat >= 12.123123');
 });
 
+test('throws on invalid command', () => {
+  expect(() => cmd`WHERE [1, ]`).toThrow();
+});
+
 test('can create a ROW command', () => {
   const node = cmd`ROW coordinates.lat >= 12.123123`;
   const text = BasicPrettyPrinter.command(node);

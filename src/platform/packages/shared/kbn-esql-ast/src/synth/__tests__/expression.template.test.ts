@@ -21,6 +21,10 @@ test('can be used as templated string tag', () => {
   });
 });
 
+test('throws on invalid expression', () => {
+  expect(() => exp`.`).toThrow();
+});
+
 test('can specify parsing options', () => {
   const node1 = exp({ withFormatting: true })`42 /* comment */`;
   const node2 = exp({ withFormatting: false })`42 /* comment */`;

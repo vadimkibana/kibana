@@ -18,6 +18,10 @@ test('can create a WHERE command', () => {
   expect(text).toBe('FROM index | WHERE coordinates.lat >= 12.123123');
 });
 
+test('throws on invalid query', () => {
+  expect(() => query`FROM index |`).toThrow();
+});
+
 test('can build a composer query', () => {
   const node = query`FROM logs-*
     | WHERE @timestamp >= NOW() - 1 hour

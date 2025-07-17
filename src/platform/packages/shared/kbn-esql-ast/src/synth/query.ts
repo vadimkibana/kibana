@@ -17,7 +17,7 @@ const generator: SynthGenerator<ESQLAstQueryExpression> = (
   { withFormatting = true, ...rest }: ParseOptions = {}
 ): ESQLAstQueryExpression => {
   src = src.trimStart();
-  const { root: node } = Parser.parse(src, { withFormatting, ...rest });
+  const { root: node } = Parser.parseQuery(src, { withFormatting, ...rest });
 
   makeSynthNode(node);
 
