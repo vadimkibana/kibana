@@ -10,6 +10,7 @@ SRCS = glob(
     "**/*.mock.*",
     "**/*.test.*",
     "**/*.stories.*",
+    "**/__jest_/**",
     "**/__snapshots__/**",
     "**/integration_tests/**",
     "**/mocks/**",
@@ -22,6 +23,7 @@ SRCS = glob(
 
 SHARED_DEPS = [
   "@npm//antlr4",
+  "@npm//tree-dump",
 ]
 
 js_library(
