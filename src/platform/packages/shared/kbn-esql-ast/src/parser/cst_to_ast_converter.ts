@@ -489,16 +489,7 @@ export class CstToAstConverter {
       args,
       incomplete:
         incomplete ??
-        (Boolean(
-          ctx.exception ||
-            ctx.children?.some((c) => {
-              // TODO: 1. Remove this expect error comment
-              // TODO: 2. .isErrorNode is function: .isErrorNode()
-              // @ts-expect-error not exposed in type but exists see https://github.com/antlr/antlr4/blob/v4.11.1/runtime/JavaScript/src/antlr4/tree/ErrorNodeImpl.js#L19
-              return Boolean(c.isErrorNode);
-            })
-        ) ||
-          [...singleItems(args)].some((arg) => arg.incomplete)),
+        (Boolean(ctx.exception) || [...singleItems(args)].some((arg) => arg.incomplete)),
     };
   }
 
