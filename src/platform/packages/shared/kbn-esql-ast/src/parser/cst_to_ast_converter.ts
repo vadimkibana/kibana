@@ -109,7 +109,8 @@ export class CstToAstConverter {
   }
 
   /**
-   * @todo Replace this by `Walker`, if necessary, or remove completely.
+   * @deprecated Do not use. This method will be removed once
+   *     `extendLocationToArgs` is removed.
    */
   private walkFunctionStructure(
     args: ast.ESQLAstItem[],
