@@ -13,7 +13,7 @@ import type * as ast from '../types';
 import { isCommand } from '../ast/is';
 import { LeafPrinter } from '../pretty_print';
 import { getPosition } from './tokens';
-import { nonNullable } from './helpers';
+import { nonNullable, unescapeColumn } from './helpers';
 import { firstItem, lastItem, resolveItem, singleItems } from '../visitor/utils';
 import { type AstNodeParserFields, Builder } from '../builder';
 import { type ArithmeticUnaryContext } from '../antlr/esql_parser';
@@ -133,21 +133,6 @@ export class CstToAstConverter {
       }
     }
     return location[prop];
-  }
-
-  /**
-   * Follow a similar logic to the ES one:
-   * * remove backticks at the beginning and at the end
-   * * remove double backticks
-   */
-  private safeBackticksRemoval(text: string | undefined) {
-    return text?.replace(/^`{1}|`{1}$/g, '').replace(/``/g, '`') || '';
-  }
-
-  private sanitizeIdentifierString(ctx: antlr.ParserRuleContext) {
-    const result = this.safeBackticksRemoval(ctx.getText());
-    // TODO - understand why <missing null> is now returned as the match text for the FROM command
-    return result === '<missing null>' ? '' : result;
   }
 
   // -------------------------------------------------------------------- query
@@ -952,10 +937,7 @@ export class CstToAstConverter {
     const options: ast.ESQLCommandOption[] = [];
 
     for (const optionCtx of ctx.dissectCommandOption_list()) {
-      const option = this.toOption(
-        this.sanitizeIdentifierString(optionCtx.identifier()).toLowerCase(),
-        optionCtx
-      );
+      const option = this.toOption(optionCtx.identifier().getText().toLowerCase(), optionCtx);
       options.push(option);
       // it can throw while accessing constant for incomplete commands, so try catch it
       try {
@@ -2386,13 +2368,13 @@ export class CstToAstConverter {
       // a context is created. For example, as of this writing, the FROM ... METADATA
       // uses `UNQUOTED_SOURCE` lexer tokens directly for column names, without
       // wrapping them into a context.
-      const name = this.sanitizeIdentifierString(ctx);
+      const name = ctx.getText();
       const node = Builder.identifier({ name }, this.getParserFields(ctx));
 
       args.push(node);
     }
 
-    const text = this.sanitizeIdentifierString(ctx);
+    const text = unescapeColumn(ctx.getText());
     const hasQuotes = Boolean(this.isQuoted(ctx.getText()));
     const column = Builder.expression.column(
       { args },
@@ -2451,7 +2433,7 @@ export class CstToAstConverter {
       }
     }
 
-    const text = this.sanitizeIdentifierString(ctx);
+    const text = unescapeColumn(ctx.getText());
     const hasQuotes = Boolean(this.isQuoted(ctx.getText()));
     const column = Builder.expression.column(
       { args },
