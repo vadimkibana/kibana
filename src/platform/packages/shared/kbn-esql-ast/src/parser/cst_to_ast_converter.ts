@@ -7,7 +7,7 @@
  * License v3.0 only", or the "Server Side Public License, v 1".
  */
 
-import * as antlr from 'antlr4';
+import type * as antlr from 'antlr4';
 import * as cst from '../antlr/esql_parser';
 import type * as ast from '../types';
 import { isCommand } from '../ast/is';
@@ -1746,27 +1746,19 @@ export class CstToAstConverter {
       | cst.MvExpandCommandContext
       | cst.MetadataContext
   ): ast.ESQLColumn[] {
-    const identifiers = this.extractIdentifiers(ctx);
+    if (ctx instanceof cst.MetadataContext) {
+      return ctx
+        .UNQUOTED_SOURCE_list()
+        .map((terminalNode) => this.toColumnFromTerminalNode(terminalNode));
+    }
 
+    const identifiers = this.extractIdentifiers(ctx);
     return this.toColumns(identifiers);
   }
 
   private extractIdentifiers(
-    ctx:
-      | cst.KeepCommandContext
-      | cst.DropCommandContext
-      | cst.MvExpandCommandContext
-      | cst.MetadataContext
+    ctx: cst.KeepCommandContext | cst.DropCommandContext | cst.MvExpandCommandContext
   ) {
-    if (ctx instanceof cst.MetadataContext) {
-      return ctx
-        .UNQUOTED_SOURCE_list()
-        .map((node) => {
-          // TODO: Parse this without wrapping into ParserRuleContext
-          return this.terminalNodeToParserRuleContext(node);
-        })
-        .flat();
-    }
     if (ctx instanceof cst.MvExpandCommandContext) {
       return this.wrapIdentifierAsArray(ctx.qualifiedName());
     }
@@ -1779,15 +1771,25 @@ export class CstToAstConverter {
   }
 
   /**
-   * @deprecated
-   * @todo Parse without constructing this ANTLR internal class instance.
+   * Converts a terminal node directly to a column AST node.
+   * Used for metadata fields where we have terminal nodes instead of parser
+   * rule contexts.
    */
-  private terminalNodeToParserRuleContext(node: antlr.TerminalNode): antlr.ParserRuleContext {
-    const context = new antlr.ParserRuleContext();
-    context.start = node.symbol;
-    context.stop = node.symbol;
-    context.children = [node];
-    return context;
+  private toColumnFromTerminalNode(node: antlr.TerminalNode): ast.ESQLColumn {
+    const text = node.getText();
+    const column = Builder.expression.column(
+      {
+        args: [Builder.identifier({ name: text }, this.createParserFieldsFromToken(node.symbol))],
+      },
+      {
+        text,
+        location: getPosition(node.symbol),
+        incomplete: false,
+      }
+    );
+    column.name = text;
+    column.quoted = false;
+    return column;
   }
 
   private toColumns(identifiers: antlr.ParserRuleContext[]): ast.ESQLColumn[] {
