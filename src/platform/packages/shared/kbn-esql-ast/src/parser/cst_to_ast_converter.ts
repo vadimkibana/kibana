@@ -79,8 +79,13 @@ export class CstToAstConverter {
     };
   }
 
-  // TODO: Rename this.
-  private computeLocationExtends(fn: ast.ESQLFunction) {
+  /**
+   * Extends `fn.location` to cover all its arguments.
+   *
+   * @deprecated This should never have been necessary. Function location should be
+   *     accurately set during parsing or initial AST construction.
+   */
+  private extendLocationToArgs(fn: ast.ESQLFunction) {
     const location = fn.location;
     if (fn.args) {
       // get min location navigating in depth keeping the left/first arg
@@ -1328,7 +1333,7 @@ export class CstToAstConverter {
       );
       assignment.args.push(targetField, prompt);
       // update the location of the assign based on arguments
-      assignment.location = this.computeLocationExtends(assignment);
+      assignment.location = this.extendLocationToArgs(assignment);
 
       command.targetField = targetField;
       command.args.push(assignment);
@@ -1443,7 +1448,7 @@ export class CstToAstConverter {
       ) as ast.ESQLBinaryExpression;
 
       assignment.args.push(targetField, queryText);
-      assignment.location = this.computeLocationExtends(assignment);
+      assignment.location = this.extendLocationToArgs(assignment);
 
       command.targetField = targetField;
       command.args.push(assignment);
@@ -1593,7 +1598,7 @@ export class CstToAstConverter {
             assignment.args.push(right);
           }
 
-          assignment.location = this.computeLocationExtends(assignment);
+          assignment.location = this.extendLocationToArgs(assignment);
         } else {
           // User typed something like `ON col0 =` and stopped.
           // Build an assignment with only the left operand, mark it as incomplete,
@@ -1857,7 +1862,7 @@ export class CstToAstConverter {
         this.visitOperatorExpression(ctx._right)!
       );
       // update the location of the comparisonFn based on arguments
-      const argsLocationExtends = this.computeLocationExtends(comparisonFn);
+      const argsLocationExtends = this.extendLocationToArgs(comparisonFn);
       comparisonFn.location = argsLocationExtends;
 
       return comparisonFn;
@@ -1888,7 +1893,7 @@ export class CstToAstConverter {
         }
       }
       // update the location of the assign based on arguments
-      const argsLocationExtends = this.computeLocationExtends(fn);
+      const argsLocationExtends = this.extendLocationToArgs(fn);
       fn.location = argsLocationExtends;
       return fn;
     } else if (ctx instanceof cst.OperatorExpressionDefaultContext) {
@@ -2552,7 +2557,7 @@ export class CstToAstConverter {
 
       // TODO: Avoid using `computeLocationExtends` here. Location should be computed
       //       without that function, and we should eventually remove it.
-      assignment.location = this.computeLocationExtends(assignment);
+      assignment.location = this.extendLocationToArgs(assignment);
 
       return assignment;
     }
