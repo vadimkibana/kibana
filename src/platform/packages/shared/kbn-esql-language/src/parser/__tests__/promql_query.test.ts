@@ -110,3 +110,20 @@ query 22-47
          └─ literal 35-46 ""prometheus""`);
   });
 });
+
+describe('invalid query', () => {
+  it('propagates incomplete flag on unclosed quote', () => {
+    const text = `PROMQL bytes_in{job="prometheus}`;
+    const query = EsqlQuery.fromSrc(text);
+
+    expect(query.errors.length > 0).toBe(true);
+    expect('\n' + printAst(query.ast.commands[0])).toBe(`
+command 0-19 "promql" INCOMPLETE
+└─ query 7-19 INCOMPLETE
+   └─ selector 7-19 "bytes_in" INCOMPLETE
+      ├─ identifier 7-14 "bytes_in"
+      └─ label-map 16-19 INCOMPLETE
+         └─ label 16-19 "job" INCOMPLETE
+            └─ identifier 16-18 "job"`);
+  });
+});

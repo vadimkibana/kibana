@@ -81,8 +81,13 @@ export class PromQLCstToAstConverter {
 
     const exprCtx = ctx.expression();
     const expression = exprCtx ? this.fromExpression(exprCtx) : undefined;
+    const node = PromQLBuilder.expression.query(expression, this.getParserFields(ctx));
 
-    return PromQLBuilder.expression.query(expression, this.getParserFields(ctx));
+    if (expression?.incomplete) {
+      node.incomplete = true;
+    }
+
+    return node;
   }
 
   // --------------------------------------------------------------- expression
@@ -254,7 +259,7 @@ export class PromQLCstToAstConverter {
     const evaluationCtx = ctx.evaluation();
     const evaluation = evaluationCtx ? this.fromEvaluation(evaluationCtx) : undefined;
 
-    return PromQLBuilder.expression.selector.node(
+    const node = PromQLBuilder.expression.selector.node(
       {
         metric,
         labelMap,
@@ -263,6 +268,16 @@ export class PromQLCstToAstConverter {
       },
       this.getParserFields(ctx)
     );
+
+    if (metric) {
+      node.incomplete ||= metric?.incomplete;
+    }
+
+    if (labelMap) {
+      node.incomplete ||= labelMap?.incomplete;
+    }
+
+    return node;
   }
 
   private fromSeriesMatcher(ctx: cst.SeriesMatcherContext): {
@@ -281,15 +296,23 @@ export class PromQLCstToAstConverter {
   private fromLabels(ctx: cst.LabelsContext): ast.PromQLLabelMap {
     const labels: ast.PromQLLabel[] = [];
     const labelCtxs = ctx.label_list();
+    let incomplete: boolean = false;
 
     for (const labelCtx of labelCtxs) {
       const label = this.fromLabel(labelCtx);
       if (label) {
         labels.push(label);
+        incomplete ||= label.incomplete;
+      } else {
+        incomplete = true;
       }
     }
 
-    return PromQLBuilder.labelMap(labels, this.getParserFields(ctx));
+    const node = PromQLBuilder.labelMap(labels, this.getParserFields(ctx));
+
+    node.incomplete = incomplete;
+
+    return node;
   }
 
   private fromLabel(ctx: cst.LabelContext): ast.PromQLLabel | undefined {
